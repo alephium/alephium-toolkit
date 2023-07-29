@@ -8,6 +8,8 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import LightDarkModeButton from "./LightDarkButton";
+import { Link } from 'react-router-dom';
+
 import { AlephiumConnectButton } from "@alephium/web3-react";
 
 const useStyles = createStyles((theme) => ({
@@ -86,7 +88,7 @@ export function AppHeader() {
   return (
     <Header height={60} px="md">
       <Group position="apart" sx={{ height: "100%" }}>
-        <Text fw="bold" fz="xl" c="blue">
+        <Text component={Link} to="/" fw="bold" fz="xl" c="blue">
           Alephium Toolkit
         </Text>
 

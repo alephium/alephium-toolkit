@@ -10,6 +10,7 @@ import {
   rem,
 } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 const useStyles = createStyles((theme) => ({
   control: {
@@ -64,10 +65,10 @@ export function LinksGroup({ icon: Icon, label, initiallyOpened, links }: LinksG
   const [opened, setOpened] = useState(initiallyOpened || false);
   const ChevronIcon = theme.dir === 'ltr' ? IconChevronRight : IconChevronLeft;
   const items = (hasLinks ? links : []).map((link) => (
-    <Text<'a'>
-      component="a"
+    <Text
+      component={Link}
       className={classes.link}
-      href={link.link}
+      to={link.link}
       key={link.label}
       ta="left"
     >
