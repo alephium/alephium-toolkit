@@ -1,47 +1,64 @@
 import { useAccount } from '@alephium/web3-react';
-import { Button, Center, Table, Text, Tooltip, rem } from '@mantine/core';
+import { Box, Button, Center, Table, Text, Tooltip, rem, useMantineTheme } from '@mantine/core';
 
 function CopyTooltip({ value }: { value: string }) {
   return (
-    <Tooltip label="Copy" position='top-end' color="grape">
+    <Tooltip label="Click to copy" position='top' color="indigo" withArrow>
       <Button variant='subtle' onClick={() => { navigator.clipboard.writeText(value)}}>{value}</Button>
     </Tooltip>
   )
+}
+
+function Caption({ caption }: { caption: string }) {
+  const theme = useMantineTheme();
+  return <td><Text fw="bold" c={
+    theme.colorScheme === "dark" ? theme.colors.gray[0] : theme.colors.dark[8]
+  }>{caption}</Text></td>
 }
 
 function WalletInfo() {
   const account = useAccount();
 
   return (
-    <Center maw={rem('70%')} mx="auto" mt={200}>
-    <Table horizontalSpacing={"md"} verticalSpacing={"xl"} fontSize={"md"} highlightOnHover={true}>
+    <Center mt={rem("15%")}>
+      <Box
+      w={rem('70%')}
+      mx="auto"
+      sx={(theme) => ({
+        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+        textAlign: 'center',
+        padding: theme.spacing.xl,
+        borderRadius: theme.radius.md,
+        cursor: 'pointer',
+
+        // '&:hover': {
+        //   backgroundColor:
+        //     theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+        // },
+      })}
+    >
+
+    <Table horizontalSpacing={"xs"} verticalSpacing={"xl"} fontSize={"md"} highlightOnHover withColumnBorders>
       <tbody>
         <tr key="network">
-          <td>
-            <Text fw="bold" c={"dark"}>Network Type:</Text>
-          </td>
+          <Caption caption="Network Type"/>
           <td>{account?.account?.address}</td>
         </tr>
         <tr key="group">
-          <td>
-            <Text fw="bold" c={"dark"}>Address Group:</Text>
-          </td>
+          <Caption caption="Address Group"/>
           <td>{account?.account?.group}</td>
         </tr>
         <tr key="address">
-          <td>
-            <Text fw="bold" c={"dark"}>Address:</Text>
-          </td>
+          <Caption caption="Address"/>
           <td><CopyTooltip value={account?.account?.address ?? '???'}/></td>
         </tr>
         <tr key="pubkey">
-          <td>
-            <Text fw="bold" c={"dark"}>Public Key:</Text>
-          </td>
+          <Caption caption="Public Key"/>
           <td><CopyTooltip value={account?.account?.publicKey ?? '???'}/></td>
         </tr>
       </tbody>
     </Table>
+      </Box>
     </Center>
   );
 }

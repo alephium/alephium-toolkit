@@ -33,7 +33,7 @@ function AppShellExample() {
         }
         footer={
           <Footer height={60} p="md">
-            <Text fz="sm">Powered by BlockFlow, Stateful UTXO, PoLW</Text>
+            <Text fw="bold" fz="sm">Powered by BlockFlow, Stateful UTXO, PoLW</Text>
           </Footer>
         }
         header={

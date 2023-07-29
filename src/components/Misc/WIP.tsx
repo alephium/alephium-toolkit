@@ -1,4 +1,4 @@
-import { createStyles, Title, Container, rem } from '@mantine/core';
+import { createStyles, Title, Container, rem, Box } from '@mantine/core';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -45,6 +45,7 @@ export function WIP() {
   const { classes } = useStyles();
 
   return (
+    <Box maw={rem("70%")} mx="auto" mt={rem("15%")}>
     <div className={classes.root}>
       <Container>
         <div className={classes.label}>WIP</div>
@@ -55,5 +56,6 @@ export function WIP() {
         </Text> */}
       </Container>
     </div>
+    </Box>
   );
 }
