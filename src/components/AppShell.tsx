@@ -42,10 +42,10 @@ function AppShellExample() {
       >
         <Routes>
           <Route path="/" element={<WalletInfo />} />
-          <Route path="/token-all" element={<WIP />} />
-          <Route path="/token-info" element={<WIP />} />
-          <Route path="/token-new" element={<WIP />} />
-          <Route path="/token-burn" element={<WIP />} />
+          <Route path="/token/all" element={<WIP />} />
+          <Route path="/token/info" element={<WIP />} />
+          <Route path="/token/new" element={<WIP />} />
+          <Route path="/token/burn" element={<WIP />} />
         </Routes>
       </AppShell>
     </Router>

@@ -9,16 +9,20 @@ import {
 import { LinksGroup } from './AppNavBarLinkGroup';
 
 const mockdata = [
-  { label: 'Wallet Info', icon: IconGauge },
+  { 
+    label: 'Wallet Info',
+    icon: IconGauge,
+    groupLink: '/'
+  },
   {
     label: 'Fungible Tokens',
     icon: IconNotes,
     initiallyOpened: true,
     links: [
-      { label: 'Show all tokens', link: '/token-all' },
-      { label: 'Token info', link: '/token-info' },
-      { label: 'Issue new tokens', link: '/token-new' },
-      { label: 'Burn tokens', link: '/token-burn' },
+      { label: 'Show all tokens', link: '/token/all' },
+      { label: 'Token info', link: '/token/info' },
+      { label: 'Issue new tokens', link: '/token/new' },
+      { label: 'Burn tokens', link: '/token/burn' },
     ],
   },
   {
