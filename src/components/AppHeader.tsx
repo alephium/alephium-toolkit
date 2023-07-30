@@ -88,7 +88,7 @@ export function AppHeader() {
   return (
     <Header height={60} px="md">
       <Group position="apart" sx={{ height: "100%" }}>
-        <Text component={Link} to="/" fw="bold" fz="xl" c="blue">
+        <Text component={Link} to="/" fw="bold" fz="1.5rem" variant="gradient" gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}>
           Alephium Toolkit
         </Text>
 
