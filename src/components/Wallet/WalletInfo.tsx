@@ -1,19 +1,25 @@
 import { useAccount } from '@alephium/web3-react';
-import { Box, Button, Center, Table, Text, Tooltip, rem, useMantineTheme } from '@mantine/core';
+import { Box, Button, Center, CopyButton, Table, Text, Tooltip, rem, useMantineTheme } from '@mantine/core';
 
-function CopyTooltip({ value }: { value: string }) {
+function CopyText({ value }: { value: string }) {
   return (
-    <Tooltip label="Click to copy" position='top' color="indigo" withArrow>
-      <Button variant='subtle' onClick={() => { navigator.clipboard.writeText(value)}}>{value}</Button>
-    </Tooltip>
+    <CopyButton value={value} timeout={1000}>
+      {({ copied, copy }) => (
+        <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow position="right" color="indigo">
+          <Button variant='subtle' onClick={copy}>{value}</Button>
+        </Tooltip>
+      )}
+    </CopyButton>
   )
 }
 
 function Caption({ caption }: { caption: string }) {
   const theme = useMantineTheme();
-  return <td><Text fw="bold" c={
+  return <td>
+    <Text fw="bold" c={
     theme.colorScheme === "dark" ? theme.colors.gray[0] : theme.colors.dark[8]
-  }>{caption}</Text></td>
+  }>{caption}</Text>
+  </td>
 }
 
 function WalletInfo() {
@@ -22,14 +28,13 @@ function WalletInfo() {
   return (
     <Center mt={rem("15%")}>
       <Box
-      w={rem('70%')}
+      w={rem('65%')}
       mx="auto"
       sx={(theme) => ({
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
         textAlign: 'center',
         padding: theme.spacing.xl,
         borderRadius: theme.radius.md,
-        cursor: 'pointer',
 
         // '&:hover': {
         //   backgroundColor:
@@ -50,11 +55,11 @@ function WalletInfo() {
         </tr>
         <tr key="address">
           <Caption caption="Address"/>
-          <td><CopyTooltip value={account?.account?.address ?? '???'}/></td>
+          <td><CopyText value={account?.account?.address ?? '???'}/></td>
         </tr>
         <tr key="pubkey">
           <Caption caption="Public Key"/>
-          <td><CopyTooltip value={account?.account?.publicKey ?? '???'}/></td>
+          <td><CopyText value={account?.account?.publicKey ?? '???'}/></td>
         </tr>
       </tbody>
     </Table>

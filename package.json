@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@alephium/web3": "^0.14.5",
     "@alephium/web3-react": "^0.14.5",
     "@emotion/react": "^11.11.1",
     "@mantine/core": "^6.0.17",
