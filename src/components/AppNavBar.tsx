@@ -29,22 +29,22 @@ const mockdata = [
     label: 'NFT',
     icon: IconCalendarStats,
     links: [
-      { label: 'Show all NFTs', link: '/' },
-      { label: 'NFT info', link: '/' },
-      { label: 'Create new collection', link: '/' },
-      { label: 'Burn NFTs', link: '/' },
+      { label: 'Show all NFTs', link: '/nft/all' },
+      { label: 'NFT info', link: '/nft/info' },
+      { label: 'Create new collection', link: '/nft/new-collection' },
+      { label: 'Burn NFTs', link: '/nft/burn' },
     ],
   },
   { 
     label: 'Contracts',
     icon: IconFileAnalytics,
     links: [
-      { label: 'Playground', link: '/' },
-      { label: 'Contract info', link: '/' },
-      { label: 'Deploy Contract', link: '/' },
+      { label: 'Playground', link: '/contract/play' },
+      { label: 'Contract info', link: '/contract/info' },
+      { label: 'Deploy Contract', link: '/contract/deploy' },
     ]
   },
-  { label: 'Multisig', icon: IconPresentationAnalytics },
+  { label: 'Multisig', icon: IconPresentationAnalytics, groupLink: '/multisig' },
   // { label: 'Settings', icon: IconAdjustments },
   // {
   //   label: 'Security',

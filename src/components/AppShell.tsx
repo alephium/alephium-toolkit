@@ -11,6 +11,7 @@ import NavbarNested from "./AppNavBar";
 import AppHeader from "./AppHeader";
 import WalletInfo from "./Wallet/WalletInfo";
 import { WIP } from "./Misc/WIP";
+import TokenInfo from "./Token/TokenInfo";
 
 function AppShellExample() {
   const theme = useMantineTheme();
@@ -43,7 +44,7 @@ function AppShellExample() {
         <Routes>
           <Route path="/" element={<WalletInfo />} />
           <Route path="/token/all" element={<WIP />} />
-          <Route path="/token/info" element={<WIP />} />
+          <Route path="/token/info" element={<TokenInfo />} />
           <Route path="/token/new" element={<WIP />} />
           <Route path="/token/burn" element={<WIP />} />
         </Routes>
