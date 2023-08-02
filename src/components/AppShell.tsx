@@ -4,8 +4,6 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
-import InputExample from "./InputExample";
-import TextAndTitleExample from "./TextAndTitle";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import NavbarNested from "./AppNavBar";
 import AppHeader from "./AppHeader";
