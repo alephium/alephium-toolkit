@@ -1,3 +1,4 @@
+import { TokenList, mainnetTokensMetadata, testnetTokensMetadata } from "@alephium/token-list"
 import { ExplorerProvider, NetworkId, NodeProvider } from "@alephium/web3"
 
 const mainnet_node_url = "https://wallet-v20.mainnet.alephium.org"
@@ -13,4 +14,8 @@ export function connectAlephium(network: NetworkId): NodeProvider {
 
 export function connectExplorer(network: NetworkId): ExplorerProvider {
   return new ExplorerProvider(network === "mainnet" ? mainnet_explorer_url : network === "testnet" ? testnet_explorer_url : devnet_explorer_url)
+}
+
+export function getTokenMetadata(network: "mainnet" | "testnet"): TokenList {
+  return network === "mainnet" ? mainnetTokensMetadata : testnetTokensMetadata
 }

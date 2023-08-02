@@ -1,20 +1,31 @@
 import { Box, Center, Stack, TextInput, rem } from '@mantine/core';
 import { useCallback, useState } from 'react';
-import { connectAlephium } from '../../utils/utils';
-import { FungibleTokenMetaData, hexToString, prettifyTokenAmount } from '@alephium/web3';
+import { connectAlephium, getTokenMetadata } from '../../utils/utils';
+import { FungibleTokenMetaData, addressFromTokenId, hexToString, prettifyTokenAmount } from '@alephium/web3';
 import MyTable from '../Misc/MyTable';
+import CopyText from '../Misc/CopyText';
+
+const network = "mainnet"
+
+type TokenInfo = FungibleTokenMetaData & {
+  verified: boolean
+  tokenId: string
+  tokenAddress: string
+}
 
 function TokenInfo() {
   const [value, setValue] = useState('');
-  const [tokenInfo, setTokenInfo] = useState<FungibleTokenMetaData>();
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo>();
 
-  const searchToken = useCallback(async (tokenAddress: string) => {
-    setValue(tokenAddress)
+  const searchToken = useCallback(async (tokenId: string) => {
+    setValue(tokenId)
 
-    if (tokenAddress) {
-      const nodeProvider = connectAlephium("mainnet")
-      const tokenMetadata = await nodeProvider.fetchFungibleTokenMetaData(tokenAddress)
-      setTokenInfo(tokenMetadata)
+    if (tokenId) {
+      const nodeProvider = connectAlephium(network)
+      const tokenMetadata = await nodeProvider.fetchFungibleTokenMetaData(tokenId)
+      const verified = getTokenMetadata(network).tokens.find(token => token.id === tokenId) !== undefined
+      const tokenAddress = addressFromTokenId(tokenId)
+      setTokenInfo({...tokenMetadata, verified, tokenId, tokenAddress})
     } else {
       setTokenInfo(undefined)
     }
@@ -33,12 +44,15 @@ function TokenInfo() {
         radius="xl"
         withAsterisk
       />
-      <Box mt={rem("10%")} w={rem("50rem")}>
+      <Box mt={"xl"} w={rem("55rem")}>
         <MyTable data={{
+          "Verified": `${tokenInfo?.verified}`,
           "Name": `${tokenInfo ? hexToString(tokenInfo.name) : undefined}`,
           "Symbol": `${tokenInfo ? hexToString(tokenInfo.symbol) : undefined}`,
           "Decimals": `${tokenInfo?.decimals}`,
           "Total Supply": `${tokenInfo ? prettifyTokenAmount(tokenInfo.totalSupply, tokenInfo.decimals) : undefined}`,
+          "Token ID": tokenInfo ? <CopyText value={`${tokenInfo.tokenId}`} /> : "undefined",
+          "Token Address": tokenInfo ? <CopyText value={`${tokenInfo.tokenAddress}`} /> : "undefined",
         }} />
       </Box>
     </Stack>

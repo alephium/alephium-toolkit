@@ -1,18 +1,7 @@
 import { useAccount } from '@alephium/web3-react';
-import { Box, Button, Center, Container, CopyButton, Table, Text, Tooltip, rem, useMantineTheme } from '@mantine/core';
+import {  Center, rem } from '@mantine/core';
 import MyTable from '../Misc/MyTable';
-
-function CopyText({ value }: { value: string }) {
-  return (
-    <CopyButton value={value} timeout={1000}>
-      {({ copied, copy }) => (
-        <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow position="right" color="indigo">
-          <Button variant='subtle' onClick={copy}>{value}</Button>
-        </Tooltip>
-      )}
-    </CopyButton>
-  )
-}
+import CopyText from '../Misc/CopyText';
 
 function WalletInfo() {
   const account = useAccount();
