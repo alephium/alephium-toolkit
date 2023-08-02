@@ -47,6 +47,14 @@ function AppShellExample() {
           <Route path="/token/info" element={<TokenInfo />} />
           <Route path="/token/new" element={<WIP />} />
           <Route path="/token/burn" element={<WIP />} />
+          <Route path="/nft/all" element={<WIP />} />
+          <Route path="/nft/info" element={<WIP />} />
+          <Route path="/nft/new-collection" element={<WIP />} />
+          <Route path="/nft/burn" element={<WIP />} />
+          <Route path="/contract/play" element={<WIP />} />
+          <Route path="/contract/info" element={<WIP />} />
+          <Route path="/contract/deploy" element={<WIP />} />
+          <Route path="/multisig" element={<WIP />} />
         </Routes>
       </AppShell>
     </Router>

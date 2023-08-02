@@ -19,7 +19,7 @@ const mockdata = [
     icon: IconNotes,
     initiallyOpened: true,
     links: [
-      { label: 'Show all tokens', link: '/token/all' },
+      // { label: 'Show all tokens', link: '/token/all' },
       { label: 'Token info', link: '/token/info' },
       { label: 'Issue new tokens', link: '/token/new' },
       { label: 'Burn tokens', link: '/token/burn' },
@@ -29,7 +29,7 @@ const mockdata = [
     label: 'NFT',
     icon: IconCalendarStats,
     links: [
-      { label: 'Show all NFTs', link: '/nft/all' },
+      // { label: 'Show all NFTs', link: '/nft/all' },
       { label: 'NFT info', link: '/nft/info' },
       { label: 'Create new collection', link: '/nft/new-collection' },
       { label: 'Burn NFTs', link: '/nft/burn' },

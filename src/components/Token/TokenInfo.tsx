@@ -1,4 +1,4 @@
-import { Box, Center, Container, Stack, TextInput, rem } from '@mantine/core';
+import { Box, Center, Stack, TextInput, rem } from '@mantine/core';
 import { useCallback, useState } from 'react';
 import { connectAlephium } from '../../utils/utils';
 import { FungibleTokenMetaData, hexToString, prettifyTokenAmount } from '@alephium/web3';
@@ -26,6 +26,7 @@ function TokenInfo() {
       <TextInput
         w={rem("40rem")}
         mx="auto"
+        size="md"
         value={value}
         onChange={(event) => searchToken(event.currentTarget.value)}
         placeholder="Search token address or token id"

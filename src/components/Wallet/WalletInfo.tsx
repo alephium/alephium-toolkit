@@ -19,7 +19,7 @@ function WalletInfo() {
 
   return (
     <Center h={rem("80%")}>
-      <MyTable w={rem("40%")} data={{
+      <MyTable w={rem("60rem")} data={{
         "Network Type": account?.account?.address,
         "Address Group": account?.account?.group,
         "Address": <CopyText value={account?.account?.address ?? '???'} />,
