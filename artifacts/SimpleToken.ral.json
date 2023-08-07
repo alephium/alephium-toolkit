@@ -1,0 +1,147 @@
+{
+  "version": "v2.3.5",
+  "name": "SimpleToken",
+  "bytecode": "070609121b4024402d4050010000000102ce0002010000000102ce0102010000000102ce0202010000000102ce0302010000000102a00002010201010015ce04b4450c7ba0001600340d7bb4b11600aba00016002ba1000516005e",
+  "codeHash": "baf828fcd7be3dca1f72793e385762d18e8de775dbaa4a1508e6c66b5ad2b4a0",
+  "fieldsSig": {
+    "names": [
+      "symbol",
+      "name",
+      "decimals",
+      "supply",
+      "balance",
+      "owner",
+      "__stdInterfaceId"
+    ],
+    "types": [
+      "ByteVec",
+      "ByteVec",
+      "U256",
+      "U256",
+      "U256",
+      "Address",
+      "ByteVec"
+    ],
+    "isMutable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "eventsSig": [
+    {
+      "name": "Withdraw",
+      "fieldNames": [
+        "amount"
+      ],
+      "fieldTypes": [
+        "U256"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "getSymbol",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": false,
+      "isPublic": true,
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "ByteVec"
+      ]
+    },
+    {
+      "name": "getName",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": false,
+      "isPublic": true,
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "ByteVec"
+      ]
+    },
+    {
+      "name": "getDecimals",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": false,
+      "isPublic": true,
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "U256"
+      ]
+    },
+    {
+      "name": "getTotalSupply",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": false,
+      "isPublic": true,
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "U256"
+      ]
+    },
+    {
+      "name": "balance",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": false,
+      "isPublic": true,
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "U256"
+      ]
+    },
+    {
+      "name": "withdraw",
+      "usePreapprovedAssets": false,
+      "useAssetsInContract": true,
+      "isPublic": true,
+      "paramNames": [
+        "amount"
+      ],
+      "paramTypes": [
+        "U256"
+      ],
+      "paramIsMutable": [
+        false
+      ],
+      "returnTypes": []
+    }
+  ],
+  "constants": [],
+  "enums": [
+    {
+      "name": "ErrorCodes",
+      "fields": [
+        {
+          "name": "InvalidOwner",
+          "value": {
+            "type": "U256",
+            "value": "0"
+          }
+        },
+        {
+          "name": "InvalidWithdrawAmount",
+          "value": {
+            "type": "U256",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  ],
+  "stdInterfaceId": "0001"
+}

@@ -2,17 +2,18 @@
   "name": "alephium-toolkit",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "compile": "npx --yes @alephium/cli@latest compile",
+    "devnet:deploy": "npx --yes @alephium/cli@latest deploy -n devnet",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@alephium/token-list": "^0.0.10",
-    "@alephium/web3": "^0.14.6",
-    "@alephium/web3-react": "^0.14.6",
+    "@alephium/web3": "^0.15.0",
+    "@alephium/web3-react": "^0.15.0",
     "@emotion/react": "^11.11.1",
     "@mantine/core": "^6.0.17",
     "@mantine/form": "^6.0.17",
@@ -23,6 +24,7 @@
     "react-router-dom": "^6.14.2"
   },
   "devDependencies": {
+    "@alephium/cli": "^0.15.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

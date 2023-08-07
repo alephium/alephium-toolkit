@@ -1,0 +1,9 @@
+TxScript Withdraw(token: SimpleToken, amount: U256) {
+    token.withdraw(amount)
+}
+
+TxScript DeployNewToken(templateId: ByteVec, name: ByteVec, symbol: ByteVec, decimals: U256, initialSupply: U256) {
+    let owner = callerAddress!()
+    let (immFields, mutFields) = SimpleToken.encodeFields!(symbol, name, decimals, initialSupply, 0, owner)
+    copyCreateContractWithToken!{ owner -> ALPH: 1 alph }(templateId, immFields, mutFields, initialSupply)
+}

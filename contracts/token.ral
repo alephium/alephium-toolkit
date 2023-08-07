@@ -1,0 +1,53 @@
+import "std/fungible_token_interface"
+
+Contract SimpleToken(
+    symbol: ByteVec,
+    name: ByteVec,
+    decimals: U256,
+    supply: U256,
+    mut balance: U256,
+    owner: Address
+) implements IFungibleToken {
+    event Withdraw(amount: U256)
+
+    enum ErrorCodes {
+        InvalidOwner = 0
+        InvalidWithdrawAmount = 1
+    }
+
+    // A public function that returns the symbol of the token.
+    pub fn getSymbol() -> ByteVec {
+        return symbol
+    }
+
+    // A public function that returns the name of the token.
+    pub fn getName() -> ByteVec {
+        return name
+    }
+
+    // A public function that returns the decimals of the token.
+    pub fn getDecimals() -> U256 {
+        return decimals
+    }
+
+    pub fn getTotalSupply() -> U256 {
+        return supply
+    }
+
+    // A public function that returns the current token balance of the contract.
+    pub fn balance() -> U256 {
+        return balance
+    }
+
+    @using(assetsInContract = true, updateFields = true)
+    pub fn withdraw(amount: U256) -> () {
+        checkCaller!(owner == callerAddress!(), ErrorCodes.InvalidOwner)
+        assert!(balance >= amount, ErrorCodes.InvalidWithdrawAmount)
+
+        transferTokenFromSelf!(callerAddress!(), selfTokenId!(), amount)
+        balance = balance - amount
+
+        // Emit the event defined earlier.
+        emit Withdraw(amount)
+    }
+}

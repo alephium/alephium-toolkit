@@ -5,7 +5,7 @@ import { FungibleTokenMetaData, addressFromTokenId, hexToString, prettifyTokenAm
 import MyTable from '../Misc/MyTable';
 import CopyText from '../Misc/CopyText';
 
-const network = "mainnet"
+const network = "devnet"
 
 type TokenInfo = FungibleTokenMetaData & {
   verified: boolean
@@ -23,7 +23,7 @@ function TokenInfo() {
     if (tokenId) {
       const nodeProvider = connectAlephium(network)
       const tokenMetadata = await nodeProvider.fetchFungibleTokenMetaData(tokenId)
-      const verified = getTokenMetadata(network).tokens.find(token => token.id === tokenId) !== undefined
+      const verified = network == "devnet" ? false : getTokenMetadata(network).tokens.find(token => token.id === tokenId) !== undefined
       const tokenAddress = addressFromTokenId(tokenId)
       setTokenInfo({...tokenMetadata, verified, tokenId, tokenAddress})
     } else {
