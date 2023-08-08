@@ -8,7 +8,7 @@ import {
 import { useLocalStorage, useHotkeys } from "@mantine/hooks";
 import AppShellExample from "./components/AppShell";
 
-import { AlephiumConnectProvider } from '@alephium/web3-react'
+import { AlephiumWalletProvider } from '@alephium/web3-react'
 
 function App() {
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -23,7 +23,7 @@ function App() {
   useHotkeys([["mod+J", () => toggleColorScheme()]]);
 
   return (
-    <AlephiumConnectProvider useTheme="rounded" network="mainnet">
+    <AlephiumWalletProvider useTheme="rounded" network="mainnet" addressGroup={0}>
       <div className="App">
         <ColorSchemeProvider
           colorScheme={colorScheme}
@@ -36,7 +36,7 @@ function App() {
           </MantineProvider>
         </ColorSchemeProvider>
       </div>
-    </AlephiumConnectProvider>
+    </AlephiumWalletProvider>
   );
 }
 
