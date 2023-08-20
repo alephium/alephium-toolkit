@@ -1,4 +1,4 @@
-import { Group, TextInput, Box, Text, Code, Button, Center, NumberInput, NumberInputHandlers, ActionIcon, rem, Slider, Divider, Space, Stack } from '@mantine/core';
+import { Group, TextInput, Box, Text, Code, Button, Center, NumberInput, NumberInputHandlers, ActionIcon, rem, Slider, Divider, Space, Stack, Tooltip } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
@@ -59,12 +59,12 @@ function CreateMultisig() {
             w="32rem"
             {...form.getInputProps(`pubkeys.${index}.pubkey`)}
           />
-          <Center>
+          <Tooltip label="Remove Signer">
             <IconSquareRoundedMinus
               size="1.2rem"
               onClick={() => form.removeListItem('pubkeys', index)}
             />
-          </Center>
+          </Tooltip>
         </Group>
       )}
     </Draggable>
