@@ -7,6 +7,7 @@ import MyBox from '../Misc/MyBox';
 
 const localStorageKey = 'multisig-wip'
 const defaultMultisigWIP = {
+  name: '',
   pubkeys: [
     { name: '', pubkey: '' },
   ],
@@ -72,6 +73,11 @@ function CreateMultisig() {
 
   return (
     <Box maw={900} mx="auto" mt="xl">
+      <Group position="center">
+        <Text>Choose a Name:</Text>
+        <TextInput placeholder="Multisig Name" {...form.getInputProps('name')} />
+      </Group>
+
       <MyBox>
         <Text ta='left' fw="700">Signers</Text>
       <DragDropContext
