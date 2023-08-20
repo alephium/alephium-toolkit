@@ -1,6 +1,6 @@
 import { useForm } from '@mantine/form';
 import { TextInput, Button, Group, Box, Center, rem, Stack, NumberInput } from '@mantine/core';
-import { useAccount, useAlephiumConnectContext, useBalance } from '@alephium/web3-react';
+import { useWallet, useBalance } from '@alephium/web3-react';
 import { DeployNewToken } from '../../../artifacts/ts'
 import { loadDeployments } from '../../../artifacts/ts/deployments'
 import { ONE_ALPH, SignerProvider } from '@alephium/web3';
@@ -25,7 +25,7 @@ async function deployNewToken(signer: SignerProvider, { name, symbol, decimals, 
 }
 
 function NewToken() {
-  const account = useAccount();
+  const wallet = useWallet();
   const form = useForm({
     initialValues: {
       name: '',
@@ -41,16 +41,11 @@ function NewToken() {
       supply: (value) => (value < 0 || !Number.isInteger(value)) ? 'Supply must be positive integer' : null,
     }
   });
-  const context = useAlephiumConnectContext()
   const { balance, updateBalanceForTx } = useBalance();
 
   console.log(`==== `, balance, updateBalanceForTx)
 
-  // useEffect(() => {
-    // updateBalanceForTx("fe9ede54e19411ccdbaaa620e1249fffeeb494266c26d2a9d1e6e6aec16d0bfe")
-  // })
-
-  if (context.signerProvider === undefined) {
+  if (wallet === undefined || wallet.signer === undefined) {
     return <></>
   }
 
@@ -62,7 +57,7 @@ function NewToken() {
         <TextInput mt="md" label="Token Symbol (3-6 capital letters)" placeholder="Token Symbol" {...form.getInputProps('symbol')} />
         <TextInput mt="md" label="Decimals" placeholder="Decimals" {...form.getInputProps('decimals')} />
         <NumberInput mt="md" label="Token Supply" placeholder="supply" hideControls {...form.getInputProps('supply')} />
-        <TextInput mt="md" label="Owner" placeholder="" value={account?.address} disabled />
+        <TextInput mt="md" label="Owner" placeholder="" value={wallet.account?.address} disabled />
       </Box>
 
       <Group position="center" mt="xl">

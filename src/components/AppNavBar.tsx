@@ -17,7 +17,7 @@ const mockdata = [
   {
     label: 'Fungible Tokens',
     icon: IconNotes,
-    initiallyOpened: true,
+    initiallyOpened: false,
     links: [
       // { label: 'Show all tokens', link: '/token/all' },
       { label: 'Token info', link: '/token/info' },
@@ -28,6 +28,7 @@ const mockdata = [
   {
     label: 'NFT',
     icon: IconCalendarStats,
+    initiallyOpened: false,
     links: [
       // { label: 'Show all NFTs', link: '/nft/all' },
       { label: 'NFT info', link: '/nft/info' },
@@ -38,13 +39,23 @@ const mockdata = [
   { 
     label: 'Contracts',
     icon: IconFileAnalytics,
+    initiallyOpened: false,
     links: [
       { label: 'Playground', link: '/contract/play' },
       { label: 'Contract info', link: '/contract/info' },
       { label: 'Deploy Contract', link: '/contract/deploy' },
     ]
   },
-  { label: 'Multisig', icon: IconPresentationAnalytics, groupLink: '/multisig' },
+  { label: 'Multisig',
+    icon: IconPresentationAnalytics,
+    initiallyOpened: true,
+    links: [
+      { label: 'Create Multisig', link: '/multisig/create' },
+      { label: 'Import Multisig', link: '/multisig/import' },
+      { label: 'Show Multisig', link: '/multisig/show' },
+      { label: 'Build Multisig Transaction', link: '/multisig/tx' }
+    ]
+  },
   // { label: 'Settings', icon: IconAdjustments },
   // {
   //   label: 'Security',
@@ -59,7 +70,7 @@ const mockdata = [
 
 const useStyles = createStyles((theme) => ({
   navbar: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
     paddingBottom: 0,
   },
 
