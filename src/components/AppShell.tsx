@@ -15,6 +15,7 @@ import { useAlephiumConnectContext } from "@alephium/web3-react";
 import { useEffect } from "react";
 import { web3 } from "@alephium/web3";
 import CreateMultisig from "./Multisig/CreateMultisig";
+import ImportMultisig from "./Multisig/ImportMultiSig";
 
 function AppShellExample() {
   const theme = useMantineTheme();
@@ -66,7 +67,7 @@ function AppShellExample() {
           <Route path="/contract/deploy" element={<WIP />} />
           <Route path="/multisig" element={<WIP />} />
           <Route path="/multisig/create" element={<CreateMultisig />} />
-          <Route path="/multisig/import" element={<WIP />} />
+          <Route path="/multisig/import" element={<ImportMultisig />} />
           <Route path="/multisig/show" element={<WIP />} />
           <Route path="/multisig/tx" element={<WIP />} />
         </Routes>
