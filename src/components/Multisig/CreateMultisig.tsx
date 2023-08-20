@@ -5,12 +5,14 @@ import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import MyBox from '../Misc/MyBox';
 import { allMultisigStorageKey, defaultNewMultisig, newMultisigStorageKey } from './shared';
+import { useNavigate } from 'react-router-dom';
 
 function CreateMultisig() {
   const form = useForm({
     initialValues: defaultNewMultisig,
   });
   const handlers = useRef<NumberInputHandlers>()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const storedValue = window.localStorage.getItem(newMultisigStorageKey);
@@ -54,7 +56,7 @@ function CreateMultisig() {
 
   return (
     <Box maw={900} mx="auto" mt="xl">
-      <Group position="center">
+      <Group position="center" mb="xl">
         <Text>Choose a Name:</Text>
         <TextInput placeholder="Multisig Name" {...form.getInputProps('name')} />
       </Group>
@@ -160,6 +162,7 @@ function CreateMultisig() {
           } else {
             window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([form.values]))
           }
+          navigate('/multisig/show?name=' + form.values.name)
         }}>
           Create Multisig
         </Button>
