@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import MyBox from '../Misc/MyBox';
-import { defaultNewMultisig, newMultisigStorageKey } from './shared';
+import { allMultisigStorageKey, defaultNewMultisig, newMultisigStorageKey } from './shared';
 
 function CreateMultisig() {
   const form = useForm({
@@ -152,7 +152,15 @@ function CreateMultisig() {
       {/* </Group> */}
 
       <Group position="right" mt="lg">
-        <Button color='indigo' onClick={() => {}}>
+        <Button color='indigo' onClick={() => {
+          const existingMultisigs = window.localStorage.getItem(allMultisigStorageKey)
+          if (existingMultisigs) {
+            const parsed = JSON.parse(existingMultisigs)
+            window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...parsed, form.values]))
+          } else {
+            window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([form.values]))
+          }
+        }}>
           Create Multisig
         </Button>
       </Group>
@@ -160,7 +168,7 @@ function CreateMultisig() {
       {/* <Text size="sm" weight={500} mt="md">
         Form values:
       </Text>
-      <Code block>{JSON.stringify(form.values, null, 2)}</Code> */}
+      <Code block>{JSON.stringify(window.localStorage.getItem(allMultisigStorageKey), null, 2)}</Code> */}
     </Box>
   );
 }
