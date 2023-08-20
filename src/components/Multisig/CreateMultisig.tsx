@@ -4,35 +4,16 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import MyBox from '../Misc/MyBox';
-
-const localStorageKey = 'multisig-wip'
-const defaultMultisigWIP = {
-  name: '',
-  pubkeys: [
-    { name: '', pubkey: '' },
-  ],
-  mOfN: 1,
-}
+import { defaultNewMultisig, newMultisigStorageKey } from './shared';
 
 function CreateMultisig() {
-  // const [multisigWIP, setMultisigWIP] = useLocalStorage({ key: 'multisig-wip', defaultValue: {
-  //   pubkeys: [
-  //     { name: 'John Doe', pubkey: 'john@mantine.dev' },
-  //     // { name: 'Bill Love', pubkey: 'bill@mantine.dev' },
-  //     // { name: 'Nancy Eagle', pubkey: 'nanacy@mantine.dev' },
-  //     // { name: 'Lim Notch', pubkey: 'lim@mantine.dev' },
-  //     // { name: 'Susan Seven', pubkey: 'susan@mantine.dev' },
-  //   ],
-  //   mOfN: 1,
-  // }})
   const form = useForm({
-    initialValues: defaultMultisigWIP,
+    initialValues: defaultNewMultisig,
   });
   const handlers = useRef<NumberInputHandlers>()
-  const [mOfN, setMOfN] = useState(1)
 
   useEffect(() => {
-    const storedValue = window.localStorage.getItem(localStorageKey);
+    const storedValue = window.localStorage.getItem(newMultisigStorageKey);
     if (storedValue) {
       try {
         form.setValues(JSON.parse(storedValue));
@@ -43,7 +24,7 @@ function CreateMultisig() {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(localStorageKey, JSON.stringify(form.values));
+    window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(form.values));
   }, [form.values]);
 
   const fields = form.values.pubkeys.map((_, index) => (
