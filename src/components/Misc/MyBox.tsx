@@ -1,6 +1,10 @@
-import { Box } from "@mantine/core";
+import { Box, DefaultProps } from "@mantine/core";
 
-function MyBox({ children }: { children: React.ReactNode }) {
+interface MyTableProps extends DefaultProps {
+  children: React.ReactNode;
+}
+
+function MyBox({ children, ...others }: MyTableProps) {
   return (
     <Box
       mx="auto"
@@ -14,6 +18,7 @@ function MyBox({ children }: { children: React.ReactNode }) {
         borderRadius: theme.radius.md,
         boxShadow: theme.shadows.md,
       })}
+      {...others}
     >
       {children}
     </Box>

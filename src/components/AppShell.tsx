@@ -17,6 +17,8 @@ import { web3 } from "@alephium/web3";
 import CreateMultisig from "./Multisig/CreateMultisig";
 import ImportMultisig from "./Multisig/ImportMultiSig";
 import ShowMultiSig from "./Multisig/ShowMultiSig";
+import SignMultisigTx from "./Multisig/SignMultiSigTx";
+import BuildMultisigTx from "./Multisig/BuildMultiSigTx";
 
 function AppShellExample() {
   const theme = useMantineTheme();
@@ -70,8 +72,8 @@ function AppShellExample() {
           <Route path="/multisig/create" element={<CreateMultisig />} />
           <Route path="/multisig/import" element={<ImportMultisig />} />
           <Route path="/multisig/show" element={<ShowMultiSig />} />
-          <Route path="/multisig/build-tx" element={<WIP />} />
-          <Route path="/multisig/sign-tx" element={<WIP />} />
+          <Route path="/multisig/build-tx" element={<BuildMultisigTx />} />
+          <Route path="/multisig/sign-tx" element={<SignMultisigTx />} />
         </Routes>
       </AppShell>
     </Router>
