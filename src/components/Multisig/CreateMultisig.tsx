@@ -34,7 +34,7 @@ function CreateMultisig() {
   const fields = form.values.pubkeys.map((_, index) => (
     <Draggable key={index} index={index} draggableId={index.toString()}>
       {(provided) => (
-        <Group position="apart" ref={provided.innerRef} mt="xs" {...provided.draggableProps}>
+        <Group position="left" spacing='xl' ref={provided.innerRef} mt="xs" {...provided.draggableProps}>
           <Center {...provided.dragHandleProps}>
             <IconGripVertical size="1.2rem" />
           </Center>
@@ -45,12 +45,15 @@ function CreateMultisig() {
             w="32rem"
             {...form.getInputProps(`pubkeys.${index}.pubkey`)}
           />
-          <Tooltip label="Remove Signer">
-            <IconSquareRoundedMinus
-              size="1.2rem"
-              onClick={() => form.removeListItem('pubkeys', index)}
-            />
-          </Tooltip>
+          {index !== 0
+            ? <Tooltip label="Remove Signer">
+                <IconSquareRoundedMinus
+                  size="1.2rem"
+                  onClick={() => form.removeListItem('pubkeys', index)}
+                />
+              </Tooltip>
+            : null
+          }
         </Group>
       )}
     </Draggable>
