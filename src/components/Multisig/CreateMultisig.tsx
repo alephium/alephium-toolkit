@@ -4,9 +4,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useMemo, useRef } from 'react';
 import MyBox from '../Misc/MyBox';
-import { allMultisigStorageKey, defaultNewMultisig, getAllMultisigConfig, isMultisigExists, newMultisigStorageKey } from './shared';
+import { addMultisigConfig, defaultNewMultisig, isMultisigExists, isPubkeyValid, newMultisigStorageKey } from './shared';
 import { useNavigate } from 'react-router-dom';
-import { isHexString } from '@alephium/web3';
 
 function CreateMultisig() {
   const form = useForm({
@@ -15,7 +14,7 @@ function CreateMultisig() {
     validate: {
       name: (value) => (value === '' ? 'The name is empty' : isMultisigExists(value) ? 'The multisig already exists' : null),
       pubkeys: {
-        pubkey: (value) => (isHexString(value) && value.length === 66 ? null : 'Invalid public key'),
+        pubkey: (value) => (isPubkeyValid(value) ? null : 'Invalid public key'),
         name: (value) => (value === '' ? 'The name is empty' : null)
       }
     }
@@ -27,8 +26,7 @@ function CreateMultisig() {
     return form.onSubmit((values) => {
       const config = { ...values, address: '???' } // TODO: generate address
       window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(config))
-      const allMultisigs = getAllMultisigConfig()
-      window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...allMultisigs, config]))
+      addMultisigConfig(config)
       navigate('/multisig/show?name=' + values.name)
     })
   }, [form, navigate])

@@ -1,3 +1,5 @@
+import { isHexString } from "@alephium/web3"
+
 export const newMultisigStorageKey = 'multisig-wip'
 export const allMultisigStorageKey = 'multisig-all'
 export const defaultNewMultisig = {
@@ -18,7 +20,16 @@ export function getAllMultisigConfig(): AllMultisig {
   return []
 }
 
+export function addMultisigConfig(config: MutlisigConfig & { address: string }) {
+  const allMultisigs = getAllMultisigConfig()
+  window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...allMultisigs, config]))
+}
+
 export function isMultisigExists(name: string): boolean {
   const allMultisigConfigs = getAllMultisigConfig()
   return allMultisigConfigs.find((config) => config.name === name) !== undefined
+}
+
+export function isPubkeyValid(pubkey: string): boolean {
+  return isHexString(pubkey) && pubkey.length === 66
 }
