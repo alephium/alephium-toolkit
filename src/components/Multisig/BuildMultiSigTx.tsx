@@ -47,9 +47,9 @@ function BuildMultisigTx() {
     }))}</Code> */}
 
       <MyBox mx="xl">
-      <Text ta='left' fw="700">Recipient</Text>
+      <Text ta='left' fw="700">Send Assets</Text>
       <Group mt="lg" position="apart" mx="0.5rem">
-        <TextInput label="Address" ta="left" placeholder="Recipient Address" icon={<IconAt/>} />
+        <TextInput label="Recipient" ta="left" placeholder="Address" icon={<IconAt/>} />
         <NumberInput label="Alephium" ta="left" placeholder="Amount" hideControls rightSection="ALPH" rightSectionWidth={"4rem"}/>
       </Group>
 
