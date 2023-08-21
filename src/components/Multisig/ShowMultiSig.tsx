@@ -40,7 +40,7 @@ function ShowMultiSig() {
 
       {multisigName && theMultisig &&
         <Box>
-          <Text ta='right' fw="700" mt="lg">TODO: Show Transaction Details</Text>
+          <Text ta='right' fw="700" mt="lg">TODO: Show Multisig Details</Text>
           <Group position="apart" mt="lg">
             <Button color='indigo' onClick={() => {}}>
               Remove !!!

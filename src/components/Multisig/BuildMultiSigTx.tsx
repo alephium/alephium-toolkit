@@ -9,8 +9,9 @@ import { useAllMultisig } from "./shared";
 const testData = {"name":"FooDAO","pubkeys":[{"name":"Alice","pubkey":"A"},{"name":"Bob","pubkey":"B"},{"name":"Charlie","pubkey":"C"}],"mOfN":2, "address": "???"}
 
 function BuildMultisigTx() {
-  const form = useForm<{ signers: string[], destinations: { address: string, attoAlphAmount: Number256 }[]}>({
+  const form = useForm<{ multisig: string, signers: string[], destinations: { address: string, attoAlphAmount: Number256 }[]}>({
     initialValues: {
+      multisig: '',
       signers: [],
       destinations: []
     },
@@ -19,16 +20,16 @@ function BuildMultisigTx() {
 
   return (
     <Box maw={900} mx="auto" mt="xl" ta="left">
-      <Grid>
-      <Grid.Col span={8}>
-      <Stack>
       <Select
         w={"20rem"}
         mx="auto"
         placeholder="Select Multisig"
         data={allMultisig.map(multisig => ({ value: multisig.name, label: multisig.name }))}
-        onChange={value => console.log("TODO", value)}
+        onChange={value => form.setValues({ multisig: value ?? '' })}
       />
+      <Grid mt="lg">
+      <Grid.Col span={8}>
+      <Stack>
       <MyBox mx="xl">
       <Text ta='left' fw="700">Select {testData.mOfN} Signers</Text>
       <Chip.Group multiple onChange={signers => form.setValues({ signers: signers })}>
