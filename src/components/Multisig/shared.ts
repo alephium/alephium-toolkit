@@ -47,3 +47,9 @@ export function buildMultisigAddress(config: MultisigConfig): string {
   const encoded = Uint8Array.from(bytesArray.reduce((acc, cur) => Uint8Array.from([...acc, ...cur]), new Uint8Array()))
   return bs58.encode(encoded)
 }
+
+export function useAllMultisig(): AllMultisig {
+  const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
+  const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
+  return allMultisig
+}

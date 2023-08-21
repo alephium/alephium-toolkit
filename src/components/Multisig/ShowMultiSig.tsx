@@ -1,13 +1,13 @@
-import { Box, Button, Code, CopyButton, Group, Select, Text, Tooltip } from "@mantine/core";
-import { AllMultisig, MultisigConfig, allMultisigStorageKey } from "./shared";
+import { Box, Button, CopyButton, Group, Select, Text, Tooltip } from "@mantine/core";
+import { AllMultisig, MultisigConfig, useAllMultisig } from "./shared";
 import { useNavigate } from "react-router-dom";
 
 function useMultisigConfig(): [AllMultisig, string | undefined, MultisigConfig | undefined] {
+  const allMultisig = useAllMultisig()
+
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const multisigName = urlParams.get('name')
-  const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
-  const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
 
   if (multisigName) {
     const theMultisig = allMultisig.find(multisig => multisig.name === multisigName)

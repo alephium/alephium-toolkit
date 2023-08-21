@@ -1,9 +1,10 @@
-import { Box, Button, Chip, Code, Grid, Group, Input, NumberInput, SimpleGrid, Stack, Text, TextInput, Textarea } from "@mantine/core";
+import { Box, Button, Chip, Code, Grid, Group, Input, NumberInput, Select, SimpleGrid, Stack, Text, TextInput, Textarea } from "@mantine/core";
 import { IconAt } from "@tabler/icons-react";
 import { useState } from "react";
 import MyBox from "../Misc/MyBox";
 import { useForm } from "@mantine/form";
 import { Number256 } from "@alephium/web3";
+import { useAllMultisig } from "./shared";
 
 const testData = {"name":"FooDAO","pubkeys":[{"name":"Alice","pubkey":"A"},{"name":"Bob","pubkey":"B"},{"name":"Charlie","pubkey":"C"}],"mOfN":2, "address": "???"}
 
@@ -14,12 +15,20 @@ function BuildMultisigTx() {
       destinations: []
     },
   });
+  const allMultisig = useAllMultisig()
 
   return (
-    <Box maw={900} mx="auto" mt="xl">
+    <Box maw={900} mx="auto" mt="xl" ta="left">
       <Grid>
       <Grid.Col span={8}>
       <Stack>
+      <Select
+        w={"20rem"}
+        mx="auto"
+        placeholder="Select Multisig"
+        data={allMultisig.map(multisig => ({ value: multisig.name, label: multisig.name }))}
+        onChange={value => console.log("TODO", value)}
+      />
       <MyBox mx="xl">
       <Text ta='left' fw="700">Select {testData.mOfN} Signers</Text>
       <Chip.Group multiple onChange={signers => form.setValues({ signers: signers })}>
