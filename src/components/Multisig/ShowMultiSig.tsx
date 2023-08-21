@@ -1,29 +1,62 @@
-import { Code, Text } from "@mantine/core";
-import { AllMultisig, allMultisigStorageKey } from "./shared";
+import { Box, Button, Code, CopyButton, Group, Select, Text, Tooltip } from "@mantine/core";
+import { AllMultisig, MultisigConfig, allMultisigStorageKey } from "./shared";
+import { useNavigate } from "react-router-dom";
 
-function ShowMultiSig() {
+function useMultisigConfig(): [AllMultisig, string | undefined, MultisigConfig | undefined] {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const multisigName = urlParams.get('name')
+  const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
+  const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
 
   if (multisigName) {
-    const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
-    const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : undefined) as AllMultisig
     const theMultisig = allMultisig.find(multisig => multisig.name === multisigName)
 
     if (theMultisig === undefined) {
-      return <div>Cannot find multisig: "{multisigName}"</div>;
+      return [allMultisig, multisigName, undefined]
     } else {
-      return <>
-        <Text size="sm" weight={500} mt="md">
-          Form values:
-        </Text>
-        <Code block>{JSON.stringify(theMultisig)}</Code>
-      </>
+      return [allMultisig, multisigName, theMultisig]
     }
   } else {
-    return <div>Please select the multisig</div>;
+    return [allMultisig, undefined, undefined]
   }
+}
+
+function ShowMultiSig() {
+  const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
+  const navigate = useNavigate()
+
+  return (
+    <Box maw={700} mx="auto" mt="xl" ta={"left"}>
+      <Select
+        w={"30rem"}
+        mx="auto"
+        label="Select Multisig"
+        placeholder="Pick one"
+        data={allMultisig.map(multisig => ({ value: multisig.name, label: multisig.name }))}
+        value={multisigName}
+        onChange={value => navigate('/multisig/show?name=' + value)}
+      />
+
+      {multisigName && theMultisig &&
+        <Box>
+          <Text ta='right' fw="700" mt="lg">TODO: Show Transaction Details</Text>
+          <Group position="apart" mt="lg">
+            <Button color='indigo' onClick={() => {}}>
+              Remove !!!
+            </Button>
+            <CopyButton value={JSON.stringify(theMultisig)} timeout={1000}>
+              {({ copied, copy }) => (
+                <Tooltip label={copied ? 'Copied' : null} opened={copied} withArrow>
+                  <Button onClick={copy}>Export</Button>
+                </Tooltip>
+              )}
+            </CopyButton>
+          </Group>
+        </Box>
+      }
+    </Box>
+  )
 }
 
 export default ShowMultiSig;
