@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import MyBox from '../Misc/MyBox';
-import { allMultisigStorageKey, defaultNewMultisig, newMultisigStorageKey } from './shared';
+import { AllMultisig, allMultisigStorageKey, defaultNewMultisig, newMultisigStorageKey } from './shared';
 import { useNavigate } from 'react-router-dom';
 
 function CreateMultisig() {
@@ -158,7 +158,8 @@ function CreateMultisig() {
           const existingMultisigs = window.localStorage.getItem(allMultisigStorageKey)
           if (existingMultisigs) {
             const parsed = JSON.parse(existingMultisigs)
-            window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...parsed, form.values]))
+            const allMultisig = [...parsed, { ...form.values, address: "???" }] // TODO: generate address
+            window.localStorage.setItem(allMultisigStorageKey, JSON.stringify(allMultisig))
           } else {
             window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([form.values]))
           }

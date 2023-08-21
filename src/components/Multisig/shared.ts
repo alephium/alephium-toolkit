@@ -8,4 +8,4 @@ export const defaultNewMultisig = {
   mOfN: 1,
 }
 export type MutlisigConfig = typeof defaultNewMultisig
-export type AllMultisigConfig = MutlisigConfig[]
+export type AllMultisig = (MutlisigConfig & { address: string })[]

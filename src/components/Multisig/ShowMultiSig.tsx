@@ -1,5 +1,5 @@
 import { Code, Text } from "@mantine/core";
-import { AllMultisigConfig, allMultisigStorageKey } from "./shared";
+import { AllMultisig, allMultisigStorageKey } from "./shared";
 
 function ShowMultiSig() {
   const queryString = window.location.search;
@@ -8,7 +8,7 @@ function ShowMultiSig() {
 
   if (multisigName) {
     const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
-    const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : undefined) as AllMultisigConfig
+    const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : undefined) as AllMultisig
     const theMultisig = allMultisig.find(multisig => multisig.name === multisigName)
 
     if (theMultisig === undefined) {

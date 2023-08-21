@@ -70,7 +70,8 @@ function AppShellExample() {
           <Route path="/multisig/create" element={<CreateMultisig />} />
           <Route path="/multisig/import" element={<ImportMultisig />} />
           <Route path="/multisig/show" element={<ShowMultiSig />} />
-          <Route path="/multisig/tx" element={<WIP />} />
+          <Route path="/multisig/build-tx" element={<WIP />} />
+          <Route path="/multisig/sign-tx" element={<WIP />} />
         </Routes>
       </AppShell>
     </Router>
