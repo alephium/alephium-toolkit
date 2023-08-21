@@ -61,6 +61,7 @@ function CreateMultisig() {
 
   return (
     <Box maw={900} mx="auto" mt="xl">
+
       <form onSubmit={onSubmit}>
         <Group position="center" mb="xl">
           <Text>Choose a Name:</Text>
