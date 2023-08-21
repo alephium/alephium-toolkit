@@ -12,10 +12,10 @@ function CreateMultisig() {
     validateInputOnChange: [`pubkeys.${FORM_INDEX}.pubkey`],
     initialValues: defaultNewMultisig,
     validate: {
-      name: (value) => (value === '' ? 'The name is empty' : isMultisigExists(value) ? 'The multisig already exists' : null),
+      name: (value) => (value === '' ? 'Empty name' : isMultisigExists(value) ? 'The multisig already exists' : null),
       pubkeys: {
-        pubkey: (value) => (isPubkeyValid(value) ? null : 'Invalid public key'),
-        name: (value) => (value === '' ? 'The name is empty' : null)
+        pubkey: (value) => value === '' ? 'Empty public key' : (isPubkeyValid(value) ? null : 'Invalid public key'),
+        name: (value) => (value === '' ? 'Empty name' : null)
       }
     }
   });
@@ -37,6 +37,12 @@ function CreateMultisig() {
     window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(form.values));
   }, [form.values]);
 
+  useEffect(() => {
+    if (form.values.pubkeys.length < form.values.mOfN) {
+      form.setValues({ mOfN: form.values.pubkeys.length })
+    }
+  }, [form])
+
   const onSubmit = useMemo(() => {
     return form.onSubmit((values) => {
       const config = { ...values, address: buildMultisigAddress(values) }
@@ -53,11 +59,12 @@ function CreateMultisig() {
           <Center {...provided.dragHandleProps}>
             <IconGripVertical size="1.2rem" />
           </Center>
-          <TextInput radius="md" placeholder="Name" {...form.getInputProps(`pubkeys.${index}.name`)} />
+          <TextInput radius="md" placeholder="Name" ta="left" {...form.getInputProps(`pubkeys.${index}.name`)} />
           <TextInput
             radius="md"
             placeholder="Public Key"
             w="32rem"
+            ta="left"
             {...form.getInputProps(`pubkeys.${index}.pubkey`)}
           />
           {index !== 0
@@ -80,7 +87,7 @@ function CreateMultisig() {
       <form onSubmit={onSubmit}>
         <Group position="center" mb="xl">
           <Text fw="700">Choose a Name:</Text>
-          <TextInput placeholder="Multisig Name" {...form.getInputProps('name')} />
+          <TextInput placeholder="Multisig Name" ta="left" {...form.getInputProps('name')} />
         </Group>
 
         <MyBox>
