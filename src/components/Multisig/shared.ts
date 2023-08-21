@@ -9,8 +9,8 @@ export const defaultNewMultisig = {
   ],
   mOfN: 1,
 }
-export type MutlisigConfig = typeof defaultNewMultisig
-export type AllMultisig = (MutlisigConfig & { address: string })[]
+export type MultisigConfig = typeof defaultNewMultisig
+export type AllMultisig = (MultisigConfig & { address: string })[]
 
 export function getAllMultisigConfig(): AllMultisig {
   const data = window.localStorage.getItem(allMultisigStorageKey)
@@ -20,7 +20,7 @@ export function getAllMultisigConfig(): AllMultisig {
   return []
 }
 
-export function addMultisigConfig(config: MutlisigConfig & { address: string }) {
+export function addMultisigConfig(config: MultisigConfig & { address: string }) {
   const allMultisigs = getAllMultisigConfig()
   window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...allMultisigs, config]))
 }
