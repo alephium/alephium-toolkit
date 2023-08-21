@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
 import { useMemo, useRef } from 'react';
 import MyBox from '../Misc/MyBox';
-import { addMultisigConfig, defaultNewMultisig, isMultisigExists, isPubkeyValid, newMultisigStorageKey } from './shared';
+import { addMultisigConfig, buildMultisigAddress, defaultNewMultisig, isMultisigExists, isPubkeyValid, newMultisigStorageKey } from './shared';
 import { useNavigate } from 'react-router-dom';
 
 function CreateMultisig() {
@@ -24,7 +24,7 @@ function CreateMultisig() {
 
   const onSubmit = useMemo(() => {
     return form.onSubmit((values) => {
-      const config = { ...values, address: '???' } // TODO: generate address
+      const config = { ...values, address: buildMultisigAddress(values) }
       window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(config))
       addMultisigConfig(config)
       navigate('/multisig/show?name=' + values.name)
