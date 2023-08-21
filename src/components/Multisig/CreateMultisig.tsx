@@ -2,7 +2,7 @@ import { Group, TextInput, Box, Text, Code, Button, Center, NumberInput, NumberI
 import { FORM_INDEX, useForm } from '@mantine/form';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import MyBox from '../Misc/MyBox';
 import { addMultisigConfig, buildMultisigAddress, defaultNewMultisig, isMultisigExists, isPubkeyValid, newMultisigStorageKey } from './shared';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,21 @@ function CreateMultisig() {
   });
   const handlers = useRef<NumberInputHandlers>()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const storedValue = window.localStorage.getItem(newMultisigStorageKey);
+    if (storedValue) {
+      try {
+        form.setValues(JSON.parse(storedValue));
+      } catch (e) {
+        console.log('Failed to parse stored value');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(form.values));
+  }, [form.values]);
 
   const onSubmit = useMemo(() => {
     return form.onSubmit((values) => {
@@ -64,7 +79,7 @@ function CreateMultisig() {
 
       <form onSubmit={onSubmit}>
         <Group position="center" mb="xl">
-          <Text>Choose a Name:</Text>
+          <Text fw="700">Choose a Name:</Text>
           <TextInput placeholder="Multisig Name" {...form.getInputProps('name')} />
         </Group>
 
