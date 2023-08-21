@@ -1,6 +1,7 @@
 import { Box, Button, Group, Text, Textarea } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { MutlisigConfig, addMultisigConfig, isMultisigExists, isPubkeyValid } from "./shared";
+import { useNavigate } from "react-router-dom";
 
 function validateConfigJson(config: any): MutlisigConfig {
   const name = config['name']
@@ -41,12 +42,14 @@ function validateConfigJson(config: any): MutlisigConfig {
 function ImportMultisig() {
   const [error, setError] = useState<string | undefined>()
   const [config, setConfig] = useState<MutlisigConfig | undefined>()
+  const navigate = useNavigate()
 
   const onImportClick = useCallback(() => {
     if (config !== undefined) {
       addMultisigConfig({ ...config, address: '???'}) // TODO: generate address
+      navigate('/multisig/show?name=' + config.name)
     }
-  }, [config])
+  }, [config, navigate])
 
   const onContentChange = useCallback((content: string) => {
     setError(undefined)
