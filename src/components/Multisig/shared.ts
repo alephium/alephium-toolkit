@@ -110,3 +110,61 @@ export async function submitMultisigTx(
     signatures: txSignatures.filter((s) => s !== '')
   })
 }
+
+export function configToSting(config: MultisigConfig): string {
+  const dupConfig = { ...config }
+  delete((dupConfig as any)['address'])
+  const jsonStr = JSON.stringify(dupConfig)
+  const hash = binToHex(blake.blake2b(jsonStr, undefined, 32))
+  return btoa(jsonStr) + hash
+}
+
+export function stringToConfig(rawConfig: string): MultisigConfig {
+  if (rawConfig.length <= 64) {
+    throw new Error('Invalid config length')
+  }
+  const hashIndex = rawConfig.length - 64
+  const hash = rawConfig.slice(hashIndex)
+  const jsonStr = atob(rawConfig.slice(0, hashIndex))
+  const expectedHash = binToHex(blake.blake2b(jsonStr, undefined, 32))
+  if (hash !== expectedHash) {
+    throw new Error('Invalid config hash')
+  }
+  return validateConfigJson(JSON.parse(jsonStr))
+}
+
+function validateConfigJson(config: any): MultisigConfig {
+  const name = config['name']
+  if (name === undefined || name === '') {
+    throw new Error('Invalid config name')
+  }
+  if (isMultisigExists(name)) {
+    throw new Error('The multisig already exists')
+  }
+  const pubkeys = config['pubkeys']
+  if (pubkeys === undefined || !Array.isArray(pubkeys)) {
+    throw new Error('Expected a non-empty pubkey array')
+  }
+  const pubkeyLength = pubkeys.length
+  if (pubkeyLength === 0) {
+    throw new Error('The pubkey list is empty')
+  }
+  pubkeys.forEach((pubkeyConfig, idx) => {
+    const name = pubkeyConfig['name']
+    if (name === undefined || name === '') {
+      throw new Error(`Invalid name in the pubkeys list, index: ${idx}`)
+    }
+    const pubkey = pubkeyConfig['pubkey']
+    if (pubkey === undefined || !isPubkeyValid(pubkey)) {
+      throw new Error(`Invalid pubkey in the pubkeys list, index: ${idx}`)
+    }
+  })
+  const mOfN = config['mOfN']
+  if (mOfN === undefined || typeof mOfN !== 'number') {
+    throw new Error('Invalid mOfN')
+  }
+  if (mOfN < 1 || mOfN > pubkeyLength) {
+    throw new Error('Invalid value of mOfN')
+  }
+  return config as MultisigConfig
+}

@@ -1,6 +1,7 @@
 import { Box, Button, CopyButton, Group, Select, Text, Tooltip } from "@mantine/core";
-import { AllMultisig, MultisigConfig, useAllMultisig } from "./shared";
+import { AllMultisig, MultisigConfig, configToSting, useAllMultisig } from "./shared";
 import { useNavigate } from "react-router-dom";
+import { useCallback } from "react";
 
 function useMultisigConfig(): [AllMultisig, string | undefined, MultisigConfig | undefined] {
   const allMultisig = useAllMultisig()
@@ -26,6 +27,12 @@ function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
   const navigate = useNavigate()
 
+  const onExport = useCallback(() => {
+    if (theMultisig) {
+      console.log(`Config: ${configToSting(theMultisig)}`)
+    }
+  }, [theMultisig])
+
   return (
     <Box maw={700} mx="auto" mt="xl" ta={"left"}>
       <Select
@@ -48,7 +55,7 @@ function ShowMultiSig() {
             <CopyButton value={JSON.stringify(theMultisig)} timeout={1000}>
               {({ copied, copy }) => (
                 <Tooltip label={copied ? 'Copied' : null} opened={copied} withArrow>
-                  <Button onClick={copy}>Export</Button>
+                  <Button onClick={onExport}>Export</Button>
                 </Tooltip>
               )}
             </CopyButton>
