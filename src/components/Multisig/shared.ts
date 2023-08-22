@@ -1,4 +1,4 @@
-import { bs58, encodeI256, hexToBinUnsafe, isHexString } from "@alephium/web3"
+import { NodeProvider, binToHex, bs58, convertAlphAmountWithDecimals, encodeI256, hexToBinUnsafe, isHexString, verifySignature } from "@alephium/web3"
 import blake from 'blakejs'
 
 export const newMultisigStorageKey = 'multisig-wip'
@@ -14,11 +14,8 @@ export type MultisigConfig = typeof defaultNewMultisig
 export type AllMultisig = (MultisigConfig & { address: string })[]
 
 export function getAllMultisigConfig(): AllMultisig {
-  const data = window.localStorage.getItem(allMultisigStorageKey)
-  if (data) {
-    return JSON.parse(data) as AllMultisig
-  }
-  return []
+  const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
+  return (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
 }
 
 export function addMultisigConfig(config: MultisigConfig & { address: string }) {
@@ -49,7 +46,67 @@ export function buildMultisigAddress(config: MultisigConfig): string {
 }
 
 export function useAllMultisig(): AllMultisig {
-  const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
-  const allMultisig = (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
-  return allMultisig
+  return getAllMultisigConfig()
+}
+
+function tryGetMultisig(configName: string) {
+  const config = getAllMultisigConfig().find((c) => c.name === configName)
+  if (config === undefined) {
+    throw new Error(`The multisig ${configName} does not exist`)
+  }
+  return config
+}
+
+export async function buildMultisigTx(
+  nodeProvider: NodeProvider,
+  configName: string,
+  signers: string[],
+  destinations: { address: string, alphAmount: string }[]
+) {
+  const config = tryGetMultisig(configName)
+  if (signers.length !== config.mOfN) {
+    throw new Error(`Expect ${config.mOfN} signers`)
+  }
+  signers.sort((a, b) => config.pubkeys.findIndex((p) => p.pubkey === a) - config.pubkeys.findIndex((p) => p.pubkey === b))
+  return await nodeProvider.multisig.postMultisigBuild({
+    fromAddress: config.address,
+    fromPublicKeys: signers,
+    destinations: destinations.map((d) =>
+      ({
+        address: d.address,
+        attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString()
+      })
+    )
+  })
+}
+
+export async function submitMultisigTx(
+  nodeProvider: NodeProvider,
+  configName: string,
+  unsignedTx: string,
+  signatures: { signer: string, signature: string }[]
+) {
+  const config = tryGetMultisig(configName)
+  if (signatures.length !== config.mOfN) {
+    throw new Error(`Expect ${config.mOfN} signatures`)
+  }
+  const txId = binToHex(blake.blake2b(hexToBinUnsafe(unsignedTx), undefined, 32))
+  const txSignatures = Array(config.pubkeys.length).fill('')
+  signatures.forEach((s) => {
+    const index = config.pubkeys.findIndex((p) => p.pubkey === s.signer)
+    if (index === -1) {
+      throw new Error(`Unknown signer: ${s.signer}`)
+    }
+    if (!verifySignature(txId, s.signer, s.signature)) {
+      throw new Error(`Invalid signature from signer ${s.signer}`)
+    }
+    if (txSignatures[index] !== '') {
+      throw new Error(`Duplicate signature from signer ${s.signer}`)
+    }
+    txSignatures[index] = s.signature
+  })
+  return await nodeProvider.multisig.postMultisigSubmit({
+    unsignedTx: unsignedTx,
+    signatures: txSignatures.filter((s) => s !== '')
+  })
 }
