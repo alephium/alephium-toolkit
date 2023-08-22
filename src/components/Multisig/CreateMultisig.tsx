@@ -154,7 +154,7 @@ function CreateMultisig() {
             w={"70%"}
             pb={"md"}
             px="md"
-            min={1}
+            min={0}
             max={form.values.pubkeys.length}
             step={1}
             value={form.values.mOfN}

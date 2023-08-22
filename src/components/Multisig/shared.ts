@@ -3,6 +3,7 @@ import blake from 'blakejs'
 
 export const newMultisigStorageKey = 'multisig-wip'
 export const allMultisigStorageKey = 'multisig-all'
+export const newMultisigTxStorageKey = 'multisig-tx-wip'
 export const defaultNewMultisig = {
   name: '',
   pubkeys: [
