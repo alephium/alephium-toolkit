@@ -27,12 +27,6 @@ function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
   const navigate = useNavigate()
 
-  const onExport = useCallback(() => {
-    if (theMultisig) {
-      console.log(`Config: ${configToSting(theMultisig)}`)
-    }
-  }, [theMultisig])
-
   return (
     <Box maw={700} mx="auto" mt="xl" ta={"left"}>
       <Select
@@ -52,10 +46,10 @@ function ShowMultiSig() {
             <Button color='indigo' onClick={() => {}}>
               Remove !!!
             </Button>
-            <CopyButton value={JSON.stringify(theMultisig)} timeout={1000}>
+            <CopyButton value={configToSting(theMultisig)} timeout={1000}>
               {({ copied, copy }) => (
                 <Tooltip label={copied ? 'Copied' : null} opened={copied} withArrow>
-                  <Button onClick={onExport}>Export</Button>
+                  <Button onClick={copy}>Export</Button>
                 </Tooltip>
               )}
             </CopyButton>

@@ -126,16 +126,17 @@ export function configToSting(config: MultisigConfig): string {
   delete((dupConfig as any)['address'])
   const jsonStr = JSON.stringify(dupConfig)
   const hash = binToHex(blake.blake2b(jsonStr, undefined, 32))
-  return btoa(jsonStr) + hash
+  return btoa(jsonStr + hash)
 }
 
 export function stringToConfig(rawConfig: string): MultisigConfig {
-  if (rawConfig.length <= 64) {
-    throw new Error('Invalid config length')
+  const rawStr = atob(rawConfig)
+  if (rawStr.length <= 64) {
+    throw new Error('Invalid config')
   }
-  const hashIndex = rawConfig.length - 64
-  const hash = rawConfig.slice(hashIndex)
-  const jsonStr = atob(rawConfig.slice(0, hashIndex))
+  const hashIndex = rawStr.length - 64
+  const hash = rawStr.slice(hashIndex)
+  const jsonStr = rawStr.slice(0, hashIndex)
   const expectedHash = binToHex(blake.blake2b(jsonStr, undefined, 32))
   if (hash !== expectedHash) {
     throw new Error('Invalid config hash')
