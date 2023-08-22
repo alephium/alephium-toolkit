@@ -1,22 +1,55 @@
 import { Box, Button, Chip, Code, Grid, Group, Input, NumberInput, Select, SimpleGrid, Stack, Text, TextInput, Textarea } from "@mantine/core";
 import { IconAt } from "@tabler/icons-react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import MyBox from "../Misc/MyBox";
-import { useForm } from "@mantine/form";
-import { Number256 } from "@alephium/web3";
-import { useAllMultisig } from "./shared";
+import { FORM_INDEX, useForm } from "@mantine/form";
+import { NodeProvider, convertAlphAmountWithDecimals, isBase58, node, web3 } from "@alephium/web3";
+import { buildMultisigTx, useAllMultisig } from "./shared";
 
 const testData = {"name":"FooDAO","pubkeys":[{"name":"Alice","pubkey":"A"},{"name":"Bob","pubkey":"B"},{"name":"Charlie","pubkey":"C"}],"mOfN":2, "address": "???"}
 
 function BuildMultisigTx() {
-  const form = useForm<{ multisig: string, signers: string[], destinations: { address: string, attoAlphAmount: Number256 }[]}>({
+  const form = useForm<{ multisig: string, signers: string[], destinations: { address: string, alphAmount: string }[]}>({
+    validateInputOnChange: [`destinations.${FORM_INDEX}.address`, `destinations.${FORM_INDEX}.alphAmount`],
     initialValues: {
       multisig: '',
       signers: [],
-      destinations: []
+      destinations: [{ address: '', alphAmount: '' }]
     },
+    validate: {
+      multisig: (value) => value === '' ? 'Please select multisig' : null,
+      destinations: {
+        address: (value) => value === '' ? 'Empty address' : !isBase58(value) ? 'Invalid address' : null,
+        alphAmount: (value) => {
+          if (value === '') return 'Empty amount'
+          const amount = convertAlphAmountWithDecimals(value)
+          return amount === undefined || amount <= 0n ? 'Invalid amount' : null
+        }
+      }
+    }
   });
   const allMultisig = useAllMultisig()
+
+  const [buildTxResult, setBuildTxResult] = useState<node.BuildTransactionResult | undefined>()
+
+  const buildTxCallback = useCallback(async () => {
+    try {
+      const { hasErrors, errors } = form.validate()
+      if (hasErrors) throw errors
+      // const nodeProvider = web3.getCurrentNodeProvider()
+      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
+      const buildTxResult = await buildMultisigTx(nodeProvider, form.values.multisig, form.values.signers, form.values.destinations)
+      console.log(`Result: ${JSON.stringify(buildTxResult)}`)
+      setBuildTxResult(buildTxResult)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [form, setBuildTxResult])
+
+  const selectedConfig = useMemo(() => {
+    if (form.values.multisig === '') return testData
+    return allMultisig.find((c) => c.name === form.values.multisig)!
+  }, [form.values.multisig, allMultisig])
 
   return (
     <Box maw={900} mx="auto" mt="xl" ta="left">
@@ -31,15 +64,15 @@ function BuildMultisigTx() {
       <Grid.Col span={8}>
       <Stack>
       <MyBox mx="xl">
-      <Text ta='left' fw="700">Select {testData.mOfN} Signers</Text>
+      <Text ta='left' fw="700">Select {selectedConfig.mOfN} Signers</Text>
       <Chip.Group multiple onChange={signers => form.setValues({ signers: signers })}>
         <Group position="center" mt="lg">
-        {...testData.pubkeys.map((signer) => (
+        {...selectedConfig.pubkeys.map((signer) => (
           <Chip
             value={signer.pubkey}
             variant="light"
             radius="xl"
-            disabled={form.values.signers.length >= testData.mOfN && !form.values.signers.includes(signer.pubkey)}
+            disabled={form.values.signers.length >= selectedConfig.mOfN && !form.values.signers.includes(signer.pubkey)}
             style={{ marginRight: "0.5rem", marginBottom: "0.5rem" }}
           >
             {signer.name}
@@ -59,8 +92,16 @@ function BuildMultisigTx() {
       <MyBox mx="xl">
       <Text ta='left' fw="700">Send Assets</Text>
       <Group mt="lg" position="apart" mx="0.5rem">
-        <TextInput label="Recipient" ta="left" placeholder="Address" icon={<IconAt/>} />
-        <NumberInput label="Alephium" ta="left" placeholder="Amount" hideControls rightSection="ALPH" rightSectionWidth={"4rem"}/>
+        <TextInput label="Recipient" ta="left" placeholder="Address" icon={<IconAt/>} {...form.getInputProps('destinations.0.address')} />
+        <NumberInput
+          label="Alephium"
+          ta="left"
+          precision={6}
+          placeholder="Amount"
+          hideControls rightSection="ALPH"
+          rightSectionWidth={"4rem"}
+          {...form.getInputProps('destinations.0.alphAmount')}
+        />
       </Group>
 
         </MyBox>
@@ -69,7 +110,7 @@ function BuildMultisigTx() {
         <Button color='indigo' onClick={() => {}}>
           Reset
         </Button>
-        <Button color='indigo' onClick={() => {}}>
+        <Button color='indigo' onClick={buildTxCallback}>
           Build Transaction
         </Button>
       </Group>
@@ -84,6 +125,7 @@ function BuildMultisigTx() {
         placeholder="The built transaction will appear here"
         minRows={8}
         disabled
+        value={buildTxResult?.unsignedTx}
       />
       </Stack>
 

@@ -7,6 +7,12 @@ import MyBox from '../Misc/MyBox';
 import { addMultisigConfig, buildMultisigAddress, defaultNewMultisig, isMultisigExists, isPubkeyValid, newMultisigStorageKey } from './shared';
 import { useNavigate } from 'react-router-dom';
 
+function getPubkeyIndexByPath(path: string): number {
+  const begin = path.indexOf('.')
+  const end = path.lastIndexOf('.')
+  return parseInt(path.slice(begin + 1, end))
+}
+
 function CreateMultisig() {
   const form = useForm({
     validateInputOnChange: [`pubkeys.${FORM_INDEX}.pubkey`],
@@ -14,8 +20,19 @@ function CreateMultisig() {
     validate: {
       name: (value) => (value === '' ? 'Empty name' : isMultisigExists(value) ? 'The multisig already exists' : null),
       pubkeys: {
-        pubkey: (value) => value === '' ? 'Empty public key' : (isPubkeyValid(value) ? null : 'Invalid public key'),
-        name: (value) => (value === '' ? 'Empty name' : null)
+        pubkey: (value, values, path) => {
+          if (value === '') return 'Empty public key'
+          if (!isPubkeyValid(value)) return 'Invalid public key'
+          const index = values.pubkeys.findIndex((p) => p.pubkey === value)
+          if (getPubkeyIndexByPath(path) !== index) return 'Duplicate public key'
+          return null
+        },
+        name: (value, values, path) => {
+          if (value === '') return 'Empty name'
+          const index = values.pubkeys.findIndex((p) => p.name === value)
+          if (getPubkeyIndexByPath(path) !== index) return 'Duplicate name'
+          return null
+        }
       }
     }
   });
