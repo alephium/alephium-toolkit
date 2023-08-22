@@ -1,7 +1,12 @@
-import { Box, Button, Group, Text, Textarea } from "@mantine/core";
-import { useCallback, useState } from "react";
-import { MultisigConfig, addMultisigConfig, buildMultisigAddress, stringToConfig } from "./shared";
-import { useNavigate } from "react-router-dom";
+import { Box, Button, Group, Text, Textarea } from '@mantine/core'
+import { useCallback, useState } from 'react'
+import {
+  MultisigConfig,
+  addMultisigConfig,
+  buildMultisigAddress,
+  stringToConfig,
+} from './shared'
+import { useNavigate } from 'react-router-dom'
 
 function ImportMultisig() {
   const [error, setError] = useState<string | undefined>()
@@ -10,27 +15,32 @@ function ImportMultisig() {
 
   const onImportClick = useCallback(() => {
     if (config !== undefined) {
-      addMultisigConfig({ ...config, address: buildMultisigAddress(config)})
+      addMultisigConfig({ ...config, address: buildMultisigAddress(config) })
       navigate('/multisig/show?name=' + config.name)
     }
   }, [config, navigate])
 
-  const onContentChange = useCallback((content: string) => {
-    setError(undefined)
-    if (content === '') {
-      setError('Please input the configuration')
-      return
-    }
-    try {
-      setConfig(stringToConfig(content))
-    } catch (error) {
-      setError(`${error}`)
-    }
-  }, [setConfig, setError])
+  const onContentChange = useCallback(
+    (content: string) => {
+      setError(undefined)
+      if (content === '') {
+        setError('Please input the configuration')
+        return
+      }
+      try {
+        setConfig(stringToConfig(content))
+      } catch (error) {
+        setError(`${error}`)
+      }
+    },
+    [setConfig, setError]
+  )
 
   return (
     <Box maw={900} mx="auto" mt="xl">
-      <Text ta='left' fw="700">Multisig configuration</Text>
+      <Text ta="left" fw="700">
+        Multisig configuration
+      </Text>
       <Textarea
         placeholder="Paste your configuration here"
         minRows={8}
@@ -38,14 +48,18 @@ function ImportMultisig() {
         onChange={(event) => onContentChange(event.target.value)}
       />
       <Group position="right" mt="lg">
-        {error ? <Text color='red'>{error}</Text> : null}
+        {error ? <Text color="red">{error}</Text> : null}
         <div style={{ flex: 1 }}></div>
-        <Button color='indigo' onClick={onImportClick} disabled={error !== undefined || config === undefined}>
+        <Button
+          color="indigo"
+          onClick={onImportClick}
+          disabled={error !== undefined || config === undefined}
+        >
           Import Multisig
         </Button>
       </Group>
     </Box>
-  );
+  )
 }
 
-export default ImportMultisig;
+export default ImportMultisig

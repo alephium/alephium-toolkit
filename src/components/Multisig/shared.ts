@@ -1,4 +1,14 @@
-import { NodeProvider, SignerProvider, binToHex, bs58, convertAlphAmountWithDecimals, encodeI256, hexToBinUnsafe, isHexString, verifySignature } from "@alephium/web3"
+import {
+  NodeProvider,
+  SignerProvider,
+  binToHex,
+  bs58,
+  convertAlphAmountWithDecimals,
+  encodeI256,
+  hexToBinUnsafe,
+  isHexString,
+  verifySignature,
+} from '@alephium/web3'
 import blake from 'blakejs'
 
 export const newMultisigStorageKey = 'multisig-wip'
@@ -6,9 +16,7 @@ export const allMultisigStorageKey = 'multisig-all'
 export const newMultisigTxStorageKey = 'multisig-tx-wip'
 export const defaultNewMultisig = {
   name: '',
-  pubkeys: [
-    { name: '', pubkey: '' },
-  ],
+  pubkeys: [{ name: '', pubkey: '' }],
   mOfN: 1,
 }
 export type MultisigConfig = typeof defaultNewMultisig
@@ -19,9 +27,14 @@ export function getAllMultisigConfig(): AllMultisig {
   return (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig
 }
 
-export function addMultisigConfig(config: MultisigConfig & { address: string }) {
+export function addMultisigConfig(
+  config: MultisigConfig & { address: string }
+) {
   const allMultisigs = getAllMultisigConfig()
-  window.localStorage.setItem(allMultisigStorageKey, JSON.stringify([...allMultisigs, config]))
+  window.localStorage.setItem(
+    allMultisigStorageKey,
+    JSON.stringify([...allMultisigs, config])
+  )
 }
 
 export function isMultisigExists(name: string): boolean {
@@ -42,7 +55,12 @@ export function buildMultisigAddress(config: MultisigConfig): string {
   const bytesArray = [Uint8Array.from([1]), encodeI256(BigInt(pubkeyLength))]
     .concat(pubkeyHashes)
     .concat([encodeI256(BigInt(config.mOfN))])
-  const encoded = Uint8Array.from(bytesArray.reduce((acc, cur) => Uint8Array.from([...acc, ...cur]), new Uint8Array()))
+  const encoded = Uint8Array.from(
+    bytesArray.reduce(
+      (acc, cur) => Uint8Array.from([...acc, ...cur]),
+      new Uint8Array()
+    )
+  )
   return bs58.encode(encoded)
 }
 
@@ -62,31 +80,36 @@ export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
   signers: string[],
-  destinations: { address: string, alphAmount: string }[]
+  destinations: { address: string; alphAmount: string }[]
 ) {
   const config = tryGetMultisig(configName)
   if (signers.length !== config.mOfN) {
     throw new Error(`Expect ${config.mOfN} signers`)
   }
-  signers.sort((a, b) => config.pubkeys.findIndex((p) => p.pubkey === a) - config.pubkeys.findIndex((p) => p.pubkey === b))
+  signers.sort(
+    (a, b) =>
+      config.pubkeys.findIndex((p) => p.pubkey === a) -
+      config.pubkeys.findIndex((p) => p.pubkey === b)
+  )
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
     fromPublicKeys: signers,
-    destinations: destinations.map((d) =>
-      ({
-        address: d.address,
-        attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString()
-      })
-    )
+    destinations: destinations.map((d) => ({
+      address: d.address,
+      attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString(),
+    })),
   })
 }
 
-export async function signMultisigTx(signerProvider: SignerProvider, unsignedTx: string) {
+export async function signMultisigTx(
+  signerProvider: SignerProvider,
+  unsignedTx: string
+) {
   const account = await signerProvider.getSelectedAccount()
   const { signature } = await signerProvider.signUnsignedTx({
     signerAddress: account.address,
     signerKeyType: account.keyType,
-    unsignedTx: unsignedTx
+    unsignedTx: unsignedTx,
   })
   return { signer: account.publicKey, signature }
 }
@@ -95,13 +118,15 @@ export async function submitMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
   unsignedTx: string,
-  signatures: { signer: string, signature: string }[]
+  signatures: { signer: string; signature: string }[]
 ) {
   const config = tryGetMultisig(configName)
   if (signatures.length !== config.mOfN) {
     throw new Error(`Expect ${config.mOfN} signatures`)
   }
-  const txId = binToHex(blake.blake2b(hexToBinUnsafe(unsignedTx), undefined, 32))
+  const txId = binToHex(
+    blake.blake2b(hexToBinUnsafe(unsignedTx), undefined, 32)
+  )
   const txSignatures = Array(config.pubkeys.length).fill('')
   signatures.forEach((s) => {
     const index = config.pubkeys.findIndex((p) => p.pubkey === s.signer)
@@ -118,13 +143,13 @@ export async function submitMultisigTx(
   })
   return await nodeProvider.multisig.postMultisigSubmit({
     unsignedTx: unsignedTx,
-    signatures: txSignatures.filter((s) => s !== '')
+    signatures: txSignatures.filter((s) => s !== ''),
   })
 }
 
 export function configToSting(config: MultisigConfig): string {
   const dupConfig = { ...config }
-  delete((dupConfig as any)['address'])
+  delete (dupConfig as any)['address']
   const jsonStr = JSON.stringify(dupConfig)
   const hash = binToHex(blake.blake2b(jsonStr, undefined, 32))
   return btoa(jsonStr + hash)

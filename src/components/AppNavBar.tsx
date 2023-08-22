@@ -1,18 +1,18 @@
-import { Navbar, ScrollArea, createStyles, rem } from '@mantine/core';
+import { Navbar, ScrollArea, createStyles, rem } from '@mantine/core'
 import {
   IconNotes,
   IconCalendarStats,
   IconGauge,
   IconPresentationAnalytics,
   IconFileAnalytics,
-} from '@tabler/icons-react';
-import { LinksGroup } from './AppNavBarLinkGroup';
+} from '@tabler/icons-react'
+import { LinksGroup } from './AppNavBarLinkGroup'
 
 const mockdata = [
-  { 
+  {
     label: 'Wallet Info',
     icon: IconGauge,
-    groupLink: '/'
+    groupLink: '/',
   },
   {
     label: 'Fungible Tokens',
@@ -36,7 +36,7 @@ const mockdata = [
       { label: 'Burn NFTs', link: '/nft/burn' },
     ],
   },
-  { 
+  {
     label: 'Contracts',
     icon: IconFileAnalytics,
     initiallyOpened: false,
@@ -44,9 +44,10 @@ const mockdata = [
       { label: 'Playground', link: '/contract/play' },
       { label: 'Contract info', link: '/contract/info' },
       { label: 'Deploy Contract', link: '/contract/deploy' },
-    ]
+    ],
   },
-  { label: 'Multisig',
+  {
+    label: 'Multisig',
     icon: IconPresentationAnalytics,
     initiallyOpened: true,
     links: [
@@ -54,8 +55,8 @@ const mockdata = [
       { label: 'Import Multisig', link: '/multisig/import' },
       { label: 'Show Multisig', link: '/multisig/show' },
       { label: 'Build Transaction', link: '/multisig/build-tx' },
-      { label: 'Sign Transaction', link: '/multisig/sign-tx' }
-    ]
+      { label: 'Sign Transaction', link: '/multisig/sign-tx' },
+    ],
   },
   // { label: 'Settings', icon: IconAdjustments },
   // {
@@ -67,11 +68,12 @@ const mockdata = [
   //     { label: 'Recovery codes', link: '/' },
   //   ],
   // },
-];
+]
 
 const useStyles = createStyles((theme) => ({
   navbar: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+    backgroundColor:
+      theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
     paddingBottom: 0,
   },
 
@@ -103,11 +105,13 @@ const useStyles = createStyles((theme) => ({
       theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
     }`,
   },
-}));
+}))
 
 export function NavbarNested() {
-  const { classes } = useStyles();
-  const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
+  const { classes } = useStyles()
+  const links = mockdata.map((item) => (
+    <LinksGroup {...item} key={item.label} />
+  ))
 
   return (
     <Navbar width={{ sm: 300 }} p="md" className={classes.navbar}>
@@ -130,7 +134,7 @@ export function NavbarNested() {
         />
       </Navbar.Section> */}
     </Navbar>
-  );
+  )
 }
 
-export default NavbarNested;
+export default NavbarNested

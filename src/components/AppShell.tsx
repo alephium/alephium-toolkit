@@ -1,29 +1,24 @@
-import {
-  AppShell,
-  Footer,
-  Text,
-  useMantineTheme,
-} from "@mantine/core";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import NavbarNested from "./AppNavBar";
-import AppHeader from "./AppHeader";
-import WalletInfo from "./Wallet/WalletInfo";
-import { WIP } from "./Misc/WIP";
-import TokenInfo from "./Token/TokenInfo";
-import NewToken from "./Token/NewToken";
-import { useAlephiumConnectContext } from "@alephium/web3-react";
-import { useEffect } from "react";
-import { web3 } from "@alephium/web3";
-import CreateMultisig from "./Multisig/CreateMultisig";
-import ImportMultisig from "./Multisig/ImportMultiSig";
-import ShowMultiSig from "./Multisig/ShowMultiSig";
-import SignMultisigTx from "./Multisig/SignMultiSigTx";
-import BuildMultisigTx from "./Multisig/BuildMultiSigTx";
+import { AppShell, Footer, Text, useMantineTheme } from '@mantine/core'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import NavbarNested from './AppNavBar'
+import AppHeader from './AppHeader'
+import WalletInfo from './Wallet/WalletInfo'
+import { WIP } from './Misc/WIP'
+import TokenInfo from './Token/TokenInfo'
+import NewToken from './Token/NewToken'
+import { useAlephiumConnectContext } from '@alephium/web3-react'
+import { useEffect } from 'react'
+import { web3 } from '@alephium/web3'
+import CreateMultisig from './Multisig/CreateMultisig'
+import ImportMultisig from './Multisig/ImportMultiSig'
+import ShowMultiSig from './Multisig/ShowMultiSig'
+import SignMultisigTx from './Multisig/SignMultiSigTx'
+import BuildMultisigTx from './Multisig/BuildMultiSigTx'
 
 function AppShellExample() {
-  const theme = useMantineTheme();
+  const theme = useMantineTheme()
   const context = useAlephiumConnectContext()
-  
+
   useEffect(() => {
     if (context.signerProvider?.nodeProvider !== undefined) {
       web3.setCurrentNodeProvider(context.signerProvider.nodeProvider)
@@ -36,24 +31,22 @@ function AppShellExample() {
         styles={{
           main: {
             background:
-              theme.colorScheme === "dark"
+              theme.colorScheme === 'dark'
                 ? theme.colors.dark[8]
                 : theme.colors.gray[0],
           },
         }}
         navbarOffsetBreakpoint="sm"
         asideOffsetBreakpoint="sm"
-        navbar={
-          <NavbarNested />
-        }
+        navbar={<NavbarNested />}
         footer={
           <Footer height={60} p="md">
-            <Text fw="bold" fz="sm">Powered by BlockFlow, Stateful UTXO, PoLW</Text>
+            <Text fw="bold" fz="sm">
+              Powered by BlockFlow, Stateful UTXO, PoLW
+            </Text>
           </Footer>
         }
-        header={
-          <AppHeader />
-        }
+        header={<AppHeader />}
       >
         <Routes>
           <Route path="/" element={<WalletInfo />} />
@@ -77,7 +70,7 @@ function AppShellExample() {
         </Routes>
       </AppShell>
     </Router>
-  );
+  )
 }
 
-export default AppShellExample;
+export default AppShellExample

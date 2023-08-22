@@ -1,7 +1,7 @@
-import { Box, DefaultProps } from "@mantine/core";
+import { Box, DefaultProps } from '@mantine/core'
 
 interface MyTableProps extends DefaultProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 function MyBox({ children, ...others }: MyTableProps) {
@@ -12,9 +12,7 @@ function MyBox({ children, ...others }: MyTableProps) {
       py="2rem"
       sx={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark"
-            ? theme.colors.dark[7]
-            : "white",
+          theme.colorScheme === 'dark' ? theme.colors.dark[7] : 'white',
         borderRadius: theme.radius.md,
         boxShadow: theme.shadows.md,
       })}
@@ -22,7 +20,7 @@ function MyBox({ children, ...others }: MyTableProps) {
     >
       {children}
     </Box>
-  );
+  )
 }
 
-export default MyBox;
+export default MyBox

@@ -3,7 +3,7 @@ import { SimpleToken } from '../artifacts/ts'
 
 // Deploy the token template contract so that we could use it to issue new tokens
 const deployTokenTemplate: DeployFunction = async (
-  deployer: Deployer,
+  deployer: Deployer
 ): Promise<void> => {
   // Get settings
   const result = await deployer.deployContract(SimpleToken, {
@@ -15,11 +15,15 @@ const deployTokenTemplate: DeployFunction = async (
       decimals: 18n,
       supply: 0n,
       balance: 0n,
-      owner: deployer.account.address
-    }
+      owner: deployer.account.address,
+    },
   })
-  console.log('Token template contract id: ' + result.contractInstance.contractId)
-  console.log('Token template contract address: ' + result.contractInstance.address)
+  console.log(
+    'Token template contract id: ' + result.contractInstance.contractId
+  )
+  console.log(
+    'Token template contract address: ' + result.contractInstance.address
+  )
 }
 
 export default deployTokenTemplate

@@ -1,11 +1,13 @@
-import { Box, Button, Group, Text, Textarea } from "@mantine/core";
-import { useCallback, useState } from "react";
-import CopyText from "../Misc/CopyText";
-import { useWallet } from "@alephium/web3-react";
-import { signMultisigTx } from "./shared";
+import { Box, Button, Group, Text, Textarea } from '@mantine/core'
+import { useCallback, useState } from 'react'
+import CopyText from '../Misc/CopyText'
+import { useWallet } from '@alephium/web3-react'
+import { signMultisigTx } from './shared'
 
 function SignMultisigTx() {
-  const [signature, setSignature] = useState<{ signer: string, signature: string } | undefined>()
+  const [signature, setSignature] = useState<
+    { signer: string; signature: string } | undefined
+  >()
   const [unsignedTx, setUnsignedTx] = useState<string | undefined>()
   const wallet = useWallet()
 
@@ -18,7 +20,9 @@ function SignMultisigTx() {
 
   return (
     <Box maw={900} mx="auto" mt="xl">
-      <Text ta='left' fw="700">Multisig Transaction</Text>
+      <Text ta="left" fw="700">
+        Multisig Transaction
+      </Text>
       <Textarea
         placeholder="Paste your multisig transaction here"
         minRows={8}
@@ -31,22 +35,24 @@ function SignMultisigTx() {
           }
         }}
       />
-      <Text ta='left' fw="700" mt="lg">TODO: Show Transaction Details</Text>
+      <Text ta="left" fw="700" mt="lg">
+        TODO: Show Transaction Details
+      </Text>
 
-      {
-        signature
-        ? <Group>
+      {signature ? (
+        <Group>
           <Text>Signature: </Text>
           <CopyText value={signature.signature} />
         </Group>
-        : <Group position="right" mt="lg">
-          <Button color='indigo' onClick={sign}>
+      ) : (
+        <Group position="right" mt="lg">
+          <Button color="indigo" onClick={sign}>
             Sign MultiSig Transaction
           </Button>
         </Group>
-      }
+      )}
     </Box>
-  );
+  )
 }
 
-export default SignMultisigTx;
+export default SignMultisigTx

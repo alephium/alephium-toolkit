@@ -13,21 +13,31 @@ const configuration: Configuration<Settings> = {
       privateKeys: [
         'a642942e67258589cd2b1822c631506632db5a12aabcf413604e785300d762a5', // group 0
       ],
-      settings: defaultSettings
+      settings: defaultSettings,
     },
 
     testnet: {
-      nodeUrl: process.env.NODE_URL as string ?? 'https://wallet-v20.testnet.alephium.org',
-      privateKeys: process.env.PRIVATE_KEYS === undefined ? [] : process.env.PRIVATE_KEYS.split(','),
-      settings: defaultSettings
+      nodeUrl:
+        (process.env.NODE_URL as string) ??
+        'https://wallet-v20.testnet.alephium.org',
+      privateKeys:
+        process.env.PRIVATE_KEYS === undefined
+          ? []
+          : process.env.PRIVATE_KEYS.split(','),
+      settings: defaultSettings,
     },
 
     mainnet: {
-      nodeUrl: process.env.NODE_URL as string ?? 'https://wallet-v20.mainnet.alephium.org',
-      privateKeys: process.env.PRIVATE_KEYS === undefined ? [] : process.env.PRIVATE_KEYS.split(','),
-      settings: defaultSettings
-    }
-  }
+      nodeUrl:
+        (process.env.NODE_URL as string) ??
+        'https://wallet-v20.mainnet.alephium.org',
+      privateKeys:
+        process.env.PRIVATE_KEYS === undefined
+          ? []
+          : process.env.PRIVATE_KEYS.split(','),
+      settings: defaultSettings,
+    },
+  },
 }
 
 export default configuration
