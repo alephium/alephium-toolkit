@@ -1,4 +1,4 @@
-import { NodeProvider, binToHex, bs58, convertAlphAmountWithDecimals, encodeI256, hexToBinUnsafe, isHexString, verifySignature } from "@alephium/web3"
+import { NodeProvider, SignerProvider, binToHex, bs58, convertAlphAmountWithDecimals, encodeI256, hexToBinUnsafe, isHexString, verifySignature } from "@alephium/web3"
 import blake from 'blakejs'
 
 export const newMultisigStorageKey = 'multisig-wip'
@@ -78,6 +78,16 @@ export async function buildMultisigTx(
       })
     )
   })
+}
+
+export async function signMultisigTx(signerProvider: SignerProvider, unsignedTx: string) {
+  const account = await signerProvider.getSelectedAccount()
+  const { signature } = await signerProvider.signUnsignedTx({
+    signerAddress: account.address,
+    signerKeyType: account.keyType,
+    unsignedTx: unsignedTx
+  })
+  return { signer: account.publicKey, signature }
 }
 
 export async function submitMultisigTx(
