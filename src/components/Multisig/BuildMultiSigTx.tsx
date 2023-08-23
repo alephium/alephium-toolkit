@@ -40,8 +40,10 @@ import {
 } from '@alephium/web3'
 import {
   buildMultisigTx,
+  defaultNewMultisigTx,
   isSignatureValid,
   newMultisigTxStorageKey,
+  resetNewMultisigTx,
   submitMultisigTx,
   useAllMultisig,
   waitTxSubmitted,
@@ -63,14 +65,7 @@ function BuildMultisigTx() {
       `destinations.${FORM_INDEX}.alphAmount`,
       `signatures.${FORM_INDEX}.signature`,
     ],
-    initialValues: {
-      multisig: '',
-      signers: [],
-      destinations: [{ address: '', alphAmount: '' }],
-      unsignedTx: undefined,
-      signatures: [],
-      step: 0,
-    },
+    initialValues: defaultNewMultisigTx,
     validate: {
       multisig: (value) => (value === '' ? 'Please select multisig' : null),
       destinations: {
@@ -97,7 +92,6 @@ function BuildMultisigTx() {
   const [submitTxResult, setSubmitTxResult] = useState<
     node.SubmitTxResult | undefined
   >()
-  const [txSubmitted, setTxSubmitted] = useState<boolean>(false)
 
   const buildTxCallback = useCallback(async () => {
     try {
@@ -129,6 +123,7 @@ function BuildMultisigTx() {
     }
   }, [form])
 
+  const [txSubmitted, setTxSubmitted] = useState<boolean>(false)
   const [submitTxError, setSubmitTxError] = useState<string>()
   const submitTxCallback = useCallback(async () => {
     try {
@@ -159,6 +154,7 @@ function BuildMultisigTx() {
       await waitTxSubmitted(explorerProvider, submitTxResult.txId)
       setTxSubmitted(true)
       setSubmitTxError(undefined)
+      resetNewMultisigTx()
     } catch (error) {
       setSubmitTxError(`Error in tx submission: ${error}`)
       console.error(error)
@@ -339,6 +335,9 @@ function BuildMultisigTx() {
                   </Group>
                 ))}
               </MyBox>
+              {submitTxError && (
+                <Text color="red" mt="lg" mx="lg">{submitTxError}</Text>
+              )}
               <Group mt="lg" position="apart" mx="2rem">
                 <Button
                   onClick={() => {
@@ -353,9 +352,7 @@ function BuildMultisigTx() {
           ) : (
             <Box maw={900} mx="auto" mt="xl" ta="left">
               <Group position="center" mt="lg">
-                {!txSubmitted ? (
-                  <Loader color="teal" size="16rem" />
-                ) : (
+                {txSubmitted ? (
                   <RingProgress
                     sections={[{ value: 100, color: 'teal' }]}
                     size={16 * 20}
@@ -373,17 +370,20 @@ function BuildMultisigTx() {
                       </Center>
                     }
                   />
+                ) : (
+                  <Loader color="teal" size="16rem" />
                 )}
               </Group>
-              <Divider mt="xl" />
-              <Group mt="lg" position="apart" mx="2rem">
-                <Anchor
-                  href={`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
-                  target="_blank"
-                >
-                  Explorer
-                </Anchor>
-              </Group>
+              {txSubmitted && (
+                <Group mt="lg" position="apart" mx="2rem">
+                  <Anchor
+                    href={`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
+                    target="_blank"
+                  >
+                    {`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
+                  </Anchor>
+                </Group>
+              )}
             </Box>
           )}
         </Grid.Col>
@@ -394,18 +394,22 @@ function BuildMultisigTx() {
               active={form.values.step}
               onStepClick={(s) => form.setValues({ step: s })}
               orientation="vertical"
+              allowNextStepsSelect={false}
             >
               <Stepper.Step
                 label="Create"
                 description="Create a new transaction"
+                allowStepSelect={form.values.step !== 3}
               />
               <Stepper.Step
                 label="Sign"
                 description="Share the transaction to all signers for signature"
+                allowStepSelect={form.values.step !== 3}
               />
               <Stepper.Step
                 label="Submit"
                 description="Aggregate all signatures and submit the transaction"
+                allowStepSelect={form.values.step !== 3}
               />
               <Stepper.Step
                 label="Mempool"

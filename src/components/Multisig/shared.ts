@@ -20,6 +20,14 @@ export const defaultNewMultisig = {
   pubkeys: [{ name: '', pubkey: '' }],
   mOfN: 1,
 }
+export const defaultNewMultisigTx = {
+  multisig: '',
+  signers: [],
+  destinations: [{ address: '', alphAmount: '' }],
+  unsignedTx: undefined,
+  signatures: [],
+  step: 0,
+}
 export type MultisigConfig = typeof defaultNewMultisig
 export type AllMultisig = (MultisigConfig & { address: string })[]
 
@@ -27,6 +35,13 @@ export function resetNewMultisig() {
   window.localStorage.setItem(
     newMultisigStorageKey,
     JSON.stringify(defaultNewMultisig)
+  )
+}
+
+export function resetNewMultisigTx() {
+  window.localStorage.setItem(
+    newMultisigTxStorageKey,
+    JSON.stringify(defaultNewMultisigTx)
   )
 }
 

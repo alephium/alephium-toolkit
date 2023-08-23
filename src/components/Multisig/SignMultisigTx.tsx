@@ -1,9 +1,9 @@
 import { Box, Button, Group, Mark, Text, Textarea } from '@mantine/core'
 import { useCallback, useState } from 'react'
-import CopyText from '../Misc/CopyText'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
 import { NodeProvider, isHexString } from '@alephium/web3'
+import CopyTextarea from '../Misc/CopyTextarea'
 
 type P2MPKUnlockScript = { pubkey: string; index: number }[]
 
@@ -79,19 +79,26 @@ function SignMultisigTx() {
           }
         }}
       />
-      <Text ta="left" fw="700" mt="lg">
-        The multisig address to sign is {loadingConfig || unsignedTx === undefined ? null : multisigConfig ? (
-          <Mark>{multisigConfig.name}</Mark>
-        ) : (
-          <Mark color='red'>unknown</Mark>
-        )}
-      </Text>
+      {loadingConfig ? null : (
+        <Text ta="left" fw="700" mt="lg">
+          The multisig address to sign is{' '}
+          {multisigConfig ? (
+            <Mark>{multisigConfig.name}</Mark>
+          ) : (
+            <Mark color="red">unknown</Mark>
+          )}
+        </Text>
+      )}
 
       {signature ? (
-        <Group position='apart' mt="xl">
-          <Text>Signature: </Text>
-          <CopyText value={signature.signature} />
-        </Group>
+        <Box>
+          <Text ta="left" fw="700" mt="xl">
+            Signature:{' '}
+          </Text>
+          <Group position="apart">
+            <CopyTextarea value={signature.signature} />
+          </Group>
+        </Box>
       ) : (
         <Group position="right" mt="xl">
           <Button color="indigo" onClick={sign}>
