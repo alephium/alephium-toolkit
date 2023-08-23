@@ -5,7 +5,7 @@ import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
 import { NodeProvider, isHexString } from '@alephium/web3'
 
-type P2MPKUnlockScript = { pubkey: string, index: number }[]
+type P2MPKUnlockScript = { pubkey: string; index: number }[]
 
 function SignMultisigTx() {
   const [signature, setSignature] = useState<
@@ -13,25 +13,31 @@ function SignMultisigTx() {
   >()
   const [unsignedTx, setUnsignedTx] = useState<string | undefined>()
   const [loadingConfig, setLoadingConfig] = useState<boolean>(true)
-  const [multisigConfig, setMultisigConfig] = useState<(MultisigConfig & { address: string }) | undefined>()
+  const [multisigConfig, setMultisigConfig] = useState<
+    (MultisigConfig & { address: string }) | undefined
+  >()
   const wallet = useWallet()
 
-  const tryLoadMultisigConfig = useCallback(async (unsignedTx: string) => {
-    try {
-      if (!isHexString(unsignedTx)) {
-        throw new Error('Invalid unsigned tx')
-      }
+  const tryLoadMultisigConfig = useCallback(
+    async (unsignedTx: string) => {
+      try {
+        if (!isHexString(unsignedTx)) {
+          throw new Error('Invalid unsigned tx')
+        }
 
-      const nodeProvider = wallet?.nodeProvider ?? (new NodeProvider('http://127.0.0.1:22973'))
-      const unlockScript = await getUnlockScript(nodeProvider, unsignedTx)
-      const multisigConfig = getMultisigByUnlockScript(unlockScript)
-      setMultisigConfig(multisigConfig)
-      setLoadingConfig(false)
-    } catch (error) {
-      setLoadingConfig(false)
-      console.error(error)
-    }
-  }, [wallet, setMultisigConfig, setLoadingConfig])
+        const nodeProvider =
+          wallet?.nodeProvider ?? new NodeProvider('http://127.0.0.1:22973')
+        const unlockScript = await getUnlockScript(nodeProvider, unsignedTx)
+        const multisigConfig = getMultisigByUnlockScript(unlockScript)
+        setMultisigConfig(multisigConfig)
+        setLoadingConfig(false)
+      } catch (error) {
+        setLoadingConfig(false)
+        console.error(error)
+      }
+    },
+    [wallet, setMultisigConfig, setLoadingConfig]
+  )
 
   const sign = useCallback(async () => {
     try {
@@ -69,10 +75,10 @@ function SignMultisigTx() {
         TODO: Show Transaction Details
       </Text>
 
-      {loadingConfig ? null : (
-        multisigConfig
-          ? <Text>Multisig address: {multisigConfig.address}</Text>
-          : <Text>Unknown multisig address</Text>
+      {loadingConfig ? null : multisigConfig ? (
+        <Text>Multisig address: {multisigConfig.address}</Text>
+      ) : (
+        <Text>Unknown multisig address</Text>
       )}
 
       {signature ? (
@@ -91,13 +97,17 @@ function SignMultisigTx() {
   )
 }
 
-function getMultisigByUnlockScript(unlockScript: P2MPKUnlockScript): (MultisigConfig & { address: string }) | undefined {
+function getMultisigByUnlockScript(
+  unlockScript: P2MPKUnlockScript
+): (MultisigConfig & { address: string }) | undefined {
   const maxPubkeyIndex = unlockScript[unlockScript.length - 1].index
   const allConfigs = getAllMultisigConfig()
   return allConfigs.find((config) => {
     if (config.mOfN !== unlockScript.length) return false
     if (config.pubkeys.length < maxPubkeyIndex) return false
-    return unlockScript.every(({ pubkey, index }) => config.pubkeys[index].pubkey === pubkey)
+    return unlockScript.every(
+      ({ pubkey, index }) => config.pubkeys[index].pubkey === pubkey
+    )
   })
 }
 
@@ -114,7 +124,7 @@ function decodeUnlockScript(rawUnlockScript: string): P2MPKUnlockScript {
     const publicKeyAndIndex = rawUnlockScript.slice(currentIndex, end)
     p2mpkUnlockScript.push({
       pubkey: publicKeyAndIndex.slice(0, 66),
-      index: parseInt(publicKeyAndIndex.slice(66), 16)
+      index: parseInt(publicKeyAndIndex.slice(66), 16),
     })
     currentIndex = end
   }
@@ -124,13 +134,21 @@ function decodeUnlockScript(rawUnlockScript: string): P2MPKUnlockScript {
   return p2mpkUnlockScript
 }
 
-async function getUnlockScript(nodeProvider: NodeProvider, unsignedTx: string): Promise<P2MPKUnlockScript> {
-  const decodedTx = await nodeProvider.transactions.postTransactionsDecodeUnsignedTx({ unsignedTx })
+async function getUnlockScript(
+  nodeProvider: NodeProvider,
+  unsignedTx: string
+): Promise<P2MPKUnlockScript> {
+  const decodedTx =
+    await nodeProvider.transactions.postTransactionsDecodeUnsignedTx({
+      unsignedTx,
+    })
   if (decodedTx.unsignedTx.inputs.length === 0) {
     throw new Error(`Invalid unsigned tx, the input is empty`)
   }
   const unlockScript = decodedTx.unsignedTx.inputs[0].unlockScript
-  const fromSameAddress = decodedTx.unsignedTx.inputs.slice(1).every((i) => i.unlockScript === unlockScript)
+  const fromSameAddress = decodedTx.unsignedTx.inputs
+    .slice(1)
+    .every((i) => i.unlockScript === unlockScript)
   if (!fromSameAddress) {
     throw new Error(`Invalid unsigned tx, the input from different address`)
   }

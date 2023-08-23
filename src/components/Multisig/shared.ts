@@ -91,7 +91,9 @@ export async function buildMultisigTx(
   if (signerNames.length !== config.mOfN) {
     throw new Error(`Expect ${config.mOfN} signers`)
   }
-  const signerPublicKeys = signerNames.map((name) => config.pubkeys.find((p) => p.name === name)!.pubkey)
+  const signerPublicKeys = signerNames.map(
+    (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
+  )
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
     fromPublicKeys: signerPublicKeys,
