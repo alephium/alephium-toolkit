@@ -91,7 +91,7 @@ function ShowMultiSig() {
           color="red"
           mt="lg"
         >
-          This action will remove <Mark>{multisigName}</Mark> from your browser.
+          This action will remove multisig <Mark>{multisigName}</Mark> from your browser.
           You will need to re-import the configuration to use it again.
         </Alert>
         <Group position="center" mt="lg">
@@ -132,8 +132,9 @@ function ShowMultiSig() {
                           <Textarea
                             placeholder="Paste your configuration here"
                             value={buildMultisigAddress(theMultisig)}
-                            minRows={4}
+                            minRows={1}
                             mt="md"
+                            autosize
                             disabled
                             styles={(theme) => ({
                               input: {
