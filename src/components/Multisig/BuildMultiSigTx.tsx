@@ -3,6 +3,7 @@ import {
   Button,
   Chip,
   Code,
+  CopyButton,
   Divider,
   Grid,
   Group,
@@ -18,12 +19,14 @@ import {
   Text,
   TextInput,
   Textarea,
+  Tooltip,
 } from '@mantine/core'
 import { IconAt } from '@tabler/icons-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
+  ExplorerProvider,
   NodeProvider,
   convertAlphAmountWithDecimals,
   isBase58,
@@ -32,8 +35,11 @@ import {
 } from '@alephium/web3'
 import {
   buildMultisigTx,
+  isSignatureValid,
   newMultisigTxStorageKey,
+  submitMultisigTx,
   useAllMultisig,
+  waitTxSubmitted,
 } from './shared'
 
 function BuildMultisigTx() {
@@ -41,17 +47,20 @@ function BuildMultisigTx() {
     multisig: string
     signers: string[]
     destinations: { address: string; alphAmount: string }[]
+    unsignedTx: string | undefined
     signatures: { name: string; signature: string }[]
     step: number
   }>({
     validateInputOnChange: [
       `destinations.${FORM_INDEX}.address`,
       `destinations.${FORM_INDEX}.alphAmount`,
+      `signatures.${FORM_INDEX}.signature`,
     ],
     initialValues: {
       multisig: '',
       signers: [],
       destinations: [{ address: '', alphAmount: '' }],
+      unsignedTx: undefined,
       signatures: [],
       step: 0,
     },
@@ -70,18 +79,34 @@ function BuildMultisigTx() {
           return amount === undefined || amount <= 0n ? 'Invalid amount' : null
         },
       },
+      signatures: {
+        signature: (value) =>
+          isSignatureValid(value) ? null : 'Invalid signature',
+      },
     },
   })
   const allMultisig = useAllMultisig()
 
-  const [buildTxResult, setBuildTxResult] = useState<
-    node.BuildTransactionResult | undefined
+  const [submitTxResult, setSubmitTxResult] = useState<
+    node.SubmitTxResult | undefined
   >()
+  const [txSubmitted, setTxSubmitted] = useState<boolean>(false)
 
   const buildTxCallback = useCallback(async () => {
     try {
-      const { hasErrors, errors } = form.validate()
-      if (hasErrors) throw errors
+      // we can not use the `form.validate()` because the `signatures` is invalid now,
+      // and `validateField('destinations')` does not display error properly in the UI
+      const hasError = form.values.destinations.some((_, index) => {
+        const validateAddress = form.validateField(
+          `destinations.${index}.address`
+        )
+        const validateAmount = form.validateField(
+          `destinations.${index}.alphAmount`
+        )
+        return validateAddress.hasError || validateAmount.hasError
+      })
+      if (hasError) throw new Error('Invalid destinations')
+
       // const nodeProvider = web3.getCurrentNodeProvider()
       const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
       const buildTxResult = await buildMultisigTx(
@@ -90,12 +115,45 @@ function BuildMultisigTx() {
         form.values.signers,
         form.values.destinations
       )
-      console.log(`Result: ${JSON.stringify(buildTxResult)}`)
-      setBuildTxResult(buildTxResult)
+      console.log(`Build multisig tx result: ${JSON.stringify(buildTxResult)}`)
+      form.setValues({ unsignedTx: buildTxResult.unsignedTx, step: 1 })
     } catch (error) {
       console.error(error)
     }
-  }, [form, setBuildTxResult])
+  }, [form])
+
+  const submitTxCallback = useCallback(async () => {
+    try {
+      if (form.values.unsignedTx === undefined) {
+        throw new Error('There is no unsigned tx')
+      }
+
+      const hasError = form.values.signatures.some((_, index) => {
+        return form.validateField(`signatures.${index}.signature`).hasError
+      })
+      if (hasError) throw new Error(`Invalid signatures`)
+
+      // const nodeProvider = web3.getCurrentNodeProvider()
+      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
+      const submitTxResult = await submitMultisigTx(
+        nodeProvider,
+        form.values.multisig,
+        form.values.unsignedTx,
+        form.values.signatures
+      )
+      console.log(
+        `Submit multisig tx result: ${JSON.stringify(submitTxResult)}`
+      )
+      setSubmitTxResult(submitTxResult)
+      form.setValues({ step: 3 })
+
+      const explorerProvider = new ExplorerProvider('http://localhost:9090')
+      await waitTxSubmitted(explorerProvider, submitTxResult.txId)
+      setTxSubmitted(true)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [form, setSubmitTxResult])
 
   const selectedConfig = useMemo(() => {
     if (form.values.multisig === '') return undefined
@@ -146,20 +204,26 @@ function BuildMultisigTx() {
                     </Text>
                     <Chip.Group
                       multiple
-                      onChange={(signers) =>
-                        form.setValues({
-                          signers: signers.sort((name0, name1) => {
-                            const index0 = selectedConfig.pubkeys.findIndex(
-                              (obj) => obj.name === name0
-                            )
-                            const index1 = selectedConfig.pubkeys.findIndex(
-                              (obj) => obj.name === name1
-                            )
-                            console.log(index0, index1)
-                            return index0 - index1
-                          }),
+                      onChange={(signers) => {
+                        const sortedSigners = signers.sort((name0, name1) => {
+                          const index0 = selectedConfig.pubkeys.findIndex(
+                            (obj) => obj.name === name0
+                          )
+                          const index1 = selectedConfig.pubkeys.findIndex(
+                            (obj) => obj.name === name1
+                          )
+                          console.log(index0, index1)
+                          return index0 - index1
                         })
-                      }
+                        const signatures = sortedSigners.map((signer) => ({
+                          name: signer,
+                          signature: '',
+                        }))
+                        form.setValues({
+                          signers: sortedSigners,
+                          signatures: signatures,
+                        })
+                      }}
                     >
                       <Group position="center" mt="lg">
                         {...selectedConfig.pubkeys.map((signer) => (
@@ -213,15 +277,10 @@ function BuildMultisigTx() {
                   </MyBox>
 
                   <Group mt="lg" position="apart" mx="2rem">
-                    <Button color="indigo" onClick={() => {}}>
+                    <Button color="indigo" onClick={() => form.reset()}>
                       Reset
                     </Button>
-                    <Button
-                      color="indigo"
-                      onClick={() => {
-                        form.setValues({ step: 1 })
-                      }}
-                    >
+                    <Button color="indigo" onClick={buildTxCallback}>
                       Build Transaction
                     </Button>
                   </Group>
@@ -233,7 +292,7 @@ function BuildMultisigTx() {
               <Text fw="700">Transaction to be signed</Text>
               <Textarea
                 placeholder="Paste your configuration here"
-                value={'xyz'.repeat(100)}
+                value={form.values.unsignedTx}
                 minRows={4}
                 mt="md"
                 disabled
@@ -254,13 +313,24 @@ function BuildMultisigTx() {
                 >
                   Back
                 </Button>
-                <Button
-                  onClick={() => {
-                    form.setValues({ step: 2 })
-                  }}
-                >
-                  Copy and Share
-                </Button>
+                <CopyButton value={form.values.unsignedTx || ''} timeout={1000}>
+                  {({ copied, copy }) => (
+                    <Tooltip
+                      label={copied ? 'Copied' : null}
+                      opened={copied}
+                      withArrow
+                    >
+                      <Button
+                        onClick={() => {
+                          copy()
+                          form.setValues({ step: 2 })
+                        }}
+                      >
+                        Copy and Share
+                      </Button>
+                    </Tooltip>
+                  )}
+                </CopyButton>
               </Group>
             </Box>
           ) : form.values.step === 2 ? (
@@ -269,10 +339,14 @@ function BuildMultisigTx() {
                 <Text ta="left" fw="700">
                   Signatures
                 </Text>
-                {form.values.signers.map((signer) => (
-                  <Group position="apart" mt="md" mx="5rem">
+                {form.values.signers.map((signer, index) => (
+                  <Group position="apart" mt="md" mx="5rem" key={signer}>
                     <Text>{signer}:</Text>
-                    <TextInput w="32rem" placeholder="Signature" />
+                    <TextInput
+                      w="32rem"
+                      placeholder="Signature"
+                      {...form.getInputProps(`signatures.${index}.signature`)}
+                    />
                   </Group>
                 ))}
               </MyBox>
@@ -284,20 +358,18 @@ function BuildMultisigTx() {
                 >
                   Back
                 </Button>
-                <Button
-                  onClick={() => {
-                    form.setValues({ step: 3 })
-                  }}
-                >
-                  Submit
-                </Button>
+                <Button onClick={submitTxCallback}>Submit</Button>
               </Group>
             </Box>
           ) : (
             <Box maw={900} mx="auto" mt="xl" ta="left">
-              <Group position="center" mt="lg">
-                <Loader color="teal" size="16rem" />
-              </Group>
+              {txSubmitted ? (
+                <div>Tx {submitTxResult?.txId} Submitted</div>
+              ) : (
+                <Group position="center" mt="lg">
+                  <Loader color="teal" size="16rem" />
+                </Group>
+              )}
               <Divider mt="xl" />
               <Group mt="lg" position="apart" mx="2rem">
                 <Button
@@ -310,7 +382,8 @@ function BuildMultisigTx() {
                 </Button>
                 <Button
                   component="a"
-                  href="https://explorer.alephium.org/"
+                  disabled={submitTxResult === undefined}
+                  href={`https://explorer.alephium.org/transactions/${submitTxResult?.txId}`}
                   target="_blank"
                 >
                   Explorer

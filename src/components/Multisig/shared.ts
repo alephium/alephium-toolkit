@@ -1,4 +1,5 @@
 import {
+  ExplorerProvider,
   NodeProvider,
   SignerProvider,
   binToHex,
@@ -46,6 +47,10 @@ export function isPubkeyValid(pubkey: string): boolean {
   return isHexString(pubkey) && pubkey.length === 66
 }
 
+export function isSignatureValid(signature: string): boolean {
+  return isHexString(signature) && signature.length === 128
+}
+
 export function buildMultisigAddress(config: MultisigConfig): string {
   const pubkeyHashes = config.pubkeys.map((pubkey) => {
     const bytes = hexToBinUnsafe(pubkey.pubkey)
@@ -79,21 +84,19 @@ function tryGetMultisig(configName: string) {
 export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
-  signers: string[],
+  signerNames: string[],
   destinations: { address: string; alphAmount: string }[]
 ) {
   const config = tryGetMultisig(configName)
-  if (signers.length !== config.mOfN) {
+  if (signerNames.length !== config.mOfN) {
     throw new Error(`Expect ${config.mOfN} signers`)
   }
-  signers.sort(
-    (a, b) =>
-      config.pubkeys.findIndex((p) => p.pubkey === a) -
-      config.pubkeys.findIndex((p) => p.pubkey === b)
+  const signerPublicKeys = signerNames.map(
+    (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
   )
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
-    fromPublicKeys: signers,
+    fromPublicKeys: signerPublicKeys,
     destinations: destinations.map((d) => ({
       address: d.address,
       attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString(),
@@ -118,7 +121,7 @@ export async function submitMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
   unsignedTx: string,
-  signatures: { signer: string; signature: string }[]
+  signatures: { name: string; signature: string }[]
 ) {
   const config = tryGetMultisig(configName)
   if (signatures.length !== config.mOfN) {
@@ -127,17 +130,21 @@ export async function submitMultisigTx(
   const txId = binToHex(
     blake.blake2b(hexToBinUnsafe(unsignedTx), undefined, 32)
   )
+  const signaturesByPublicKey = signatures.map((s) => {
+    const pubkey = config.pubkeys.find((p) => p.name === s.name)!.pubkey
+    return { name: s.name, pubkey, signature: s.signature }
+  })
   const txSignatures = Array(config.pubkeys.length).fill('')
-  signatures.forEach((s) => {
-    const index = config.pubkeys.findIndex((p) => p.pubkey === s.signer)
+  signaturesByPublicKey.forEach((s) => {
+    const index = config.pubkeys.findIndex((p) => p.pubkey === s.pubkey)
     if (index === -1) {
-      throw new Error(`Unknown signer: ${s.signer}`)
+      throw new Error(`Unknown signer: ${s.name}`)
     }
-    if (!verifySignature(txId, s.signer, s.signature)) {
-      throw new Error(`Invalid signature from signer ${s.signer}`)
+    if (!verifySignature(txId, s.pubkey, s.signature)) {
+      throw new Error(`Invalid signature from signer ${s.name}`)
     }
     if (txSignatures[index] !== '') {
-      throw new Error(`Duplicate signature from signer ${s.signer}`)
+      throw new Error(`Duplicate signature from signer ${s.name}`)
     }
     txSignatures[index] = s.signature
   })
@@ -145,6 +152,24 @@ export async function submitMultisigTx(
     unsignedTx: unsignedTx,
     signatures: txSignatures.filter((s) => s !== ''),
   })
+}
+
+export async function waitTxSubmitted(
+  provider: ExplorerProvider,
+  txId: string,
+  maxTimes: number = 30
+): Promise<void> {
+  try {
+    await provider.transactions.getTransactionsTransactionHash(txId)
+    return
+  } catch (error) {
+    console.error(`Get transaction status error: ${error}`)
+    if (maxTimes === 0) {
+      throw error
+    }
+  }
+  await new Promise((r) => setTimeout(r, 4000))
+  await waitTxSubmitted(provider, txId, maxTimes - 1)
 }
 
 export function configToSting(config: MultisigConfig): string {
