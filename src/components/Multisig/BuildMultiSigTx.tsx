@@ -193,7 +193,10 @@ function BuildMultisigTx() {
                   label: multisig.name,
                 }))}
                 value={form.values.multisig}
-                onChange={(value) => form.setValues({ multisig: value ?? '' })}
+                onChange={(value) => {
+                  form.reset()
+                  form.setValues({ multisig: value ?? '' })
+                }}
               />
               {selectedConfig && (
                 <Stack mt="xl">
@@ -262,6 +265,7 @@ function BuildMultisigTx() {
                         placeholder="Address"
                         icon={<IconAt />}
                         {...form.getInputProps('destinations.0.address')}
+                        w="28rem"
                       />
                       <NumberInput
                         label="Alephium"
