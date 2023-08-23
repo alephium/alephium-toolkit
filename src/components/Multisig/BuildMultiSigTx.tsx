@@ -400,7 +400,7 @@ function BuildMultisigTx() {
                 allowStepSelect={form.values.step !== 3}
               />
               <Stepper.Step
-                label="Mempool"
+                label="Transaction"
                 description="Available on the explorer"
               />
             </Stepper>

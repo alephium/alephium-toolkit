@@ -20,7 +20,7 @@ function App() {
 
   const [network] = useLocalStorage<NetworkId>({
     key: 'alephium-network',
-    defaultValue: 'devnet',
+    defaultValue: 'mainnet',
     getInitialValueInEffect: true,
   })
 

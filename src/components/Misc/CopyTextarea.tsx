@@ -1,4 +1,4 @@
-import { CopyButton, Textarea, Tooltip, UnstyledButton } from "@mantine/core"
+import { Button, CopyButton, Tooltip } from "@mantine/core"
 
 interface CopyTextareaProps {
   value: string
@@ -15,24 +15,22 @@ function CopyTextarea({ value }: CopyTextareaProps) {
           label={copied ? 'Copied' : 'Copy'}
           position='right'
         >
-          <UnstyledButton w="100%" onClick={copy}>
-            <Textarea
-              placeholder="Paste your configuration here"
-              value={value}
-              minRows={1}
-              mt="md"
-              autosize
-              disabled
-              styles={(theme) => ({
-                input: {
-                  ':disabled': {
-                    backgroundColor: 'white',
-                    color: theme.primaryColor,
-                  },
-                },
-              })}
-            />
-          </UnstyledButton>
+          <Button w="100%" variant="light" onClick={copy} styles={{
+            root: {
+              height: 'auto',
+              padding: '0.5rem'
+            },
+            inner: {
+              height: 'auto',
+            },
+            label: {
+              whiteSpace: 'normal',
+              wordBreak: 'break-all',
+              height: 'auto',
+            }
+          }}>
+            {value}
+          </Button>
         </Tooltip.Floating>
       )}
     </CopyButton>
