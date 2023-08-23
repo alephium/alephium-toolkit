@@ -11,7 +11,6 @@ import {
 } from '@mantine/core'
 import { useWallet, useBalance } from '@alephium/web3-react'
 
-
 function NewToken() {
   const wallet = useWallet()
   const form = useForm({

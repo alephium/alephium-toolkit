@@ -87,8 +87,8 @@ function ShowMultiSig() {
           color="red"
           mt="lg"
         >
-          This action will remove multisig <Mark>{multisigName}</Mark> from your browser.
-          You will need to re-import the configuration to use it again.
+          This action will remove multisig <Mark>{multisigName}</Mark> from your
+          browser. You will need to re-import the configuration to use it again.
         </Alert>
         <Group position="center" mt="lg">
           <Button

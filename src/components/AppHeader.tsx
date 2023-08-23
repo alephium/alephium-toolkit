@@ -1,4 +1,13 @@
-import { createStyles, Header, Group, Text, Burger, rem, Menu, Button } from '@mantine/core'
+import {
+  createStyles,
+  Header,
+  Group,
+  Text,
+  Burger,
+  rem,
+  Menu,
+  Button,
+} from '@mantine/core'
 import { useDisclosure, useLocalStorage } from '@mantine/hooks'
 import LightDarkModeButton from './LightDarkButton'
 import { Link } from 'react-router-dom'
@@ -103,7 +112,16 @@ export function AppHeader() {
           <LightDarkModeButton />
           <Menu>
             <Menu.Target>
-              <Button size="md" w="5.5rem" tt="capitalize" radius={"md"} compact variant='outline'>{network}</Button>
+              <Button
+                size="md"
+                w="5.5rem"
+                tt="capitalize"
+                radius={'md'}
+                compact
+                variant="outline"
+              >
+                {network}
+              </Button>
             </Menu.Target>
 
             <Menu.Dropdown>

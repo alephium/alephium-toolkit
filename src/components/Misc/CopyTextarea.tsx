@@ -1,4 +1,4 @@
-import { Button, CopyButton, Tooltip } from "@mantine/core"
+import { Button, CopyButton, Tooltip } from '@mantine/core'
 
 interface CopyTextareaProps {
   value: string
@@ -6,29 +6,24 @@ interface CopyTextareaProps {
 
 function CopyTextarea({ value }: CopyTextareaProps) {
   return (
-    <CopyButton
-      value={value}
-      timeout={1000}
-    >
+    <CopyButton value={value} timeout={1000}>
       {({ copied, copy }) => (
-        <Tooltip.Floating
-          label={copied ? 'Copied' : 'Copy'}
-          position='right'
-        >
-          <Button w="100%" variant="light" onClick={copy} styles={{
-            root: {
-              height: 'auto',
-              padding: '0.5rem'
-            },
-            inner: {
-              height: 'auto',
-            },
-            label: {
-              whiteSpace: 'normal',
-              wordBreak: 'break-all',
-              height: 'auto',
-            }
-          }}>
+        <Tooltip.Floating label={copied ? 'Copied' : 'Copy'} position="right">
+          <Button
+            variant="light"
+            onClick={copy}
+            styles={{
+              root: {
+                height: 'auto',
+                padding: '0.75rem',
+              },
+              label: {
+                whiteSpace: 'normal',
+                wordBreak: 'break-all',
+                lineHeight: '1.5rem',
+              },
+            }}
+          >
             {value}
           </Button>
         </Tooltip.Floating>

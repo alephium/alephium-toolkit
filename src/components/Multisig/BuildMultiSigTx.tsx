@@ -275,19 +275,15 @@ function BuildMultisigTx() {
                   </MyBox>
 
                   <Group mt="lg" position="apart" mx="2rem">
-                    <Button color="indigo" onClick={() => form.reset()}>
-                      Reset
-                    </Button>
-                    <Button color="indigo" onClick={buildTxCallback}>
-                      Build Transaction
-                    </Button>
+                    <Button onClick={() => form.reset()}>Reset</Button>
+                    <Button onClick={buildTxCallback}>Build Transaction</Button>
                   </Group>
                 </Stack>
               )}
             </Box>
           ) : form.values.step === 1 ? (
             <Box maw={800} mx="lg" mt="xl" ta="left">
-              <Text fw="700">Copy and share the transaction to singers</Text>
+              <Text fw="700" mb="lg">Copy and share the transaction to singers</Text>
               <CopyTextarea value={form.values.unsignedTx ?? ''} />
               <Group mt="lg" position="apart" mx="2rem">
                 <Button
@@ -324,7 +320,9 @@ function BuildMultisigTx() {
                 ))}
               </MyBox>
               {submitTxError && (
-                <Text color="red" mt="lg" mx="lg">{submitTxError}</Text>
+                <Text color="red" mt="lg" mx="lg">
+                  {submitTxError}
+                </Text>
               )}
               <Group mt="lg" position="apart" mx="2rem">
                 <Button

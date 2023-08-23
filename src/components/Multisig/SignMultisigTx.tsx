@@ -115,9 +115,7 @@ function SignMultisigTx() {
         </Box>
       ) : (
         <Group position="right" mt="xl">
-          <Button color="indigo" onClick={sign}>
-            Sign MultiSig Transaction
-          </Button>
+          <Button onClick={sign}>Sign MultiSig Transaction</Button>
         </Group>
       )}
     </Box>

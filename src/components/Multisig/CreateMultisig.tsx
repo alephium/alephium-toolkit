@@ -252,9 +252,7 @@ function CreateMultisig() {
         {/* </Group> */}
 
         <Group position="right" mt="lg">
-          <Button color="indigo" type="submit">
-            Create Multisig
-          </Button>
+          <Button type="submit">Create Multisig</Button>
         </Group>
       </form>
     </Box>
