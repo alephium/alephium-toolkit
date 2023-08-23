@@ -47,6 +47,7 @@ function BuildMultisigTx() {
     multisig: string
     signers: string[]
     destinations: { address: string; alphAmount: string }[]
+    unsignedTx: string | undefined
     signatures: { name: string; signature: string }[]
     step: number
   }>({
@@ -59,6 +60,7 @@ function BuildMultisigTx() {
       multisig: '',
       signers: [],
       destinations: [{ address: '', alphAmount: '' }],
+      unsignedTx: undefined,
       signatures: [],
       step: 0,
     },
@@ -85,9 +87,6 @@ function BuildMultisigTx() {
   })
   const allMultisig = useAllMultisig()
 
-  const [buildTxResult, setBuildTxResult] = useState<
-    node.BuildTransactionResult | undefined
-  >()
   const [submitTxResult, setSubmitTxResult] = useState<
     node.SubmitTxResult | undefined
   >()
@@ -117,16 +116,15 @@ function BuildMultisigTx() {
         form.values.destinations
       )
       console.log(`Build multisig tx result: ${JSON.stringify(buildTxResult)}`)
-      setBuildTxResult(buildTxResult)
-      form.setValues({ step: 1 })
+      form.setValues({ unsignedTx: buildTxResult.unsignedTx, step: 1 })
     } catch (error) {
       console.error(error)
     }
-  }, [form, setBuildTxResult])
+  }, [form])
 
   const submitTxCallback = useCallback(async () => {
     try {
-      if (buildTxResult === undefined) {
+      if (form.values.unsignedTx === undefined) {
         throw new Error('There is no unsigned tx')
       }
 
@@ -140,7 +138,7 @@ function BuildMultisigTx() {
       const submitTxResult = await submitMultisigTx(
         nodeProvider,
         form.values.multisig,
-        buildTxResult.unsignedTx,
+        form.values.unsignedTx,
         form.values.signatures
       )
       console.log(
@@ -150,12 +148,12 @@ function BuildMultisigTx() {
       form.setValues({ step: 3 })
 
       const explorerProvider = new ExplorerProvider('http://localhost:9090')
-      await waitTxSubmitted(explorerProvider, buildTxResult.txId)
+      await waitTxSubmitted(explorerProvider, submitTxResult.txId)
       setTxSubmitted(true)
     } catch (error) {
       console.error(error)
     }
-  }, [form, buildTxResult, setSubmitTxResult])
+  }, [form, setSubmitTxResult])
 
   const selectedConfig = useMemo(() => {
     if (form.values.multisig === '') return undefined
@@ -294,7 +292,7 @@ function BuildMultisigTx() {
               <Text fw="700">Transaction to be signed</Text>
               <Textarea
                 placeholder="Paste your configuration here"
-                value={buildTxResult?.unsignedTx}
+                value={form.values.unsignedTx}
                 minRows={4}
                 mt="md"
                 disabled
@@ -315,10 +313,7 @@ function BuildMultisigTx() {
                 >
                   Back
                 </Button>
-                <CopyButton
-                  value={buildTxResult?.unsignedTx || ''}
-                  timeout={1000}
-                >
+                <CopyButton value={form.values.unsignedTx || ''} timeout={1000}>
                   {({ copied, copy }) => (
                     <Tooltip
                       label={copied ? 'Copied' : null}
