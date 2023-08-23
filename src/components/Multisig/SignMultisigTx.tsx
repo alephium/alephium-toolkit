@@ -12,7 +12,7 @@ function SignMultisigTx() {
     { signer: string; signature: string } | undefined
   >()
   const [unsignedTx, setUnsignedTx] = useState<string | undefined>()
-  const [loadingConfig, setLoadingConfig] = useState<boolean>(true)
+  const [loadingConfig, setLoadingConfig] = useState<boolean>(false)
   const [multisigConfig, setMultisigConfig] = useState<
     (MultisigConfig & { address: string }) | undefined
   >()
@@ -21,6 +21,7 @@ function SignMultisigTx() {
   const tryLoadMultisigConfig = useCallback(
     async (unsignedTx: string) => {
       try {
+        setLoadingConfig(true)
         if (!isHexString(unsignedTx)) {
           throw new Error('Invalid unsigned tx')
         }
@@ -53,6 +54,12 @@ function SignMultisigTx() {
     }
   }, [wallet, unsignedTx, setSignature])
 
+  const reset = useCallback(() => {
+    setLoadingConfig(false)
+    setSignature(undefined)
+    setMultisigConfig(undefined)
+  }, [setLoadingConfig, setSignature, setMultisigConfig])
+
   return (
     <Box maw={900} mx="auto" mt="xl">
       <Text ta="left" fw="700">
@@ -63,6 +70,7 @@ function SignMultisigTx() {
         minRows={8}
         mt="md"
         onChange={(e) => {
+          reset()
           if (e.target.value === '') {
             setUnsignedTx(undefined)
           } else {
@@ -72,7 +80,7 @@ function SignMultisigTx() {
         }}
       />
       <Text ta="left" fw="700" mt="lg">
-        The multisig address to sign is {loadingConfig ? null : multisigConfig ? (
+        The multisig address to sign is {loadingConfig || unsignedTx === undefined ? null : multisigConfig ? (
           <Mark>{multisigConfig.name}</Mark>
         ) : (
           <Mark color='red'>unknown</Mark>
