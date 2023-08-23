@@ -160,7 +160,7 @@ function BuildMultisigTx() {
       setTxSubmitted(true)
       setSubmitTxError(undefined)
     } catch (error) {
-      setSubmitTxError(`Error in tx submission: ${submitTxError}`)
+      setSubmitTxError(`Error in tx submission: ${error}`)
       console.error(error)
     }
   }, [form, setSubmitTxResult])
@@ -352,11 +352,10 @@ function BuildMultisigTx() {
             </Box>
           ) : (
             <Box maw={900} mx="auto" mt="xl" ta="left">
-              {txSubmitted ? (
-                <div>Tx {submitTxResult?.txId} Submitted</div>
-              ) : (
-                <Group position="center" mt="lg">
+              <Group position="center" mt="lg">
+                {!txSubmitted ? (
                   <Loader color="teal" size="16rem" />
+                ) : (
                   <RingProgress
                     sections={[{ value: 100, color: 'teal' }]}
                     size={16 * 20}
@@ -374,8 +373,8 @@ function BuildMultisigTx() {
                       </Center>
                     }
                   />
-                </Group>
-              )}
+                )}
+              </Group>
               <Divider mt="xl" />
               <Group mt="lg" position="apart" mx="2rem">
                 <Anchor
