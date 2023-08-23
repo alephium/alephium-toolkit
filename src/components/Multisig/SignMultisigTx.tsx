@@ -1,4 +1,4 @@
-import { Box, Button, Group, Text, Textarea } from '@mantine/core'
+import { Box, Button, Group, Mark, Text, Textarea } from '@mantine/core'
 import { useCallback, useState } from 'react'
 import CopyText from '../Misc/CopyText'
 import { useWallet } from '@alephium/web3-react'
@@ -72,22 +72,20 @@ function SignMultisigTx() {
         }}
       />
       <Text ta="left" fw="700" mt="lg">
-        TODO: Show Transaction Details
+        The multisig address to sign is {loadingConfig ? null : multisigConfig ? (
+          <Mark>{multisigConfig.name}</Mark>
+        ) : (
+          <Mark color='red'>unknown</Mark>
+        )}
       </Text>
 
-      {loadingConfig ? null : multisigConfig ? (
-        <Text>Multisig address: {multisigConfig.address}</Text>
-      ) : (
-        <Text>Unknown multisig address</Text>
-      )}
-
       {signature ? (
-        <Group>
+        <Group position='apart' mt="xl">
           <Text>Signature: </Text>
           <CopyText value={signature.signature} />
         </Group>
       ) : (
-        <Group position="right" mt="lg">
+        <Group position="right" mt="xl">
           <Button color="indigo" onClick={sign}>
             Sign MultiSig Transaction
           </Button>
