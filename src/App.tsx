@@ -23,10 +23,7 @@ function App() {
   useHotkeys([['mod+J', () => toggleColorScheme()]])
 
   return (
-    <AlephiumWalletProvider
-      useTheme="rounded"
-      network="mainnet"
-    >
+    <AlephiumWalletProvider useTheme="rounded" network="mainnet">
       <div className="App">
         <ColorSchemeProvider
           colorScheme={colorScheme}

@@ -8,6 +8,7 @@
     "compile": "npx --yes @alephium/cli@latest compile",
     "devnet:deploy": "npx --yes @alephium/cli@latest deploy -n devnet",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "prettier": "prettier --write .",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -8,11 +8,14 @@ import {
   Modal,
   Select,
   Text,
+  Textarea,
   Tooltip,
+  UnstyledButton,
 } from '@mantine/core'
 import {
   AllMultisig,
   MultisigConfig,
+  buildMultisigAddress,
   configToSting,
   removeMultisigConfig,
   useAllMultisig,
@@ -21,6 +24,10 @@ import { useNavigate } from 'react-router-dom'
 import { useCallback } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { IconAlertCircle } from '@tabler/icons-react'
+import MyBox from '../Misc/MyBox'
+import MyTable from '../Misc/MyTable'
+import CopyText from '../Misc/CopyText'
+import { addressFromPublicKey, groupOfAddress } from '@alephium/web3'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -50,7 +57,7 @@ function useMultisigConfig(): [
 
 function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
-  const [opened, { open, close }] = useDisclosure(false);
+  const [opened, { open, close }] = useDisclosure(false)
   const navigate = useNavigate()
 
   return (
@@ -104,10 +111,53 @@ function ShowMultiSig() {
       </Modal>
 
       {multisigName && theMultisig && (
-        <Box>
-          <Text ta="right" fw="700" mt="lg">
-            TODO: Show Multisig Details
-          </Text>
+        <Box mx="auto" mt="xl" w="100%">
+          <MyTable
+            data={{
+              Address: (
+                <Group position="center" mx="auto">
+                  <CopyButton
+                    value={buildMultisigAddress(theMultisig)}
+                    timeout={1000}
+                  >
+                    {({ copied, copy }) => (
+                      <Tooltip
+                        label={copied ? 'Copied' : null}
+                        opened={copied}
+                        withArrow
+                        color="indigo"
+                      >
+                        {/* <Button onClick={copy}>Export</Button> */}
+                        <UnstyledButton w="100%" onClick={copy}>
+                          <Textarea
+                            placeholder="Paste your configuration here"
+                            value={buildMultisigAddress(theMultisig)}
+                            minRows={4}
+                            mt="md"
+                            disabled
+                            styles={(theme) => ({
+                              input: {
+                                ':disabled': {
+                                  backgroundColor: 'white',
+                                  color: theme.primaryColor,
+                                },
+                              },
+                            })}
+                          />
+                        </UnstyledButton>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                </Group>
+              ),
+              // Address: <CopyText value={buildMultisigAddress(theMultisig)} />,
+              'Number of Signers': theMultisig.pubkeys.length,
+              'Required Signers': theMultisig.mOfN,
+              // 'Address Group': groupOfAddress(
+              //   addressFromPublicKey(theMultisig.pubkeys[0].pubkey)
+              // ),
+            }}
+          />
           <Group position="apart" mt="lg">
             <Button onClick={open}>Remove !!!</Button>
             <CopyButton value={configToSting(theMultisig)} timeout={1000}>
