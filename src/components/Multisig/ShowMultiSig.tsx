@@ -17,7 +17,7 @@ import {
   removeMultisigConfig,
   useAllMultisig,
 } from './shared'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks'
 import { IconAlertCircle } from '@tabler/icons-react'
 import MyTable from '../Misc/MyTable'
@@ -29,10 +29,12 @@ function useMultisigConfig(): [
   MultisigConfig | undefined
 ] {
   const allMultisig = useAllMultisig()
+  const location = useLocation()
 
-  const queryString = window.location.search
-  const urlParams = new URLSearchParams(queryString)
+  const urlParams = new URLSearchParams(location.search)
   const multisigName = urlParams.get('name')
+
+  console.log(location.search, urlParams, multisigName)
 
   if (multisigName) {
     const theMultisig = allMultisig.find(

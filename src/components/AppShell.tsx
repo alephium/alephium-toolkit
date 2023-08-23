@@ -1,5 +1,5 @@
 import { AppShell, Footer, Text, useMantineTheme } from '@mantine/core'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { HashRouter as Router, Route, Routes } from 'react-router-dom'
 import NavbarNested from './AppNavBar'
 import AppHeader from './AppHeader'
 import WalletInfo from './Wallet/WalletInfo'
