@@ -1,9 +1,10 @@
-import { createStyles, Header, Group, Text, Burger, rem } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import { createStyles, Header, Group, Text, Burger, rem, Menu, Button } from '@mantine/core'
+import { useDisclosure, useLocalStorage } from '@mantine/hooks'
 import LightDarkModeButton from './LightDarkButton'
 import { Link } from 'react-router-dom'
 
 import { AlephiumConnectButton } from '@alephium/web3-react'
+import { NetworkId } from '@alephium/web3'
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -78,6 +79,12 @@ export function AppHeader() {
   const [drawerOpened, { toggle: toggleDrawer }] = useDisclosure(false)
   const { classes } = useStyles()
 
+  const [network, setNetwork] = useLocalStorage<NetworkId>({
+    key: 'alephium-network',
+    defaultValue: 'devnet',
+    getInitialValueInEffect: true,
+  })
+
   return (
     <Header height={60} px="md">
       <Group position="apart" sx={{ height: '100%' }}>
@@ -94,6 +101,21 @@ export function AppHeader() {
 
         <Group className={classes.hiddenMobile}>
           <LightDarkModeButton />
+          <Menu>
+            <Menu.Target>
+              <Button size="md" w="5.5rem" tt="capitalize" radius={"md"} compact variant='outline'>{network}</Button>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Item onClick={() => setNetwork('mainnet')}>
+                Mainnet
+              </Menu.Item>
+              <Menu.Item onClick={() => setNetwork('testnet')}>
+                Testnet
+              </Menu.Item>
+              <Menu.Item onClick={() => setNetwork('devnet')}>Devnet</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
           <AlephiumConnectButton />
         </Group>
 

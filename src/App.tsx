@@ -9,11 +9,18 @@ import { useLocalStorage, useHotkeys } from '@mantine/hooks'
 import AppShellExample from './components/AppShell'
 
 import { AlephiumWalletProvider } from '@alephium/web3-react'
+import { NetworkId } from '@alephium/web3'
 
 function App() {
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: 'mantine-color-scheme',
     defaultValue: 'light',
+    getInitialValueInEffect: true,
+  })
+
+  const [network] = useLocalStorage<NetworkId>({
+    key: 'alephium-network',
+    defaultValue: 'devnet',
     getInitialValueInEffect: true,
   })
 
@@ -23,7 +30,7 @@ function App() {
   useHotkeys([['mod+J', () => toggleColorScheme()]])
 
   return (
-    <AlephiumWalletProvider useTheme="rounded" network="devnet">
+    <AlephiumWalletProvider useTheme="rounded" network={network}>
       <div className="App">
         <ColorSchemeProvider
           colorScheme={colorScheme}
