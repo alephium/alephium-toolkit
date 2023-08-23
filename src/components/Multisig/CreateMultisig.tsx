@@ -28,6 +28,7 @@ import {
   isMultisigExists,
   isPubkeyValid,
   newMultisigStorageKey,
+  resetNewMultisig,
 } from './shared'
 import { useNavigate } from 'react-router-dom'
 
@@ -98,6 +99,7 @@ function CreateMultisig() {
       const config = { ...values, address: buildMultisigAddress(values) }
       window.localStorage.setItem(newMultisigStorageKey, JSON.stringify(config))
       addMultisigConfig(config)
+      resetNewMultisig()
       navigate('/multisig/show?name=' + values.name)
     })
   }, [form, navigate])
@@ -145,7 +147,7 @@ function CreateMultisig() {
     <Box maw={900} mx="auto" mt="xl">
       <form onSubmit={onSubmit}>
         <Group position="center" mb="xl">
-          <Text fw="700">Choose a Name:</Text>
+          <Text fw="700">Choose a Name</Text>
           <TextInput
             placeholder="Multisig Name"
             ta="left"
@@ -257,11 +259,6 @@ function CreateMultisig() {
             Create Multisig
           </Button>
         </Group>
-
-        {/* <Text size="sm" weight={500} mt="md">
-          Form values:
-        </Text>
-        <Code block>{JSON.stringify(window.localStorage.getItem(allMultisigStorageKey), null, 2)}</Code> */}
       </form>
     </Box>
   )

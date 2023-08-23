@@ -23,6 +23,13 @@ export const defaultNewMultisig = {
 export type MultisigConfig = typeof defaultNewMultisig
 export type AllMultisig = (MultisigConfig & { address: string })[]
 
+export function resetNewMultisig() {
+  window.localStorage.setItem(
+    newMultisigStorageKey,
+    JSON.stringify(defaultNewMultisig)
+  )
+}
+
 export function getAllMultisigConfig(): AllMultisig {
   const allMultisigRaw = window.localStorage.getItem(allMultisigStorageKey)
   return (allMultisigRaw ? JSON.parse(allMultisigRaw) : []) as AllMultisig

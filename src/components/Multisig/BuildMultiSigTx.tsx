@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Box,
   Button,
   Chip,
@@ -21,7 +22,7 @@ import {
   Textarea,
   Tooltip,
 } from '@mantine/core'
-import { IconAt } from '@tabler/icons-react'
+import { IconAt, IconCheck, IconClipboard, IconCopy } from '@tabler/icons-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
@@ -41,6 +42,7 @@ import {
   useAllMultisig,
   waitTxSubmitted,
 } from './shared'
+import { useClipboard } from '@mantine/hooks'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -293,13 +295,52 @@ function BuildMultisigTx() {
             </Box>
           ) : form.values.step === 1 ? (
             <Box maw={800} mx="lg" mt="xl" ta="left">
-              <Text fw="700">Transaction to be signed</Text>
+              <Text fw="700">Copy and share the transaction to singers</Text>
               <Textarea
                 placeholder="Paste your configuration here"
                 value={form.values.unsignedTx}
-                minRows={4}
+                minRows={8}
                 mt="md"
                 disabled
+                rightSection={
+                  <CopyButton
+                    value={form.values.unsignedTx ?? ''}
+                    timeout={1000}
+                  >
+                    {({ copied, copy }) => (
+                      <Tooltip
+                        label={copied ? 'Copied' : 'Copy'}
+                        withArrow
+                        position="right"
+                      >
+                        <ActionIcon
+                          color={copied ? 'teal' : 'gray'}
+                          onClick={copy}
+                          pos="absolute"
+                          right={'1rem'}
+                          top={'1rem'}
+                          size="sm"
+                        >
+                          {copied ? (
+                            <IconCheck size="1rem" />
+                          ) : (
+                            <IconCopy size="1rem" />
+                          )}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                  // <ActionIcon
+                  //   color='blue'
+                  //   onClick={() => copy(form.values.unsignedTx)}
+                  //   pos="absolute"
+                  //   right={'1rem'}
+                  //   top={'1rem'}
+                  //   size="sm"
+                  // >
+                  //   <IconClipboard />
+                  // </ActionIcon>
+                }
                 styles={{
                   input: {
                     ':disabled': {
@@ -317,24 +358,13 @@ function BuildMultisigTx() {
                 >
                   Back
                 </Button>
-                <CopyButton value={form.values.unsignedTx || ''} timeout={1000}>
-                  {({ copied, copy }) => (
-                    <Tooltip
-                      label={copied ? 'Copied' : null}
-                      opened={copied}
-                      withArrow
-                    >
-                      <Button
-                        onClick={() => {
-                          copy()
-                          form.setValues({ step: 2 })
-                        }}
-                      >
-                        Copy and Share
-                      </Button>
-                    </Tooltip>
-                  )}
-                </CopyButton>
+                <Button
+                  onClick={() => {
+                    form.setValues({ step: 2 })
+                  }}
+                >
+                  Next
+                </Button>
               </Group>
             </Box>
           ) : form.values.step === 2 ? (
