@@ -1,7 +1,9 @@
 import {
   ActionIcon,
+  Anchor,
   Box,
   Button,
+  Center,
   Chip,
   Code,
   CopyButton,
@@ -13,6 +15,7 @@ import {
   Modal,
   NumberInput,
   Paper,
+  RingProgress,
   Select,
   SimpleGrid,
   Stack,
@@ -20,6 +23,7 @@ import {
   Text,
   TextInput,
   Textarea,
+  ThemeIcon,
   Tooltip,
 } from '@mantine/core'
 import { IconAt, IconCheck, IconClipboard, IconCopy } from '@tabler/icons-react'
@@ -125,6 +129,7 @@ function BuildMultisigTx() {
     }
   }, [form])
 
+  const [submitTxError, setSubmitTxError] = useState<string>()
   const submitTxCallback = useCallback(async () => {
     try {
       if (form.values.unsignedTx === undefined) {
@@ -153,7 +158,9 @@ function BuildMultisigTx() {
       const explorerProvider = new ExplorerProvider('http://localhost:9090')
       await waitTxSubmitted(explorerProvider, submitTxResult.txId)
       setTxSubmitted(true)
+      setSubmitTxError(undefined)
     } catch (error) {
+      setSubmitTxError(`Error in tx submission: ${submitTxError}`)
       console.error(error)
     }
   }, [form, setSubmitTxResult])
@@ -350,26 +357,33 @@ function BuildMultisigTx() {
               ) : (
                 <Group position="center" mt="lg">
                   <Loader color="teal" size="16rem" />
+                  <RingProgress
+                    sections={[{ value: 100, color: 'teal' }]}
+                    size={16 * 20}
+                    thickness={16 * 2}
+                    label={
+                      <Center>
+                        <ThemeIcon
+                          color="teal"
+                          variant="light"
+                          radius="xl"
+                          size="xl"
+                        >
+                          <IconCheck size={42} />
+                        </ThemeIcon>
+                      </Center>
+                    }
+                  />
                 </Group>
               )}
               <Divider mt="xl" />
               <Group mt="lg" position="apart" mx="2rem">
-                <Button
-                  color="indigo"
-                  onClick={() => {
-                    form.setValues({ step: 2 })
-                  }}
-                >
-                  Back
-                </Button>
-                <Button
-                  component="a"
-                  disabled={submitTxResult === undefined}
-                  href={`https://explorer.alephium.org/transactions/${submitTxResult?.txId}`}
+                <Anchor
+                  href={`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
                   target="_blank"
                 >
                   Explorer
-                </Button>
+                </Anchor>
               </Group>
             </Box>
           )}

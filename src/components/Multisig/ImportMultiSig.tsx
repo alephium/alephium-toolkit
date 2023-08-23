@@ -47,8 +47,8 @@ function ImportMultisig() {
         mt="md"
         onChange={(event) => onContentChange(event.target.value)}
       />
+      {error ? <Text color="red" mt="md">{error}</Text> : null}
       <Group position="right" mt="lg">
-        {error ? <Text color="red">{error}</Text> : null}
         <div style={{ flex: 1 }}></div>
         <Button
           color="indigo"
