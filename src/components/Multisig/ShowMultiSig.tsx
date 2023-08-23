@@ -28,6 +28,7 @@ import MyBox from '../Misc/MyBox'
 import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
 import { addressFromPublicKey, groupOfAddress } from '@alephium/web3'
+import CopyTextarea from '../Misc/CopyTextarea'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -116,39 +117,7 @@ function ShowMultiSig() {
             data={{
               Address: (
                 <Group position="center" mx="auto">
-                  <CopyButton
-                    value={buildMultisigAddress(theMultisig)}
-                    timeout={1000}
-                  >
-                    {({ copied, copy }) => (
-                      <Tooltip
-                        label={copied ? 'Copied' : null}
-                        opened={copied}
-                        withArrow
-                        color="indigo"
-                      >
-                        {/* <Button onClick={copy}>Export</Button> */}
-                        <UnstyledButton w="100%" onClick={copy}>
-                          <Textarea
-                            placeholder="Paste your configuration here"
-                            value={buildMultisigAddress(theMultisig)}
-                            minRows={1}
-                            mt="md"
-                            autosize
-                            disabled
-                            styles={(theme) => ({
-                              input: {
-                                ':disabled': {
-                                  backgroundColor: 'white',
-                                  color: theme.primaryColor,
-                                },
-                              },
-                            })}
-                          />
-                        </UnstyledButton>
-                      </Tooltip>
-                    )}
-                  </CopyButton>
+                  <CopyTextarea value={buildMultisigAddress(theMultisig)} />
                 </Group>
               ),
               // Address: <CopyText value={buildMultisigAddress(theMultisig)} />,

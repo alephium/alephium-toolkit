@@ -43,6 +43,7 @@ import {
   waitTxSubmitted,
 } from './shared'
 import { useClipboard } from '@mantine/hooks'
+import CopyTextarea from '../Misc/CopyTextarea'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -296,60 +297,7 @@ function BuildMultisigTx() {
           ) : form.values.step === 1 ? (
             <Box maw={800} mx="lg" mt="xl" ta="left">
               <Text fw="700">Copy and share the transaction to singers</Text>
-              <Textarea
-                placeholder="Paste your configuration here"
-                value={form.values.unsignedTx}
-                minRows={8}
-                mt="md"
-                disabled
-                rightSection={
-                  <CopyButton
-                    value={form.values.unsignedTx ?? ''}
-                    timeout={1000}
-                  >
-                    {({ copied, copy }) => (
-                      <Tooltip
-                        label={copied ? 'Copied' : 'Copy'}
-                        withArrow
-                        position="right"
-                      >
-                        <ActionIcon
-                          color={copied ? 'teal' : 'gray'}
-                          onClick={copy}
-                          pos="absolute"
-                          right={'1rem'}
-                          top={'1rem'}
-                          size="sm"
-                        >
-                          {copied ? (
-                            <IconCheck size="1rem" />
-                          ) : (
-                            <IconCopy size="1rem" />
-                          )}
-                        </ActionIcon>
-                      </Tooltip>
-                    )}
-                  </CopyButton>
-                  // <ActionIcon
-                  //   color='blue'
-                  //   onClick={() => copy(form.values.unsignedTx)}
-                  //   pos="absolute"
-                  //   right={'1rem'}
-                  //   top={'1rem'}
-                  //   size="sm"
-                  // >
-                  //   <IconClipboard />
-                  // </ActionIcon>
-                }
-                styles={{
-                  input: {
-                    ':disabled': {
-                      backgroundColor: 'white',
-                      color: 'black',
-                    },
-                  },
-                }}
-              />
+              <CopyTextarea value={form.values.unsignedTx ?? ''} />
               <Group mt="lg" position="apart" mx="2rem">
                 <Button
                   onClick={() => {
