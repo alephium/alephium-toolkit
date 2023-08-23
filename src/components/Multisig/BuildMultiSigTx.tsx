@@ -1,32 +1,22 @@
 import {
-  ActionIcon,
   Anchor,
   Box,
   Button,
   Center,
   Chip,
-  Code,
-  CopyButton,
-  Divider,
   Grid,
   Group,
-  Input,
   Loader,
-  Modal,
   NumberInput,
-  Paper,
   RingProgress,
   Select,
-  SimpleGrid,
   Stack,
   Stepper,
   Text,
   TextInput,
-  Textarea,
   ThemeIcon,
-  Tooltip,
 } from '@mantine/core'
-import { IconAt, IconCheck, IconClipboard, IconCopy } from '@tabler/icons-react'
+import { IconAt, IconCheck } from '@tabler/icons-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
@@ -36,7 +26,6 @@ import {
   convertAlphAmountWithDecimals,
   isBase58,
   node,
-  web3,
 } from '@alephium/web3'
 import {
   buildMultisigTx,
@@ -48,7 +37,6 @@ import {
   useAllMultisig,
   waitTxSubmitted,
 } from './shared'
-import { useClipboard } from '@mantine/hooks'
 import CopyTextarea from '../Misc/CopyTextarea'
 
 function BuildMultisigTx() {

@@ -4,7 +4,6 @@ import {
   SystemProp,
   Table,
   Text,
-  rem,
   useMantineTheme,
 } from '@mantine/core'
 

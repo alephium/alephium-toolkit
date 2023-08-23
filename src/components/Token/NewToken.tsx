@@ -10,36 +10,7 @@ import {
   NumberInput,
 } from '@mantine/core'
 import { useWallet, useBalance } from '@alephium/web3-react'
-import { DeployNewToken } from '../../../artifacts/ts'
-import { loadDeployments } from '../../../artifacts/ts/deployments'
-import { ONE_ALPH, SignerProvider } from '@alephium/web3'
-import { Buffer } from 'buffer'
 
-const network = 'devnet'
-
-async function deployNewToken(
-  signer: SignerProvider,
-  {
-    name,
-    symbol,
-    decimals,
-    supply,
-  }: { name: string; symbol: string; decimals: number; supply: number }
-) {
-  const deployments = loadDeployments(network)
-  console.log(await signer.getSelectedAccount())
-  const result = await DeployNewToken.execute(signer, {
-    initialFields: {
-      templateId: deployments.contracts.SimpleToken.contractInstance.contractId,
-      name: Buffer.from(name, 'utf-8').toString('hex'),
-      symbol: Buffer.from(symbol, 'utf-8').toString('hex'),
-      decimals: BigInt(decimals),
-      initialSupply: BigInt(supply) * BigInt(10 ** decimals),
-    },
-    attoAlphAmount: ONE_ALPH,
-  })
-  console.log(result)
-}
 
 function NewToken() {
   const wallet = useWallet()

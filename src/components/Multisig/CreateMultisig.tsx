@@ -3,7 +3,6 @@ import {
   TextInput,
   Box,
   Text,
-  Code,
   Button,
   Center,
   NumberInput,
@@ -11,9 +10,7 @@ import {
   ActionIcon,
   rem,
   Slider,
-  Divider,
   Space,
-  Stack,
   Tooltip,
 } from '@mantine/core'
 import { FORM_INDEX, useForm } from '@mantine/form'
@@ -163,7 +160,7 @@ function CreateMultisig() {
             onDragEnd={({ destination, source }) =>
               form.reorderListItem('pubkeys', {
                 from: source.index,
-                to: destination.index,
+                to: destination!.index,
               })
             }
           >
@@ -224,7 +221,7 @@ function CreateMultisig() {
               <ActionIcon
                 size={42}
                 variant="default"
-                onClick={() => handlers.current.decrement()}
+                onClick={() => handlers.current!.decrement()}
               >
                 –
               </ActionIcon>
@@ -245,7 +242,7 @@ function CreateMultisig() {
               <ActionIcon
                 size={42}
                 variant="default"
-                onClick={() => handlers.current.increment()}
+                onClick={() => handlers.current!.increment()}
               >
                 +
               </ActionIcon>

@@ -12,7 +12,7 @@ import { web3 } from '@alephium/web3'
 import CreateMultisig from './Multisig/CreateMultisig'
 import ImportMultisig from './Multisig/ImportMultiSig'
 import ShowMultiSig from './Multisig/ShowMultiSig'
-import SignMultisigTx from './Multisig/SignMultiSigTx'
+import SignMultisigTx from './Multisig/SignMultisigTx'
 import BuildMultisigTx from './Multisig/BuildMultiSigTx'
 
 function AppShellExample() {

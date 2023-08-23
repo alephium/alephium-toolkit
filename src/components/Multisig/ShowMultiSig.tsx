@@ -7,10 +7,7 @@ import {
   Mark,
   Modal,
   Select,
-  Text,
-  Textarea,
   Tooltip,
-  UnstyledButton,
 } from '@mantine/core'
 import {
   AllMultisig,
@@ -21,13 +18,9 @@ import {
   useAllMultisig,
 } from './shared'
 import { useNavigate } from 'react-router-dom'
-import { useCallback } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { IconAlertCircle } from '@tabler/icons-react'
-import MyBox from '../Misc/MyBox'
 import MyTable from '../Misc/MyTable'
-import CopyText from '../Misc/CopyText'
-import { addressFromPublicKey, groupOfAddress } from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
 
 function useMultisigConfig(): [
