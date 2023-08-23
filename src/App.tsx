@@ -26,7 +26,6 @@ function App() {
     <AlephiumWalletProvider
       useTheme="rounded"
       network="mainnet"
-      addressGroup={0}
     >
       <div className="App">
         <ColorSchemeProvider

@@ -1,8 +1,11 @@
 import {
+  Alert,
   Box,
   Button,
   CopyButton,
   Group,
+  Mark,
+  Modal,
   Select,
   Text,
   Tooltip,
@@ -11,10 +14,13 @@ import {
   AllMultisig,
   MultisigConfig,
   configToSting,
+  removeMultisigConfig,
   useAllMultisig,
 } from './shared'
 import { useNavigate } from 'react-router-dom'
 import { useCallback } from 'react'
+import { useDisclosure } from '@mantine/hooks'
+import { IconAlertCircle } from '@tabler/icons-react'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -44,6 +50,7 @@ function useMultisigConfig(): [
 
 function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
+  const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate()
 
   return (
@@ -61,15 +68,48 @@ function ShowMultiSig() {
         onChange={(value) => navigate('/multisig/show?name=' + value)}
       />
 
+      <Modal
+        opened={opened}
+        onClose={close}
+        withCloseButton={false}
+        styles={{
+          inner: {
+            right: 0,
+          },
+        }}
+      >
+        <Alert
+          icon={<IconAlertCircle size="1rem" />}
+          title="Attention!"
+          color="red"
+          mt="lg"
+        >
+          This action will remove <Mark>{multisigName}</Mark> from your browser.
+          You will need to re-import the configuration to use it again.
+        </Alert>
+        <Group position="center" mt="lg">
+          <Button
+            color="red"
+            onClick={() => {
+              close()
+              if (multisigName) {
+                removeMultisigConfig(multisigName)
+                navigate('/multisig/show')
+              }
+            }}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
+
       {multisigName && theMultisig && (
         <Box>
           <Text ta="right" fw="700" mt="lg">
             TODO: Show Multisig Details
           </Text>
           <Group position="apart" mt="lg">
-            <Button color="indigo" onClick={() => {}}>
-              Remove !!!
-            </Button>
+            <Button onClick={open}>Remove !!!</Button>
             <CopyButton value={configToSting(theMultisig)} timeout={1000}>
               {({ copied, copy }) => (
                 <Tooltip

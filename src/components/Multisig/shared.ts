@@ -38,6 +38,14 @@ export function addMultisigConfig(
   )
 }
 
+export function removeMultisigConfig(name: string) {
+  const allMultisigs = getAllMultisigConfig()
+  window.localStorage.setItem(
+    allMultisigStorageKey,
+    JSON.stringify(allMultisigs.filter((c) => c.name !== name))
+  )
+}
+
 export function isMultisigExists(name: string): boolean {
   const allMultisigConfigs = getAllMultisigConfig()
   return allMultisigConfigs.find((config) => config.name === name) !== undefined
