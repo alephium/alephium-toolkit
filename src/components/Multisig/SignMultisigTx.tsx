@@ -1,4 +1,4 @@
-import { Box, Button, Group, Mark, Text, Textarea } from '@mantine/core'
+import { Anchor, Box, Button, Group, Mark, Text, Textarea } from '@mantine/core'
 import { useCallback, useState } from 'react'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
@@ -18,6 +18,8 @@ function SignMultisigTx() {
   >()
   const wallet = useWallet()
 
+  const [error, setError] = useState<string>()
+
   const tryLoadMultisigConfig = useCallback(
     async (unsignedTx: string) => {
       try {
@@ -32,8 +34,10 @@ function SignMultisigTx() {
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)
         setLoadingConfig(false)
+        setError(undefined)
       } catch (error) {
         setLoadingConfig(false)
+        setError(`Error: ${error}`)
         console.error(error)
       }
     },
@@ -50,6 +54,7 @@ function SignMultisigTx() {
       const signature = await signMultisigTx(wallet.signer, unsignedTx)
       setSignature(signature)
     } catch (error) {
+      setError(`Error: ${error}`)
       console.error(error)
     }
   }, [wallet, unsignedTx, setSignature])
@@ -79,11 +84,20 @@ function SignMultisigTx() {
           }
         }}
       />
-      {loadingConfig ? null : (
+      {error ? (
+        <Text color="red" mt="md" mx="lg" ta="left">
+          {error}
+        </Text>
+      ) : loadingConfig || !unsignedTx ? null : (
         <Text ta="left" fw="700" mt="lg">
           The multisig address to sign is{' '}
           {multisigConfig ? (
-            <Mark>{multisigConfig.name}</Mark>
+            <Anchor
+              href={`/multisig/show?name=${multisigConfig.name}`}
+              target="_blank"
+            >
+              {multisigConfig.name}
+            </Anchor>
           ) : (
             <Mark color="red">unknown</Mark>
           )}
