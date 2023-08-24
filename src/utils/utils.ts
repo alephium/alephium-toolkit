@@ -9,9 +9,12 @@ import { useLocalStorage } from '@mantine/hooks'
 const mainnet_node_url = 'https://wallet-v20.mainnet.alephium.org'
 const testnet_node_url = 'https://wallet-v20.testnet.alephium.org'
 const devnet_node_url = 'http://127.0.0.1:22973'
-const mainnet_explorer_url = 'https://backend-v113.mainnet.alephium.org'
-const testnet_explorer_url = 'https://backend-v113.testnet.alephium.org'
-const devnet_explorer_url = 'http://127.0.0.1:9090'
+const mainnet_explorer_backend_url = 'https://backend-v113.mainnet.alephium.org'
+const testnet_explorer_backend_url = 'https://backend-v113.testnet.alephium.org'
+const devnet_explorer_backend_url = 'http://127.0.0.1:9090'
+const mainnet_explorer_url = 'https://explorer.alephium.org'
+const testnet_explorer_url = 'https://testnet.alephium.org'
+const devnet_explorer_url = 'http://localhost:23000'
 
 const networkStorageKey = 'alephium-network'
 
@@ -39,11 +42,20 @@ export function useExplorer(): ExplorerProvider {
   const [network] = useNetworkId()
   return new ExplorerProvider(
     network === 'mainnet'
-      ? mainnet_explorer_url
+      ? mainnet_explorer_backend_url
       : network === 'testnet'
-      ? testnet_explorer_url
-      : devnet_explorer_url
+      ? testnet_explorer_backend_url
+      : devnet_explorer_backend_url
   )
+}
+
+export function useExplorerFE(): string {
+  const [network] = useNetworkId()
+  return network === 'mainnet'
+    ? mainnet_explorer_url
+    : network === 'testnet'
+    ? testnet_explorer_url
+    : devnet_explorer_url
 }
 
 export function getTokenMetadata(network: 'mainnet' | 'testnet'): TokenList {

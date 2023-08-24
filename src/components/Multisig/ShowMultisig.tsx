@@ -61,7 +61,7 @@ function ShowMultiSig() {
   const navigate = useNavigate()
 
   return (
-    <Box maw={800} mx="auto" mt="5rem" ta={'left'}>
+    <Box maw={850} mx="auto" mt="5rem" ta={'left'}>
       <Group position="center">
         <Text fw="700" size="xl">
           Select Multisig

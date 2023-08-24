@@ -6,10 +6,12 @@ import {
   Chip,
   Grid,
   Group,
+  Input,
   Loader,
   NumberInput,
   RingProgress,
   Select,
+  Space,
   Stack,
   Stepper,
   Text,
@@ -36,7 +38,7 @@ import {
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
-import { useAlephium, useExplorer } from '../../utils/utils'
+import { useAlephium, useExplorer, useExplorerFE } from '../../utils/utils'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -146,6 +148,8 @@ function BuildMultisigTx() {
     }
   }, [form, setSubmitTxResult])
 
+  const explorerUrl = useExplorerFE()
+
   const selectedConfig = useMemo(() => {
     if (form.values.multisig === '') return undefined
     return allMultisig.find((c) => c.name === form.values.multisig)!
@@ -170,14 +174,15 @@ function BuildMultisigTx() {
   }, [form.values])
 
   return (
-    <Box maw={1200} mx="auto">
-      <Grid>
+    <Box maw={1200} mx="auto" mt="5rem">
+      <Grid columns={13}>
         <Grid.Col span={9}>
           {form.values.step === 0 ? (
-            <Box maw={900} mx="0" mt="xl" ta="left">
+            <Box mx="auto" mt="xl" ta="left">
               <Select
                 w={'20rem'}
                 mx="auto"
+                size="md"
                 placeholder="Select Multisig"
                 data={allMultisig.map((multisig) => ({
                   value: multisig.name,
@@ -190,8 +195,8 @@ function BuildMultisigTx() {
                 }}
               />
               {selectedConfig && (
-                <Stack mt="xl">
-                  <MyBox mx="xl">
+                <>
+                  <MyBox mx="xl" mt="xl">
                     <Text ta="left" fw="700">
                       Select {selectedConfig.mOfN}-of-
                       {selectedConfig.pubkeys.length} Signers
@@ -245,7 +250,7 @@ function BuildMultisigTx() {
 
                   {/* <Code block>{selectedSigners}</Code> */}
 
-                  <MyBox mx="xl">
+                  <MyBox mx="xl" mt="xl">
                     <Text ta="left" fw="700">
                       Send Assets
                     </Text>
@@ -275,16 +280,26 @@ function BuildMultisigTx() {
                     <Button onClick={() => form.reset()}>Reset</Button>
                     <Button onClick={buildTxCallback}>Build Transaction</Button>
                   </Group>
-                </Stack>
+                </>
               )}
             </Box>
           ) : form.values.step === 1 ? (
             <Box maw={800} mx="lg" mt="xl" ta="left">
-              <Text fw="700" mb="lg">
-                Copy and share the transaction to singers
+              <Text fw="700" size="lg">
+                Copy and share the transaction to signers
               </Text>
-              <CopyTextarea value={form.values.unsignedTx ?? ''} />
-              <Group mt="lg" position="apart" mx="2rem">
+              <Input.Description ta="left" size="md">
+                Signers should paste the transaction on the page {' '}
+                <Anchor
+                  href={`/alephium-toolkit/#/multisig/sign-tx`}
+                  target="_blank"
+                >
+                  sign-tx
+                </Anchor>
+              </Input.Description>
+              <Space h="lg" />
+              <CopyTextarea value={btoa(form.values.unsignedTx ?? '')} />
+              <Group mt="xl" position="apart" mx="lg">
                 <Button
                   onClick={() => {
                     form.setValues({ step: 0 })
@@ -302,7 +317,7 @@ function BuildMultisigTx() {
               </Group>
             </Box>
           ) : form.values.step === 2 ? (
-            <Box maw={900} mx="auto" mt="xl" ta="left">
+            <Box mx="auto" mt="xl" ta="left">
               <MyBox mx="lg">
                 <Text ta="left" fw="700">
                   Signatures
@@ -323,7 +338,7 @@ function BuildMultisigTx() {
                   {submitTxError}
                 </Text>
               )}
-              <Group mt="lg" position="apart" mx="2rem">
+              <Group mt="xl" position="apart" mx="2rem">
                 <Button
                   onClick={() => {
                     form.setValues({ step: 1 })
@@ -360,21 +375,24 @@ function BuildMultisigTx() {
                 )}
               </Group>
               {txSubmitted && (
-                <Group mt="lg" position="apart" mx="2rem">
+                <Stack mt="lg"  mx="2rem">
+                  <Text fw={400} fz="1.5rem" ta="center">Transaction Submitted</Text>
                   <Anchor
-                    href={`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
+                    href={`${explorerUrl}/tx/${submitTxResult?.txId}`}
                     target="_blank"
+                    mx="auto"
                   >
-                    {`https://explorer.alephium.org/tx/${submitTxResult?.txId}`}
+                    View on Explorer
                   </Anchor>
-                </Group>
+                  <Button mx="auto">Create more transactions</Button>
+                </Stack>
               )}
             </Box>
           )}
         </Grid.Col>
 
-        <Grid.Col span={3}>
-          <Box maw={400} mx="auto" mt="xl" ta="left">
+        <Grid.Col offset={1} span={3}>
+          <Box maw={400} mx="auto" mt="2.5rem" ta="left">
             <Stepper
               active={form.values.step}
               onStepClick={(s) => form.setValues({ step: s })}
@@ -388,7 +406,7 @@ function BuildMultisigTx() {
               />
               <Stepper.Step
                 label="Sign"
-                description="Share the transaction to all signers for signature"
+                description="Share the transaction to all signers for signatures"
                 allowStepSelect={form.values.step !== 3}
               />
               <Stepper.Step

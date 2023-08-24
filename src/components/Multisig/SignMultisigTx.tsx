@@ -1,4 +1,4 @@
-import { Anchor, Box, Button, Group, Mark, Text, Textarea } from '@mantine/core'
+import { Anchor, Box, Button, Group, Input, Mark, Text, Textarea } from '@mantine/core'
 import { useCallback, useState } from 'react'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
@@ -67,10 +67,13 @@ function SignMultisigTx() {
   }, [setLoadingConfig, setSignature, setMultisigConfig])
 
   return (
-    <Box maw={900} mx="auto" mt="xl">
-      <Text ta="left" fw="700">
+    <Box maw={900} mx="auto" mt="5rem">
+      <Text ta="left" fw="700" size="xl">
         Transaction to sign
       </Text>
+      <Input.Description ta="left" size='md'>
+        The transaction must be created by the multisig address.
+      </Input.Description>
       <Textarea
         placeholder="Paste your multisig transaction here"
         minRows={8}
@@ -80,8 +83,8 @@ function SignMultisigTx() {
           if (e.target.value === '') {
             setUnsignedTx(undefined)
           } else {
-            setUnsignedTx(e.target.value)
-            tryLoadMultisigConfig(e.target.value)
+            setUnsignedTx(atob(e.target.value))
+            tryLoadMultisigConfig(atob(e.target.value))
           }
         }}
       />
@@ -94,7 +97,7 @@ function SignMultisigTx() {
           The multisig address to sign is{' '}
           {multisigConfig ? (
             <Anchor
-              href={`/multisig/show?name=${multisigConfig.name}`}
+              href={`/alephium-toolkit/#/multisig/show?name=${multisigConfig.name}`}
               target="_blank"
             >
               {multisigConfig.name}
@@ -116,7 +119,7 @@ function SignMultisigTx() {
         </Box>
       ) : (
         <Group position="right" mt="xl">
-          <Button onClick={sign}>Sign MultiSig Transaction</Button>
+          <Button onClick={sign}>Sign Transaction</Button>
         </Group>
       )}
     </Box>
