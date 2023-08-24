@@ -21,8 +21,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
-  ExplorerProvider,
-  NodeProvider,
   convertAlphAmountWithDecimals,
   isBase58,
   node,
@@ -38,7 +36,7 @@ import {
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
-import { useAlephium } from '../../utils/utils'
+import { useAlephium, useExplorer } from '../../utils/utils'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -83,6 +81,7 @@ function BuildMultisigTx() {
   >()
 
   const nodeProvider = useAlephium()
+  const explorerProvider = useExplorer()
 
   const buildTxCallback = useCallback(async () => {
     try {
@@ -137,7 +136,6 @@ function BuildMultisigTx() {
       setSubmitTxResult(submitTxResult)
       form.setValues({ step: 3 })
 
-      const explorerProvider = new ExplorerProvider('http://localhost:9090')
       await waitTxSubmitted(explorerProvider, submitTxResult.txId)
       setTxSubmitted(true)
       setSubmitTxError(undefined)
