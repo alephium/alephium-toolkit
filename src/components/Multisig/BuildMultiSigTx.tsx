@@ -125,8 +125,6 @@ function BuildMultisigTx() {
       })
       if (hasError) throw new Error(`Invalid signatures`)
 
-      // const nodeProvider = web3.getCurrentNodeProvider()
-      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
       const submitTxResult = await submitMultisigTx(
         nodeProvider,
         form.values.multisig,
