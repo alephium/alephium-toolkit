@@ -10,7 +10,6 @@ import {
   ActionIcon,
   rem,
   Slider,
-  Space,
   Tooltip,
 } from '@mantine/core'
 import { FORM_INDEX, useForm } from '@mantine/form'
@@ -145,18 +144,21 @@ function CreateMultisig() {
   ))
 
   return (
-    <Box maw={900} mx="auto" mt="xl">
+    <Box maw={900} mx="auto" mt="5rem">
       <form onSubmit={onSubmit}>
-        <Group position="center" mb="xl">
-          <Text fw="700">Choose a Name</Text>
+        <Group position="center">
+          <Text fw="700" size={'xl'}>
+            Choose a Name
+          </Text>
           <TextInput
             placeholder="Multisig Name"
             ta="left"
+            size="md"
             {...form.getInputProps('name')}
           />
         </Group>
 
-        <MyBox>
+        <MyBox mt="2rem" px="2rem" py="1.5rem">
           <Text ta="left" fw="700">
             Signers
           </Text>
@@ -194,8 +196,7 @@ function CreateMultisig() {
           </Group>
         </MyBox>
 
-        <Space h="lg" />
-        <MyBox>
+        <MyBox mt="xl" px="2rem" py="1.5rem">
           <Text weight={700} ta="left">
             Signatures Required
           </Text>
@@ -255,7 +256,7 @@ function CreateMultisig() {
         </MyBox>
         {/* </Group> */}
 
-        <Group position="right" mt="lg">
+        <Group position="right" mt="xl">
           <Button type="submit">Create Multisig</Button>
         </Group>
       </form>

@@ -1,11 +1,12 @@
 import {
-  Box,
+  MantineNumberSize,
   SpacingValue,
   SystemProp,
   Table,
   Text,
   useMantineTheme,
 } from '@mantine/core'
+import MyBox from './MyBox'
 
 function Caption({ caption }: { caption: string }) {
   const theme = useMantineTheme()
@@ -25,10 +26,14 @@ function Caption({ caption }: { caption: string }) {
 
 interface MyTableProps {
   w?: SystemProp<SpacingValue> | undefined
+  px?: SystemProp<SpacingValue> | undefined
+  py?: SystemProp<SpacingValue> | undefined
+  horizontalSpacing?: MantineNumberSize
+  verticalSpacing?: MantineNumberSize
   data: { [key: string]: string | React.ReactNode }
 }
 
-function MyTable({ w, data }: MyTableProps) {
+function MyTable({ w, px, py, data, horizontalSpacing, verticalSpacing }: MyTableProps) {
   const rows = Object.entries(data).map(([key, value]) => (
     <tr key={key}>
       <td width={'30%'}>
@@ -39,29 +44,16 @@ function MyTable({ w, data }: MyTableProps) {
   ))
 
   return (
-    <Box
-      w={w}
-      mx="auto"
-      sx={(theme) => ({
-        backgroundColor:
-          theme.colorScheme === 'dark'
-            ? theme.colors.dark[5]
-            : theme.colors.gray[1],
-        textAlign: 'center',
-        padding: theme.spacing.xl,
-        borderRadius: theme.radius.md,
-      })}
-    >
+    <MyBox w={w} mx="auto" px={px ?? 'lg'} py={py ?? 'lg'} ta="center">
       <Table
-        horizontalSpacing={'xs'}
-        verticalSpacing={'xl'}
+        horizontalSpacing={horizontalSpacing ?? 'xs'}
+        verticalSpacing={verticalSpacing ?? 'xl'}
         fontSize={'md'}
-        highlightOnHover
         withColumnBorders
       >
         <tbody>{rows}</tbody>
       </Table>
-    </Box>
+    </MyBox>
   )
 }
 

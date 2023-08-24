@@ -1,4 +1,4 @@
-import { Box, Button, Group, Text, Textarea } from '@mantine/core'
+import { Box, Button, Group, Input, Text, Textarea } from '@mantine/core'
 import { useCallback, useState } from 'react'
 import {
   MultisigConfig,
@@ -37,18 +37,22 @@ function ImportMultisig() {
   )
 
   return (
-    <Box maw={900} mx="auto" mt="xl">
-      <Text ta="left" fw="700">
-        Multisig configuration
+    <Box maw={800} mx="auto" mt="5rem">
+      <Text ta="left" fw="700" size="xl">
+        Multisig Configuration
       </Text>
+      <Input.Description ta="left" size='md'>
+        You can import the multisig configuration shared by the creator of the
+        multisig address.
+      </Input.Description>
       <Textarea
-        placeholder="Paste your configuration here"
+        placeholder="Paste the configuration here"
         minRows={8}
-        mt="md"
+        mt="lg"
         onChange={(event) => onContentChange(event.target.value)}
       />
       {error ? (
-        <Text color="red" mt="md">
+        <Text color="red" mt="md" ta="right">
           {error}
         </Text>
       ) : null}

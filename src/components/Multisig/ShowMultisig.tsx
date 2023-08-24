@@ -3,10 +3,13 @@ import {
   Box,
   Button,
   CopyButton,
+  Grid,
   Group,
   Mark,
   Modal,
   Select,
+  Stack,
+  Text,
   Tooltip,
 } from '@mantine/core'
 import {
@@ -22,6 +25,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { IconAlertCircle } from '@tabler/icons-react'
 import MyTable from '../Misc/MyTable'
 import CopyTextarea from '../Misc/CopyTextarea'
+import { addressFromPublicKey } from '@alephium/web3'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -57,19 +61,22 @@ function ShowMultiSig() {
   const navigate = useNavigate()
 
   return (
-    <Box maw={700} mx="auto" mt="xl" ta={'left'}>
-      <Select
-        w={'30rem'}
-        mx="auto"
-        label="Select Multisig"
-        placeholder="Pick one"
-        data={allMultisig.map((multisig) => ({
-          value: multisig.name,
-          label: multisig.name,
-        }))}
-        value={multisigName}
-        onChange={(value) => navigate('/multisig/show?name=' + value)}
-      />
+    <Box maw={850} mx="auto" mt="5rem" ta={'left'}>
+      <Group position="center">
+        <Text fw="700" size="xl">
+          Select Multisig
+        </Text>
+        <Select
+          size="md"
+          placeholder="Pick one"
+          data={allMultisig.map((multisig) => ({
+            value: multisig.name,
+            label: multisig.name,
+          }))}
+          value={multisigName}
+          onChange={(value) => navigate('/multisig/show?name=' + value)}
+        />
+      </Group>
 
       <Modal
         opened={opened}
@@ -107,7 +114,7 @@ function ShowMultiSig() {
       </Modal>
 
       {multisigName && theMultisig && (
-        <Box mx="auto" mt="xl" w="100%">
+        <Box mx="auto" mt="2rem" w="100%">
           <MyTable
             data={{
               Address: (
@@ -115,16 +122,28 @@ function ShowMultiSig() {
                   <CopyTextarea value={buildMultisigAddress(theMultisig)} />
                 </Group>
               ),
-              // Address: <CopyText value={buildMultisigAddress(theMultisig)} />,
               'Number of Signers': theMultisig.pubkeys.length,
               'Required Signers': theMultisig.mOfN,
-              // 'Address Group': groupOfAddress(
-              //   addressFromPublicKey(theMultisig.pubkeys[0].pubkey)
-              // ),
+              Signers: (
+                <Grid>
+                  {theMultisig.pubkeys.map(({ name, pubkey }) => [
+                    <Grid.Col span={2} key={pubkey}>
+                      <Stack h="100%">
+                        <Text fw="450" my="auto" ta="right">
+                          {name}
+                        </Text>
+                      </Stack>
+                    </Grid.Col>,
+                    <Grid.Col span={10} key={pubkey}>
+                      <CopyTextarea value={addressFromPublicKey(pubkey)} />
+                    </Grid.Col>,
+                  ])}
+                </Grid>
+              ),
             }}
           />
-          <Group position="apart" mt="lg">
-            <Button onClick={open}>Remove !!!</Button>
+          <Group position="apart" mt="2rem" mx="lg">
+            <Button onClick={open}>Remove</Button>
             <CopyButton value={configToSting(theMultisig)} timeout={1000}>
               {({ copied, copy }) => (
                 <Tooltip
