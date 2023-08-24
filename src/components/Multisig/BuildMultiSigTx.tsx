@@ -283,7 +283,9 @@ function BuildMultisigTx() {
             </Box>
           ) : form.values.step === 1 ? (
             <Box maw={800} mx="lg" mt="xl" ta="left">
-              <Text fw="700" mb="lg">Copy and share the transaction to singers</Text>
+              <Text fw="700" mb="lg">
+                Copy and share the transaction to singers
+              </Text>
               <CopyTextarea value={form.values.unsignedTx ?? ''} />
               <Group mt="lg" position="apart" mx="2rem">
                 <Button
