@@ -2,11 +2,16 @@ import {
   Alert,
   Box,
   Button,
+  Center,
   CopyButton,
+  Grid,
   Group,
   Mark,
   Modal,
   Select,
+  Stack,
+  Table,
+  Text,
   Tooltip,
 } from '@mantine/core'
 import {
@@ -22,6 +27,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { IconAlertCircle } from '@tabler/icons-react'
 import MyTable from '../Misc/MyTable'
 import CopyTextarea from '../Misc/CopyTextarea'
+import { addressFromPublicKey } from '@alephium/web3'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -57,89 +63,107 @@ function ShowMultiSig() {
   const navigate = useNavigate()
 
   return (
-    <Box maw={700} mx="auto" mt="xl" ta={'left'}>
-      <Select
-        w={'30rem'}
-        mx="auto"
-        label="Select Multisig"
-        placeholder="Pick one"
-        data={allMultisig.map((multisig) => ({
-          value: multisig.name,
-          label: multisig.name,
-        }))}
-        value={multisigName}
-        onChange={(value) => navigate('/multisig/show?name=' + value)}
-      />
-
-      <Modal
-        opened={opened}
-        onClose={close}
-        withCloseButton={false}
-        styles={{
-          inner: {
-            right: 0,
-          },
-        }}
-      >
-        <Alert
-          icon={<IconAlertCircle size="1rem" />}
-          title="Attention!"
-          color="red"
-          mt="lg"
-        >
-          This action will remove multisig <Mark>{multisigName}</Mark> from your
-          browser. You will need to re-import the configuration to use it again.
-        </Alert>
-        <Group position="center" mt="lg">
-          <Button
-            color="red"
-            onClick={() => {
-              close()
-              if (multisigName) {
-                removeMultisigConfig(multisigName)
-                navigate('/multisig/show')
-              }
-            }}
-          >
-            Confirm
-          </Button>
-        </Group>
-      </Modal>
-
-      {multisigName && theMultisig && (
-        <Box mx="auto" mt="xl" w="100%">
-          <MyTable
-            data={{
-              Address: (
-                <Group position="center" mx="auto">
-                  <CopyTextarea value={buildMultisigAddress(theMultisig)} />
-                </Group>
-              ),
-              // Address: <CopyText value={buildMultisigAddress(theMultisig)} />,
-              'Number of Signers': theMultisig.pubkeys.length,
-              'Required Signers': theMultisig.mOfN,
-              // 'Address Group': groupOfAddress(
-              //   addressFromPublicKey(theMultisig.pubkeys[0].pubkey)
-              // ),
-            }}
+    <Center mt="5rem">
+      <Box maw={800} mx="auto" mt="xl" ta={'left'}>
+        <Group position="center">
+          <Text fw="700" size="xl">
+            Select Multisig
+          </Text>
+          <Select
+            size="md"
+            placeholder="Pick one"
+            data={allMultisig.map((multisig) => ({
+              value: multisig.name,
+              label: multisig.name,
+            }))}
+            value={multisigName}
+            onChange={(value) => navigate('/multisig/show?name=' + value)}
           />
-          <Group position="apart" mt="lg">
-            <Button onClick={open}>Remove !!!</Button>
-            <CopyButton value={configToSting(theMultisig)} timeout={1000}>
-              {({ copied, copy }) => (
-                <Tooltip
-                  label={copied ? 'Copied' : null}
-                  opened={copied}
-                  withArrow
-                >
-                  <Button onClick={copy}>Export</Button>
-                </Tooltip>
-              )}
-            </CopyButton>
+        </Group>
+
+        <Modal
+          opened={opened}
+          onClose={close}
+          withCloseButton={false}
+          styles={{
+            inner: {
+              right: 0,
+            },
+          }}
+        >
+          <Alert
+            icon={<IconAlertCircle size="1rem" />}
+            title="Attention!"
+            color="red"
+            mt="lg"
+          >
+            This action will remove multisig <Mark>{multisigName}</Mark> from
+            your browser. You will need to re-import the configuration to use it
+            again.
+          </Alert>
+          <Group position="center" mt="lg">
+            <Button
+              color="red"
+              onClick={() => {
+                close()
+                if (multisigName) {
+                  removeMultisigConfig(multisigName)
+                  navigate('/multisig/show')
+                }
+              }}
+            >
+              Confirm
+            </Button>
           </Group>
-        </Box>
-      )}
-    </Box>
+        </Modal>
+
+        {multisigName && theMultisig && (
+          <Box mx="auto" mt="2rem" w="100%">
+            <MyTable
+              data={{
+                Address: (
+                  <Group position="center" mx="auto">
+                    <CopyTextarea value={buildMultisigAddress(theMultisig)} />
+                  </Group>
+                ),
+                'Number of Signers': theMultisig.pubkeys.length,
+                'Required Signers': theMultisig.mOfN,
+                Signers: (
+                  <Grid>
+                    {theMultisig.pubkeys.map(({ name, pubkey }) => [
+                      <Grid.Col span={2} key={pubkey}>
+                        <Stack h="100%">
+                          <Text fw="450" my="auto" ta="right">
+                            {name}
+                          </Text>
+                        </Stack>
+                      </Grid.Col>,
+                      <Grid.Col span={10} key={pubkey}>
+                        <CopyTextarea value={addressFromPublicKey(pubkey)} />
+                      </Grid.Col>,
+                    ])}
+                  </Grid>
+                ),
+              }}
+            />
+            <Group position="apart" mt="2rem" mx="lg">
+              <Button onClick={open}>Remove</Button>
+              <CopyButton value={configToSting(theMultisig)} timeout={1000}>
+                {({ copied, copy }) => (
+                  <Tooltip
+                    label={copied ? 'Copied' : null}
+                    opened={copied}
+                    withArrow
+                  >
+                    <Button onClick={copy}>Export</Button>
+                  </Tooltip>
+                )}
+              </CopyButton>
+            </Group>
+          </Box>
+        )}
+      </Box>
+    </Center>
   )
 }
 

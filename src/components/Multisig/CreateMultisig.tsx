@@ -145,14 +145,17 @@ function CreateMultisig() {
   ))
 
   return (
-    <Center h="70%">
+    <Center mt="5rem">
       <Box maw={900} mx="auto">
         <form onSubmit={onSubmit}>
           <Group position="center">
-            <Text fw="700">Choose a Name</Text>
+            <Text fw="700" size={'xl'}>
+              Choose a Name
+            </Text>
             <TextInput
               placeholder="Multisig Name"
               ta="left"
+              size="md"
               {...form.getInputProps('name')}
             />
           </Group>
