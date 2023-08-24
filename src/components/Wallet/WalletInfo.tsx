@@ -18,9 +18,9 @@ function WalletInfo() {
 
   const account = wallet.account
   return (
-    <Center h={rem('80%')}>
+    <Center h="80%">
       <MyTable
-        w={rem('60rem')}
+        w={900}
         data={{
           'Network Type': account?.network,
           'Address Group': account?.group,

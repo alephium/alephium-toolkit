@@ -1,11 +1,11 @@
 import {
-  Box,
   SpacingValue,
   SystemProp,
   Table,
   Text,
   useMantineTheme,
 } from '@mantine/core'
+import MyBox from './MyBox'
 
 function Caption({ caption }: { caption: string }) {
   const theme = useMantineTheme()
@@ -39,29 +39,16 @@ function MyTable({ w, data }: MyTableProps) {
   ))
 
   return (
-    <Box
-      w={w}
-      mx="auto"
-      sx={(theme) => ({
-        backgroundColor:
-          theme.colorScheme === 'dark'
-            ? theme.colors.dark[5]
-            : theme.colors.gray[1],
-        textAlign: 'center',
-        padding: theme.spacing.xl,
-        borderRadius: theme.radius.md,
-      })}
-    >
+    <MyBox w={w} mx="auto" px="lg" py="lg" ta="center">
       <Table
         horizontalSpacing={'xs'}
         verticalSpacing={'xl'}
         fontSize={'md'}
-        highlightOnHover
         withColumnBorders
       >
         <tbody>{rows}</tbody>
       </Table>
-    </Box>
+    </MyBox>
   )
 }
 

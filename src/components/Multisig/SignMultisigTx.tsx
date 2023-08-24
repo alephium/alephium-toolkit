@@ -69,7 +69,7 @@ function SignMultisigTx() {
   return (
     <Box maw={900} mx="auto" mt="xl">
       <Text ta="left" fw="700">
-        Multisig Transaction
+        Transaction to sign
       </Text>
       <Textarea
         placeholder="Paste your multisig transaction here"
@@ -108,7 +108,7 @@ function SignMultisigTx() {
       {signature ? (
         <Box>
           <Text ta="left" fw="700" mt="xl">
-            Signature:{' '}
+            Copy and share the signature:
           </Text>
           <Group position="apart">
             <CopyTextarea value={signature.signature} />

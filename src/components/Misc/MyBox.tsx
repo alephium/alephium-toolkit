@@ -8,8 +8,8 @@ function MyBox({ children, ...others }: MyTableProps) {
   return (
     <Box
       mx="auto"
-      px="1.5rem"
-      py="2rem"
+      px="lg"
+      py="lg"
       sx={(theme) => ({
         backgroundColor:
           theme.colorScheme === 'dark' ? theme.colors.dark[7] : 'white',
