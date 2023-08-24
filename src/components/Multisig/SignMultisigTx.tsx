@@ -88,6 +88,12 @@ function SignMultisigTx() {
             tryLoadMultisigConfig(atob(e.target.value))
           }
         }}
+        styles={{
+          input: {
+            color: 'gray',
+            opacity: 0.9,
+          }
+        }}
       />
       {error ? (
         <Text color="red" mt="md" mx="lg" ta="left">
