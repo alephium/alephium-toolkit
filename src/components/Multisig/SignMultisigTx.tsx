@@ -111,8 +111,9 @@ function SignMultisigTx() {
               ) : (
                 <Mark color="red">unknown</Mark>
               ),
-              Recipient: "???",
-              "ALPH amount": "???"
+              Recipient: "Coming soon",
+              "ALPH Amount": "Coming soon",
+              "Tx Hash": <CopyTextarea value={'Coming soon'} />,
             }}
           />
         </Box>
