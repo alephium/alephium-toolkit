@@ -8,12 +8,12 @@ import {
   Menu,
   Button,
 } from '@mantine/core'
-import { useDisclosure, useLocalStorage } from '@mantine/hooks'
+import { useDisclosure } from '@mantine/hooks'
 import LightDarkModeButton from './LightDarkButton'
 import { Link } from 'react-router-dom'
 
 import { AlephiumConnectButton } from '@alephium/web3-react'
-import { NetworkId } from '@alephium/web3'
+import { useNetworkId } from '../utils/utils'
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -88,11 +88,7 @@ export function AppHeader() {
   const [drawerOpened, { toggle: toggleDrawer }] = useDisclosure(false)
   const { classes } = useStyles()
 
-  const [network, setNetwork] = useLocalStorage<NetworkId>({
-    key: 'alephium-network',
-    defaultValue: 'devnet',
-    getInitialValueInEffect: true,
-  })
+  const [network, setNetwork] = useNetworkId()
 
   return (
     <Header height={60} px="md">

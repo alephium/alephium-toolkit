@@ -38,6 +38,7 @@ import {
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
+import { useAlephium } from '../../utils/utils'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -81,6 +82,8 @@ function BuildMultisigTx() {
     node.SubmitTxResult | undefined
   >()
 
+  const nodeProvider = useAlephium()
+
   const buildTxCallback = useCallback(async () => {
     try {
       // we can not use the `form.validate()` because the `signatures` is invalid now,
@@ -96,8 +99,6 @@ function BuildMultisigTx() {
       })
       if (hasError) throw new Error('Invalid destinations')
 
-      // const nodeProvider = web3.getCurrentNodeProvider()
-      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
       const buildTxResult = await buildMultisigTx(
         nodeProvider,
         form.values.multisig,
