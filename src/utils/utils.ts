@@ -4,6 +4,7 @@ import {
   testnetTokensMetadata,
 } from '@alephium/token-list'
 import { ExplorerProvider, NetworkId, NodeProvider } from '@alephium/web3'
+import { useLocalStorage } from '@mantine/hooks'
 
 const mainnet_node_url = 'https://wallet-v20.mainnet.alephium.org'
 const testnet_node_url = 'https://wallet-v20.testnet.alephium.org'
@@ -12,7 +13,19 @@ const mainnet_explorer_url = 'https://backend-v113.mainnet.alephium.org'
 const testnet_explorer_url = 'https://backend-v113.testnet.alephium.org'
 const devnet_explorer_url = 'http://127.0.0.1:9090'
 
-export function connectAlephium(network: NetworkId): NodeProvider {
+const networkStorageKey = 'alephium-network'
+
+export function useNetworkId(): [NetworkId, (network: NetworkId) => void] {
+  const [network, setNetwork] = useLocalStorage<NetworkId>({
+    key: networkStorageKey,
+    defaultValue: 'mainnet',
+    getInitialValueInEffect: true,
+  })
+  return [network, setNetwork]
+}
+
+export function useAlephium(): NodeProvider {
+  const [network] = useNetworkId()
   return new NodeProvider(
     network === 'mainnet'
       ? mainnet_node_url
@@ -22,7 +35,8 @@ export function connectAlephium(network: NetworkId): NodeProvider {
   )
 }
 
-export function connectExplorer(network: NetworkId): ExplorerProvider {
+export function useExplorer(): ExplorerProvider {
+  const [network] = useNetworkId()
   return new ExplorerProvider(
     network === 'mainnet'
       ? mainnet_explorer_url

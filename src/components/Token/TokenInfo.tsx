@@ -1,6 +1,6 @@
 import { Box, Center, Stack, TextInput, rem } from '@mantine/core'
 import { useCallback, useState } from 'react'
-import { connectAlephium, getTokenMetadata } from '../../utils/utils'
+import { getTokenMetadata, useAlephium } from '../../utils/utils'
 import {
   FungibleTokenMetaData,
   addressFromTokenId,
@@ -21,12 +21,12 @@ type TokenInfo = FungibleTokenMetaData & {
 function TokenInfo() {
   const [value, setValue] = useState('')
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>()
+  const nodeProvider = useAlephium()
 
   const searchToken = useCallback(async (tokenId: string) => {
     setValue(tokenId)
 
     if (tokenId) {
-      const nodeProvider = connectAlephium(network)
       const tokenMetadata = await nodeProvider.fetchFungibleTokenMetaData(
         tokenId
       )

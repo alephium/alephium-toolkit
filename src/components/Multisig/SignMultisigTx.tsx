@@ -4,6 +4,7 @@ import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
 import { NodeProvider, isHexString } from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
+import { useAlephium } from '../../utils/utils'
 
 type P2MPKUnlockScript = { pubkey: string; index: number }[]
 
@@ -20,6 +21,8 @@ function SignMultisigTx() {
 
   const [error, setError] = useState<string>()
 
+  const nodeProvider = useAlephium()
+
   const tryLoadMultisigConfig = useCallback(
     async (unsignedTx: string) => {
       try {
@@ -28,8 +31,6 @@ function SignMultisigTx() {
           throw new Error('Invalid unsigned tx')
         }
 
-        const nodeProvider =
-          wallet?.nodeProvider ?? new NodeProvider('http://127.0.0.1:22973')
         const unlockScript = await getUnlockScript(nodeProvider, unsignedTx)
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)

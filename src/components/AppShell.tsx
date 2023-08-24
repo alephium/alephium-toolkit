@@ -13,14 +13,16 @@ import ImportMultisig from './Multisig/ImportMultiSig'
 import ShowMultiSig from './Multisig/ShowMultiSig'
 import SignMultisigTx from './Multisig/SignMultisigTx'
 import BuildMultisigTx from './Multisig/BuildMultiSigTx'
+import { useAlephium } from '../utils/utils'
 
 function AppShellExample() {
   const theme = useMantineTheme()
   const context = useAlephiumConnectContext()
+  const nodeProvider = useAlephium()
 
   useEffect(() => {
     if (context.signerProvider?.nodeProvider !== undefined) {
-      web3.setCurrentNodeProvider(context.signerProvider.nodeProvider)
+      web3.setCurrentNodeProvider(nodeProvider)
     }
   }, [context.signerProvider])
 

@@ -21,8 +21,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
-  ExplorerProvider,
-  NodeProvider,
   convertAlphAmountWithDecimals,
   isBase58,
   node,
@@ -38,6 +36,7 @@ import {
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
+import { useAlephium, useExplorer } from '../../utils/utils'
 
 function BuildMultisigTx() {
   const form = useForm<{
@@ -81,6 +80,9 @@ function BuildMultisigTx() {
     node.SubmitTxResult | undefined
   >()
 
+  const nodeProvider = useAlephium()
+  const explorerProvider = useExplorer()
+
   const buildTxCallback = useCallback(async () => {
     try {
       // we can not use the `form.validate()` because the `signatures` is invalid now,
@@ -96,8 +98,6 @@ function BuildMultisigTx() {
       })
       if (hasError) throw new Error('Invalid destinations')
 
-      // const nodeProvider = web3.getCurrentNodeProvider()
-      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
       const buildTxResult = await buildMultisigTx(
         nodeProvider,
         form.values.multisig,
@@ -124,8 +124,6 @@ function BuildMultisigTx() {
       })
       if (hasError) throw new Error(`Invalid signatures`)
 
-      // const nodeProvider = web3.getCurrentNodeProvider()
-      const nodeProvider = new NodeProvider('http://127.0.0.1:22973')
       const submitTxResult = await submitMultisigTx(
         nodeProvider,
         form.values.multisig,
@@ -138,7 +136,6 @@ function BuildMultisigTx() {
       setSubmitTxResult(submitTxResult)
       form.setValues({ step: 3 })
 
-      const explorerProvider = new ExplorerProvider('http://localhost:9090')
       await waitTxSubmitted(explorerProvider, submitTxResult.txId)
       setTxSubmitted(true)
       setSubmitTxError(undefined)
