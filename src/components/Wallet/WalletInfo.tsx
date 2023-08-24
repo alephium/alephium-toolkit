@@ -1,5 +1,5 @@
 import { useWallet } from '@alephium/web3-react'
-import { Center, rem } from '@mantine/core'
+import { Center, Text } from '@mantine/core'
 import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
 import { useEffect } from 'react'
@@ -22,7 +22,7 @@ function WalletInfo() {
       <MyTable
         w={900}
         data={{
-          'Network Type': account?.network,
+          'Network Type': <Text tt="capitalize">{account?.network}</Text>,
           'Address Group': account?.group,
           Address: <CopyText value={account?.address ?? '???'} />,
           'Public Key': <CopyText value={account?.publicKey ?? '???'} />,
