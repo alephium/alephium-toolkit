@@ -127,10 +127,16 @@ function CreateMultisig() {
             ta="left"
             {...form.getInputProps(`pubkeys.${index}.pubkey`)}
           />
-          <Tooltip label="Remove Signer" disabled={form.values.pubkeys.length === 1}>
+          <Tooltip
+            label="Remove Signer"
+            disabled={form.values.pubkeys.length === 1}
+          >
             <IconSquareRoundedMinus
               size="1.2rem"
-              onClick={() => form.values.pubkeys.length!==1 && form.removeListItem('pubkeys', index)}
+              onClick={() =>
+                form.values.pubkeys.length !== 1 &&
+                form.removeListItem('pubkeys', index)
+              }
             />
           </Tooltip>
         </Group>
