@@ -3,6 +3,7 @@ import { Center, rem } from '@mantine/core'
 import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
 import { useEffect } from 'react'
+import { NoWallet } from '../Misc/NoWallet'
 
 function WalletInfo() {
   const wallet = useWallet()
@@ -12,7 +13,7 @@ function WalletInfo() {
   })
 
   if (wallet === undefined) {
-    return <></>
+    return <NoWallet />
   }
 
   const account = wallet.account
