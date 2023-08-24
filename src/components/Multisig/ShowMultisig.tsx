@@ -130,7 +130,7 @@ function ShowMultiSig() {
                     <Grid.Col span={2} key={pubkey}>
                       <Stack h="100%">
                         <Text fw="450" my="auto" ta="right">
-                          {name}
+                          {name}:
                         </Text>
                       </Stack>
                     </Grid.Col>,
