@@ -37,7 +37,7 @@ function ImportMultisig() {
   )
 
   return (
-    <Box maw={800} mx="auto" mt="xl">
+    <Box maw={800} mx="auto" mt="5rem">
       <Text ta="left" fw="700" size="xl">
         Multisig Configuration
       </Text>

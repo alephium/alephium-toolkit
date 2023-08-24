@@ -10,7 +10,6 @@ import {
   ActionIcon,
   rem,
   Slider,
-  Space,
   Tooltip,
 } from '@mantine/core'
 import { FORM_INDEX, useForm } from '@mantine/form'
@@ -145,129 +144,123 @@ function CreateMultisig() {
   ))
 
   return (
-    <Center mt="5rem">
-      <Box maw={900} mx="auto">
-        <form onSubmit={onSubmit}>
-          <Group position="center">
-            <Text fw="700" size={'xl'}>
-              Choose a Name
-            </Text>
-            <TextInput
-              placeholder="Multisig Name"
-              ta="left"
-              size="md"
-              {...form.getInputProps('name')}
-            />
-          </Group>
+    <Box maw={900} mx="auto" mt="5rem">
+      <form onSubmit={onSubmit}>
+        <Group position="center">
+          <Text fw="700" size={'xl'}>
+            Choose a Name
+          </Text>
+          <TextInput
+            placeholder="Multisig Name"
+            ta="left"
+            size="md"
+            {...form.getInputProps('name')}
+          />
+        </Group>
 
-          <MyBox mt="2rem" px="2rem" py="1.5rem">
-            <Text ta="left" fw="700">
-              Signers
-            </Text>
-            <DragDropContext
-              onDragEnd={({ destination, source }) =>
-                form.reorderListItem('pubkeys', {
-                  from: source.index,
-                  to: destination!.index,
-                })
+        <MyBox mt="2rem" px="2rem" py="1.5rem">
+          <Text ta="left" fw="700">
+            Signers
+          </Text>
+          <DragDropContext
+            onDragEnd={({ destination, source }) =>
+              form.reorderListItem('pubkeys', {
+                from: source.index,
+                to: destination!.index,
+              })
+            }
+          >
+            <Droppable droppableId="dnd-list" direction="vertical">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {fields}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+
+          <Group position="apart" mt="lg">
+            <Button variant="light" radius={'md'} onClick={() => form.reset()}>
+              Reset Signers
+            </Button>
+            <Button
+              variant="light"
+              radius={'md'}
+              onClick={() =>
+                form.insertListItem('pubkeys', { name: '', pubkey: '' })
               }
             >
-              <Droppable droppableId="dnd-list" direction="vertical">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {fields}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-
-            <Group position="apart" mt="lg">
-              <Button
-                variant="light"
-                radius={'md'}
-                onClick={() => form.reset()}
-              >
-                Reset Signers
-              </Button>
-              <Button
-                variant="light"
-                radius={'md'}
-                onClick={() =>
-                  form.insertListItem('pubkeys', { name: '', pubkey: '' })
-                }
-              >
-                Add Signer
-              </Button>
-            </Group>
-          </MyBox>
-
-          <MyBox mt="xl" px="2rem" py="1.5rem">
-            <Text weight={700} ta="left">
-              Signatures Required
-            </Text>
-            <Group position="apart">
-              <Slider
-                mt={rem('2.5rem')}
-                w={'70%'}
-                pb={'md'}
-                px="md"
-                min={0}
-                max={form.values.pubkeys.length}
-                step={1}
-                value={form.values.mOfN}
-                label={(val) => `${val} of ${form.values.pubkeys.length}`}
-                labelAlwaysOn
-                thumbSize={1}
-                styles={(theme) => ({
-                  label: {
-                    backgroundColor:
-                      theme.colorScheme === 'dark'
-                        ? theme.colors.dark[3]
-                        : theme.colors.blue[3],
-                  },
-                })}
-              />
-              <Group spacing={5} mt="md">
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => handlers.current!.decrement()}
-                >
-                  –
-                </ActionIcon>
-
-                <NumberInput
-                  hideControls
-                  value={form.values.mOfN}
-                  onChange={(val) =>
-                    form.setValues({ mOfN: val !== '' ? val : 1 })
-                  }
-                  handlersRef={handlers}
-                  max={form.values.pubkeys.length}
-                  min={1}
-                  step={1}
-                  styles={{ input: { width: rem(54), textAlign: 'center' } }}
-                />
-
-                <ActionIcon
-                  size={42}
-                  variant="default"
-                  onClick={() => handlers.current!.increment()}
-                >
-                  +
-                </ActionIcon>
-              </Group>
-            </Group>
-          </MyBox>
-          {/* </Group> */}
-
-          <Group position="right" mt="xl">
-            <Button type="submit">Create Multisig</Button>
+              Add Signer
+            </Button>
           </Group>
-        </form>
-      </Box>
-    </Center>
+        </MyBox>
+
+        <MyBox mt="xl" px="2rem" py="1.5rem">
+          <Text weight={700} ta="left">
+            Signatures Required
+          </Text>
+          <Group position="apart">
+            <Slider
+              mt={rem('2.5rem')}
+              w={'70%'}
+              pb={'md'}
+              px="md"
+              min={0}
+              max={form.values.pubkeys.length}
+              step={1}
+              value={form.values.mOfN}
+              label={(val) => `${val} of ${form.values.pubkeys.length}`}
+              labelAlwaysOn
+              thumbSize={1}
+              styles={(theme) => ({
+                label: {
+                  backgroundColor:
+                    theme.colorScheme === 'dark'
+                      ? theme.colors.dark[3]
+                      : theme.colors.blue[3],
+                },
+              })}
+            />
+            <Group spacing={5} mt="md">
+              <ActionIcon
+                size={42}
+                variant="default"
+                onClick={() => handlers.current!.decrement()}
+              >
+                –
+              </ActionIcon>
+
+              <NumberInput
+                hideControls
+                value={form.values.mOfN}
+                onChange={(val) =>
+                  form.setValues({ mOfN: val !== '' ? val : 1 })
+                }
+                handlersRef={handlers}
+                max={form.values.pubkeys.length}
+                min={1}
+                step={1}
+                styles={{ input: { width: rem(54), textAlign: 'center' } }}
+              />
+
+              <ActionIcon
+                size={42}
+                variant="default"
+                onClick={() => handlers.current!.increment()}
+              >
+                +
+              </ActionIcon>
+            </Group>
+          </Group>
+        </MyBox>
+        {/* </Group> */}
+
+        <Group position="right" mt="xl">
+          <Button type="submit">Create Multisig</Button>
+        </Group>
+      </form>
+    </Box>
   )
 }
 

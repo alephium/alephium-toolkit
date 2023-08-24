@@ -14,7 +14,7 @@ function MyBox({ children, ...others }: MyTableProps) {
         backgroundColor:
           theme.colorScheme === 'dark' ? theme.colors.dark[7] : 'white',
         borderRadius: theme.radius.md,
-        boxShadow: theme.shadows.md,
+        boxShadow: theme.shadows.sm,
       })}
       {...others}
     >
