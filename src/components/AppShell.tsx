@@ -9,10 +9,10 @@ import { useAlephiumConnectContext } from '@alephium/web3-react'
 import { useEffect } from 'react'
 import { web3 } from '@alephium/web3'
 import CreateMultisig from './Multisig/CreateMultisig'
-import ImportMultisig from './Multisig/ImportMultiSig'
-import ShowMultiSig from './Multisig/ShowMultiSig'
+import ImportMultisig from './Multisig/ImportMultisig'
+import ShowMultiSig from './Multisig/ShowMultisig'
 import SignMultisigTx from './Multisig/SignMultisigTx'
-import BuildMultisigTx from './Multisig/BuildMultiSigTx'
+import BuildMultisigTx from './Multisig/BuildMultisigTx'
 import { useAlephium } from '../utils/utils'
 
 function AppShellExample() {
