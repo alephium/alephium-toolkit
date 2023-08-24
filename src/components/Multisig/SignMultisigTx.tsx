@@ -5,6 +5,7 @@ import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
 import { NodeProvider, isHexString } from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
 import { useAlephium } from '../../utils/utils'
+import MyTable from '../Misc/MyTable'
 
 type P2MPKUnlockScript = { pubkey: string; index: number }[]
 
@@ -71,7 +72,7 @@ function SignMultisigTx() {
       <Text ta="left" fw="700" size="xl">
         Transaction to sign
       </Text>
-      <Input.Description ta="left" size='md'>
+      <Input.Description ta="left" size="md">
         The transaction must be created by the multisig address.
       </Input.Description>
       <Textarea
@@ -93,19 +94,28 @@ function SignMultisigTx() {
           {error}
         </Text>
       ) : loadingConfig || !unsignedTx ? null : (
-        <Text ta="left" fw="700" mt="lg">
-          The multisig address to sign is{' '}
-          {multisigConfig ? (
-            <Anchor
-              href={`/alephium-toolkit/#/multisig/show?name=${multisigConfig.name}`}
-              target="_blank"
-            >
-              {multisigConfig.name}
-            </Anchor>
-          ) : (
-            <Mark color="red">unknown</Mark>
-          )}
-        </Text>
+        <Box mt="xl">
+          <Text ta="left" fw="700" mb="lg">Transaction Details</Text>
+          <MyTable
+          px={0}
+          py={0}
+          verticalSpacing={'sm'}
+            data={{
+              Multisig: multisigConfig ? (
+                <Anchor
+                  href={`/alephium-toolkit/#/multisig/show?name=${multisigConfig.name}`}
+                  target="_blank"
+                >
+                  {multisigConfig.name}
+                </Anchor>
+              ) : (
+                <Mark color="red">unknown</Mark>
+              ),
+              Recipient: "???",
+              "ALPH amount": "???"
+            }}
+          />
+        </Box>
       )}
 
       {signature ? (
@@ -113,12 +123,12 @@ function SignMultisigTx() {
           <Text ta="left" fw="700" mt="xl">
             Copy and share the signature:
           </Text>
-          <Group position="apart">
+          <Group position="apart" mt="md">
             <CopyTextarea value={signature.signature} />
           </Group>
         </Box>
       ) : (
-        <Group position="right" mt="xl">
+        <Group position="right" mt="xl" mx="md">
           <Button onClick={sign}>Sign Transaction</Button>
         </Group>
       )}

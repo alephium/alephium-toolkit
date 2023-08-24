@@ -1,4 +1,5 @@
 import {
+  MantineNumberSize,
   SpacingValue,
   SystemProp,
   Table,
@@ -25,10 +26,14 @@ function Caption({ caption }: { caption: string }) {
 
 interface MyTableProps {
   w?: SystemProp<SpacingValue> | undefined
+  px?: SystemProp<SpacingValue> | undefined
+  py?: SystemProp<SpacingValue> | undefined
+  horizontalSpacing?: MantineNumberSize
+  verticalSpacing?: MantineNumberSize
   data: { [key: string]: string | React.ReactNode }
 }
 
-function MyTable({ w, data }: MyTableProps) {
+function MyTable({ w, px, py, data, horizontalSpacing, verticalSpacing }: MyTableProps) {
   const rows = Object.entries(data).map(([key, value]) => (
     <tr key={key}>
       <td width={'30%'}>
@@ -39,10 +44,10 @@ function MyTable({ w, data }: MyTableProps) {
   ))
 
   return (
-    <MyBox w={w} mx="auto" px="lg" py="lg" ta="center">
+    <MyBox w={w} mx="auto" px={px ?? 'lg'} py={py ?? 'lg'} ta="center">
       <Table
-        horizontalSpacing={'xs'}
-        verticalSpacing={'xl'}
+        horizontalSpacing={horizontalSpacing ?? 'xs'}
+        verticalSpacing={verticalSpacing ?? 'xl'}
         fontSize={'md'}
         withColumnBorders
       >
