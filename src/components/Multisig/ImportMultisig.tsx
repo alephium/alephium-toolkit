@@ -41,7 +41,7 @@ function ImportMultisig() {
       <Text ta="left" fw="700" size="xl">
         Multisig Configuration
       </Text>
-      <Input.Description ta="left" size='md'>
+      <Input.Description ta="left" size="md">
         You can import the multisig configuration shared by the creator of the
         multisig address.
       </Input.Description>

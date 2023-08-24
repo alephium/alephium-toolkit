@@ -22,11 +22,7 @@ import { IconAt, IconCheck } from '@tabler/icons-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
-import {
-  convertAlphAmountWithDecimals,
-  isBase58,
-  node,
-} from '@alephium/web3'
+import { convertAlphAmountWithDecimals, isBase58, node } from '@alephium/web3'
 import {
   buildMultisigTx,
   defaultNewMultisigTx,
@@ -289,7 +285,7 @@ function BuildMultisigTx() {
                 Copy and share the transaction to signers
               </Text>
               <Input.Description ta="left" size="md">
-                Signers should paste the transaction on the page {' '}
+                Signers should paste the transaction on the page{' '}
                 <Anchor
                   href={`/alephium-toolkit/#/multisig/sign-tx`}
                   target="_blank"
@@ -375,8 +371,10 @@ function BuildMultisigTx() {
                 )}
               </Group>
               {txSubmitted && (
-                <Stack mt="lg"  mx="2rem">
-                  <Text fw={400} fz="1.5rem" ta="center">Transaction Submitted</Text>
+                <Stack mt="lg" mx="2rem">
+                  <Text fw={400} fz="1.5rem" ta="center">
+                    Transaction Submitted
+                  </Text>
                   <Anchor
                     href={`${explorerUrl}/tx/${submitTxResult?.txId}`}
                     target="_blank"

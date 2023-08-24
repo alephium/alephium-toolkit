@@ -1,4 +1,13 @@
-import { Anchor, Box, Button, Group, Input, Mark, Text, Textarea } from '@mantine/core'
+import {
+  Anchor,
+  Box,
+  Button,
+  Group,
+  Input,
+  Mark,
+  Text,
+  Textarea,
+} from '@mantine/core'
 import { useCallback, useState } from 'react'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
@@ -92,7 +101,7 @@ function SignMultisigTx() {
           input: {
             color: 'gray',
             opacity: 0.9,
-          }
+          },
         }}
       />
       {error ? (
@@ -101,11 +110,13 @@ function SignMultisigTx() {
         </Text>
       ) : loadingConfig || !unsignedTx ? null : (
         <Box mt="xl">
-          <Text ta="left" fw="700" mb="lg">Transaction Details</Text>
+          <Text ta="left" fw="700" mb="lg">
+            Transaction Details
+          </Text>
           <MyTable
-          px={0}
-          py={0}
-          verticalSpacing={'sm'}
+            px={0}
+            py={0}
+            verticalSpacing={'sm'}
             data={{
               Multisig: multisigConfig ? (
                 <Anchor
@@ -117,9 +128,9 @@ function SignMultisigTx() {
               ) : (
                 <Mark color="red">unknown</Mark>
               ),
-              Recipient: "Coming soon",
-              "ALPH Amount": "Coming soon",
-              "Tx Hash": <CopyTextarea value={'Coming soon'} />,
+              Recipient: 'Coming soon',
+              'ALPH Amount': 'Coming soon',
+              'Tx Hash': <CopyTextarea value={'Coming soon'} />,
             }}
           />
         </Box>

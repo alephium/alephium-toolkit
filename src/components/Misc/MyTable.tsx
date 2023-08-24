@@ -33,7 +33,14 @@ interface MyTableProps {
   data: { [key: string]: string | React.ReactNode }
 }
 
-function MyTable({ w, px, py, data, horizontalSpacing, verticalSpacing }: MyTableProps) {
+function MyTable({
+  w,
+  px,
+  py,
+  data,
+  horizontalSpacing,
+  verticalSpacing,
+}: MyTableProps) {
   const rows = Object.entries(data).map(([key, value]) => (
     <tr key={key}>
       <td width={'30%'}>
