@@ -8,6 +8,8 @@ import {
   encodeI256,
   hexToBinUnsafe,
   isHexString,
+  node,
+  prettifyAttoAlphAmount,
   verifySignature,
 } from '@alephium/web3'
 import blake from 'blakejs'
@@ -111,6 +113,20 @@ function tryGetMultisig(configName: string) {
   return config
 }
 
+async function checkAlphBalance(
+  nodeProvider: NodeProvider,
+  address: string,
+  alphAmount: bigint
+) {
+  const balances = await nodeProvider.addresses.getAddressesAddressBalance(address)
+  const availableAlphAmount = BigInt(balances.balance) - BigInt(balances.lockedBalance)
+  if (availableAlphAmount <= alphAmount) {
+    const expected = prettifyAttoAlphAmount(alphAmount)
+    const got = prettifyAttoAlphAmount(availableAlphAmount)
+    throw new Error(`Not enough balance, expect ${expected} ALPH, got ${got} ALPH`)
+  }
+}
+
 export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
@@ -119,18 +135,22 @@ export async function buildMultisigTx(
 ) {
   const config = tryGetMultisig(configName)
   if (signerNames.length !== config.mOfN) {
-    throw new Error(`Expect ${config.mOfN} signers`)
+    throw new Error(`Please select ${config.mOfN} signers`)
   }
   const signerPublicKeys = signerNames.map(
     (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
   )
+  let totalAlphAmount = 0n
+  const transferDestinations = destinations.map((d) => {
+    const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
+    totalAlphAmount += alphAmount
+    return { address: d.address, attoAlphAmount: alphAmount.toString() }
+  })
+  await checkAlphBalance(nodeProvider, config.address, totalAlphAmount)
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
     fromPublicKeys: signerPublicKeys,
-    destinations: destinations.map((d) => ({
-      address: d.address,
-      attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString(),
-    })),
+    destinations: transferDestinations,
   })
 }
 
