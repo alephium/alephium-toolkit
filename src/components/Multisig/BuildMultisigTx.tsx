@@ -293,7 +293,7 @@ function BuildMultisigTx() {
                         label="Recipient"
                         ta="left"
                         placeholder="Address"
-                        icon={<IconAt />}
+                        icon={<IconAt size={"1.25rem"}/>}
                         {...form.getInputProps('destinations.0.address')}
                         w="28rem"
                       />
