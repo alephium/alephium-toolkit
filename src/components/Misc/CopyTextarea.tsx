@@ -10,12 +10,12 @@ function CopyTextarea({ value }: CopyTextareaProps) {
       {({ copied, copy }) => (
         <Tooltip.Floating label={copied ? 'Copied' : 'Copy'} position="right">
           <Button
-            variant="light"
+            variant="subtle"
             onClick={copy}
             styles={{
               root: {
                 height: 'auto',
-                padding: '0.75rem',
+                padding: '0.5rem',
               },
               label: {
                 whiteSpace: 'normal',

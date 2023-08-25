@@ -1,9 +1,9 @@
 import { useWallet } from '@alephium/web3-react'
 import { Center, Text } from '@mantine/core'
 import MyTable from '../Misc/MyTable'
-import CopyText from '../Misc/CopyText'
 import { useEffect } from 'react'
 import { NoWallet } from '../Misc/NoWallet'
+import CopyTextarea from '../Misc/CopyTextarea'
 
 function WalletInfo() {
   const wallet = useWallet()
@@ -24,8 +24,8 @@ function WalletInfo() {
         data={{
           'Network Type': <Text tt="capitalize">{account?.network}</Text>,
           'Address Group': account?.group,
-          Address: <CopyText value={account?.address ?? '???'} />,
-          'Public Key': <CopyText value={account?.publicKey ?? '???'} />,
+          Address: <CopyTextarea value={account?.address ?? '???'} />,
+          'Public Key': <CopyTextarea value={account?.publicKey ?? '???'} />,
         }}
       />
     </Center>
