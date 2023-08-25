@@ -437,17 +437,17 @@ function BuildMultisigTx() {
               <Stepper.Step
                 label="Create"
                 description="Create a new transaction"
-                allowStepSelect={form.values.step !== 3}
+                allowStepSelect={form.values.step !== 3 && form.values.step > 0}
               />
               <Stepper.Step
                 label="Sign"
                 description="Share the transaction to all signers for signatures"
-                allowStepSelect={form.values.step !== 3}
+                allowStepSelect={form.values.step !== 3 && form.values.step > 1}
               />
               <Stepper.Step
                 label="Submit"
                 description="Aggregate all signatures and submit the transaction"
-                allowStepSelect={form.values.step !== 3}
+                allowStepSelect={form.values.step !== 3 && form.values.step > 2}
               />
               <Stepper.Step
                 label="Transaction"
