@@ -81,6 +81,20 @@ function BuildMultisigTx() {
   const nodeProvider = useAlephium()
   const explorerProvider = useExplorer()
 
+  const [buildTxError, setBuildTxError] = useState<string | undefined>()
+  const getInputPropsWithResetError = useCallback(
+    (path: string) => {
+      const inputProps = form.getInputProps(path)
+      const onChange = (e: any) => {
+        inputProps.onChange(e)
+        // clear the error when changing the transfer amount
+        setBuildTxError(undefined)
+      }
+      return { ...inputProps, onChange }
+    },
+    [form, setBuildTxError]
+  )
+
   const buildTxCallback = useCallback(async () => {
     try {
       // we can not use the `form.validate()` because the `signatures` is invalid now,
@@ -102,9 +116,11 @@ function BuildMultisigTx() {
         form.values.signers,
         form.values.destinations
       )
+      setBuildTxError(undefined)
       console.log(`Build multisig tx result: ${JSON.stringify(buildTxResult)}`)
       form.setValues({ unsignedTx: buildTxResult.unsignedTx, step: 1 })
     } catch (error) {
+      setBuildTxError(`Error in build multisig tx: ${error}`)
       console.error(error)
     }
   }, [form])
@@ -125,6 +141,7 @@ function BuildMultisigTx() {
       const submitTxResult = await submitMultisigTx(
         nodeProvider,
         form.values.multisig,
+        form.values.signers,
         form.values.unsignedTx,
         form.values.signatures
       )
@@ -169,6 +186,11 @@ function BuildMultisigTx() {
     )
   }, [form.values])
 
+  const reset = useCallback(() => {
+    form.reset()
+    setBuildTxError(undefined)
+  }, [form, setBuildTxError])
+
   return (
     <Box maw={1200} mx="auto" mt="5rem">
       <Grid columns={13}>
@@ -186,7 +208,7 @@ function BuildMultisigTx() {
                 }))}
                 value={form.values.multisig}
                 onChange={(value) => {
-                  form.reset()
+                  reset()
                   form.setValues({ multisig: value ?? '' })
                 }}
               />
@@ -267,13 +289,20 @@ function BuildMultisigTx() {
                         hideControls
                         rightSection="ALPH"
                         rightSectionWidth={'4rem'}
-                        {...form.getInputProps('destinations.0.alphAmount')}
+                        {...getInputPropsWithResetError(
+                          'destinations.0.alphAmount'
+                        )}
                       />
                     </Group>
                   </MyBox>
+                  {buildTxError && (
+                    <Text color="red" mt="lg" mx="lg">
+                      {buildTxError}
+                    </Text>
+                  )}
 
                   <Group mt="lg" position="apart" mx="2rem">
-                    <Button onClick={() => form.reset()}>Reset</Button>
+                    <Button onClick={reset}>Reset</Button>
                     <Button onClick={buildTxCallback}>Build Transaction</Button>
                   </Group>
                 </>
@@ -382,7 +411,15 @@ function BuildMultisigTx() {
                   >
                     View on Explorer
                   </Anchor>
-                  <Button mx="auto">Create more transactions</Button>
+                  <Button
+                    mx="auto"
+                    onClick={() => {
+                      reset()
+                      form.setValues({ step: 0 })
+                    }}
+                  >
+                    Create more transactions
+                  </Button>
                 </Stack>
               )}
             </Box>

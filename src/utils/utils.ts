@@ -22,7 +22,7 @@ export function useNetworkId(): [NetworkId, (network: NetworkId) => void] {
   const [network, setNetwork] = useLocalStorage<NetworkId>({
     key: networkStorageKey,
     defaultValue: 'mainnet',
-    getInitialValueInEffect: true,
+    getInitialValueInEffect: false,
   })
   return [network, setNetwork]
 }

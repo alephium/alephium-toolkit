@@ -8,6 +8,8 @@ import {
   encodeI256,
   hexToBinUnsafe,
   isHexString,
+  node,
+  prettifyAttoAlphAmount,
   verifySignature,
 } from '@alephium/web3'
 import blake from 'blakejs'
@@ -111,6 +113,25 @@ function tryGetMultisig(configName: string) {
   return config
 }
 
+async function checkAlphBalance(
+  nodeProvider: NodeProvider,
+  address: string,
+  alphAmount: bigint
+) {
+  const balances = await nodeProvider.addresses.getAddressesAddressBalance(
+    address
+  )
+  const availableAlphAmount =
+    BigInt(balances.balance) - BigInt(balances.lockedBalance)
+  if (availableAlphAmount <= alphAmount) {
+    const expected = prettifyAttoAlphAmount(alphAmount)
+    const got = prettifyAttoAlphAmount(availableAlphAmount)
+    throw new Error(
+      `Not enough balance, expect ${expected} ALPH, got ${got} ALPH`
+    )
+  }
+}
+
 export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
@@ -119,18 +140,22 @@ export async function buildMultisigTx(
 ) {
   const config = tryGetMultisig(configName)
   if (signerNames.length !== config.mOfN) {
-    throw new Error(`Expect ${config.mOfN} signers`)
+    throw new Error(`Please select ${config.mOfN} signers`)
   }
   const signerPublicKeys = signerNames.map(
     (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
   )
+  let totalAlphAmount = 0n
+  const transferDestinations = destinations.map((d) => {
+    const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
+    totalAlphAmount += alphAmount
+    return { address: d.address, attoAlphAmount: alphAmount.toString() }
+  })
+  await checkAlphBalance(nodeProvider, config.address, totalAlphAmount)
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
     fromPublicKeys: signerPublicKeys,
-    destinations: destinations.map((d) => ({
-      address: d.address,
-      attoAlphAmount: convertAlphAmountWithDecimals(d.alphAmount)!.toString(),
-    })),
+    destinations: transferDestinations,
   })
 }
 
@@ -150,6 +175,7 @@ export async function signMultisigTx(
 export async function submitMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
+  selectedSignerNames: string[],
   unsignedTx: string,
   signatures: { name: string; signature: string }[]
 ) {
@@ -164,15 +190,13 @@ export async function submitMultisigTx(
     const pubkey = config.pubkeys.find((p) => p.name === s.name)!.pubkey
     return { name: s.name, pubkey, signature: s.signature }
   })
-  const txSignatures = Array(config.pubkeys.length).fill('')
+  const txSignatures = Array<string>(config.pubkeys.length).fill('')
   signaturesByPublicKey.forEach((s) => {
     const index = config.pubkeys.findIndex((p) => p.pubkey === s.pubkey)
     if (index === -1) {
       throw new Error(`Unknown signer: ${s.name}`)
     }
-    if (!verifySignature(txId, s.pubkey, s.signature)) {
-      throw new Error(`Invalid signature from signer ${s.name}`)
-    }
+    verifyTxSignature(config, selectedSignerNames, txId, s, s.signature)
     if (txSignatures[index] !== '') {
       throw new Error(`Duplicate signature from signer ${s.name}`)
     }
@@ -182,6 +206,38 @@ export async function submitMultisigTx(
     unsignedTx: unsignedTx,
     signatures: txSignatures.filter((s) => s !== ''),
   })
+}
+
+function verifyTxSignature(
+  multisigConfig: MultisigConfig,
+  selectedSignerNames: string[],
+  txId: string,
+  expectedSigner: { name: string; pubkey: string },
+  signature: string
+) {
+  if (verifySignature(txId, expectedSigner.pubkey, signature)) {
+    return
+  }
+
+  const selectedSigners = selectedSignerNames.map(
+    (name) => multisigConfig.pubkeys.find((s) => s.name === name)!
+  )
+  selectedSigners.forEach((signer) => {
+    if (signer.pubkey === expectedSigner.pubkey) return // we have checked this one
+    if (verifySignature(txId, signer.pubkey, signature)) {
+      throw new Error(
+        `The signature ${shortSignature(signature)} is from ${
+          signer.name
+        }, not ${expectedSigner.name}`
+      )
+    }
+  })
+
+  throw new Error(`Invalid signature ${shortSignature(signature)}`)
+}
+
+function shortSignature(signature: string) {
+  return `${signature.slice(0, 6)}...${signature.slice(-6)}`
 }
 
 export async function waitTxSubmitted(
