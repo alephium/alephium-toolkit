@@ -8,10 +8,10 @@ import {
   Text,
   Textarea,
 } from '@mantine/core'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
-import { NodeProvider, isHexString } from '@alephium/web3'
+import { NodeProvider, isHexString, node, prettifyAttoAlphAmount } from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
 import { useAlephium } from '../../utils/utils'
 import MyTable from '../Misc/MyTable'
@@ -23,37 +23,51 @@ function SignMultisigTx() {
     { signer: string; signature: string } | undefined
   >()
   const [unsignedTx, setUnsignedTx] = useState<string | undefined>()
-  const [loadingConfig, setLoadingConfig] = useState<boolean>(false)
+  const [loadingTxInfo, setLoadingTxInfo] = useState<boolean>(false)
   const [multisigConfig, setMultisigConfig] = useState<
     (MultisigConfig & { address: string }) | undefined
   >()
+  const [txInfo, setTxInfo] = useState<{ recipient: string, amount: string, txId: string } | undefined>()
   const wallet = useWallet()
 
-  const [error, setError] = useState<string>()
+  const [loadingTxError, setLoadingTxError] = useState<string>()
 
   const nodeProvider = useAlephium()
 
-  const tryLoadMultisigConfig = useCallback(
+  const tryLoadMultisigTxInfo = useCallback(
     async (unsignedTx: string) => {
       try {
-        setLoadingConfig(true)
+        setLoadingTxInfo(true)
         if (!isHexString(unsignedTx)) {
           throw new Error('Invalid unsigned tx')
         }
 
-        const unlockScript = await getUnlockScript(nodeProvider, unsignedTx)
+        const decodedTx = await getDecodedUnsignedTx(nodeProvider, unsignedTx)
+        const unlockScript = decodeUnlockScript(decodedTx.unsignedTx.inputs[0].unlockScript)
+        const recipientOutput = decodedTx.unsignedTx.fixedOutputs[0]
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)
-        setLoadingConfig(false)
-        setError(undefined)
+        setTxInfo({
+          recipient: recipientOutput.address,
+          amount: prettifyAttoAlphAmount(BigInt(recipientOutput.attoAlphAmount))!,
+          txId: decodedTx.unsignedTx.txId
+        })
+        setLoadingTxInfo(false)
+        setLoadingTxError(undefined)
       } catch (error) {
-        setLoadingConfig(false)
-        setError(`Error: ${error}`)
+        setLoadingTxInfo(false)
+        setLoadingTxError(`Error: ${error}`)
         console.error(error)
       }
     },
-    [wallet, setMultisigConfig, setLoadingConfig]
+    [setMultisigConfig, setLoadingTxInfo]
   )
+
+  const [signingError, setSigningError] = useState<string | undefined>()
+  useEffect(() => {
+    // clear the error when switching accounts
+    setSigningError(undefined)
+  }, [wallet])
 
   const sign = useCallback(async () => {
     try {
@@ -62,19 +76,26 @@ function SignMultisigTx() {
       }
       if (wallet === undefined) throw new Error('Wallet is not connected')
 
+      if (multisigConfig !== undefined && multisigConfig.pubkeys.find((p) => p.pubkey === wallet.account.publicKey) === undefined) {
+        throw new Error('The currently connected account is not the expected signer')
+      }
+
       const signature = await signMultisigTx(wallet.signer, unsignedTx)
       setSignature(signature)
     } catch (error) {
-      setError(`Error: ${error}`)
+      setSigningError(`Error: ${error}`)
       console.error(error)
     }
-  }, [wallet, unsignedTx, setSignature])
+  }, [wallet, unsignedTx, setSignature, multisigConfig])
 
   const reset = useCallback(() => {
-    setLoadingConfig(false)
+    setLoadingTxInfo(false)
     setSignature(undefined)
     setMultisigConfig(undefined)
-  }, [setLoadingConfig, setSignature, setMultisigConfig])
+    setTxInfo(undefined)
+    setLoadingTxError(undefined)
+    setSigningError(undefined)
+  }, [setLoadingTxInfo, setSignature, setMultisigConfig])
 
   return (
     <Box maw={900} mx="auto" mt="5rem">
@@ -94,7 +115,7 @@ function SignMultisigTx() {
             setUnsignedTx(undefined)
           } else {
             setUnsignedTx(atob(e.target.value))
-            tryLoadMultisigConfig(atob(e.target.value))
+            tryLoadMultisigTxInfo(atob(e.target.value))
           }
         }}
         styles={{
@@ -104,11 +125,11 @@ function SignMultisigTx() {
           },
         }}
       />
-      {error ? (
+      {loadingTxError ? (
         <Text color="red" mt="md" mx="lg" ta="left">
-          {error}
+          {loadingTxError}
         </Text>
-      ) : loadingConfig || !unsignedTx ? null : (
+      ) : loadingTxInfo || !unsignedTx ? null : (
         <Box mt="xl">
           <Text ta="left" fw="700" mb="lg">
             Transaction Details
@@ -128,12 +149,18 @@ function SignMultisigTx() {
               ) : (
                 <Mark color="red">unknown</Mark>
               ),
-              Recipient: 'Coming soon',
-              'ALPH Amount': 'Coming soon',
-              'Tx Hash': <CopyTextarea value={'Coming soon'} />,
+              Recipient: txInfo?.recipient,
+              'ALPH Amount': txInfo?.amount,
+              'Tx Hash': <CopyTextarea value={txInfo?.txId || ''} />,
             }}
           />
         </Box>
+      )}
+
+      {signingError && (
+        <Text color="red" mt="md" mx="lg" ta="left">
+          {signingError}
+        </Text>
       )}
 
       {signature ? (
@@ -147,7 +174,7 @@ function SignMultisigTx() {
         </Box>
       ) : (
         <Group position="right" mt="xl" mx="md">
-          <Button onClick={sign}>Sign Transaction</Button>
+          <Button disabled={loadingTxInfo || !!loadingTxError || !unsignedTx} onClick={sign}>Sign Transaction</Button>
         </Group>
       )}
     </Box>
@@ -191,10 +218,10 @@ function decodeUnlockScript(rawUnlockScript: string): P2MPKUnlockScript {
   return p2mpkUnlockScript
 }
 
-async function getUnlockScript(
+async function getDecodedUnsignedTx(
   nodeProvider: NodeProvider,
   unsignedTx: string
-): Promise<P2MPKUnlockScript> {
+): Promise<node.DecodeUnsignedTxResult> {
   const decodedTx =
     await nodeProvider.transactions.postTransactionsDecodeUnsignedTx({
       unsignedTx,
@@ -209,7 +236,7 @@ async function getUnlockScript(
   if (!fromSameAddress) {
     throw new Error(`Invalid unsigned tx, the input from different address`)
   }
-  return decodeUnlockScript(unlockScript)
+  return decodedTx
 }
 
 export default SignMultisigTx
