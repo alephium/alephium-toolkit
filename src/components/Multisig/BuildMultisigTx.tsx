@@ -421,7 +421,7 @@ function BuildMultisigTx() {
                     Transaction Submitted
                   </Text>
                   <Anchor
-                    href={`${explorerUrl}/tx/${submitTxResult?.txId}`}
+                    href={`${explorerUrl}/transactions/${submitTxResult?.txId}`}
                     target="_blank"
                     mx="auto"
                   >
