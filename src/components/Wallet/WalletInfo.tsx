@@ -18,7 +18,7 @@ function WalletInfo() {
 
   const account = wallet.account
   return (
-    <Center mt="5rem">
+    <Center mt="10%">
       <MyTable
         w={900}
         data={{

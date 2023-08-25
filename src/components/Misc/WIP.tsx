@@ -2,7 +2,7 @@ import { createStyles, Title, Container, rem, Box } from '@mantine/core'
 
 const useStyles = createStyles((theme) => ({
   root: {
-    paddingTop: rem(80),
+    paddingTop: "5rem",
     paddingBottom: rem(120),
     backgroundColor: theme.fn.variant({
       variant: 'filled',
