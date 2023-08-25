@@ -138,6 +138,7 @@ function BuildMultisigTx() {
       const submitTxResult = await submitMultisigTx(
         nodeProvider,
         form.values.multisig,
+        form.values.signers,
         form.values.unsignedTx,
         form.values.signatures
       )

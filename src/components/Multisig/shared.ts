@@ -170,6 +170,7 @@ export async function signMultisigTx(
 export async function submitMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
+  selectedSignerNames: string[],
   unsignedTx: string,
   signatures: { name: string; signature: string }[]
 ) {
@@ -184,15 +185,13 @@ export async function submitMultisigTx(
     const pubkey = config.pubkeys.find((p) => p.name === s.name)!.pubkey
     return { name: s.name, pubkey, signature: s.signature }
   })
-  const txSignatures = Array(config.pubkeys.length).fill('')
+  const txSignatures = Array<string>(config.pubkeys.length).fill('')
   signaturesByPublicKey.forEach((s) => {
     const index = config.pubkeys.findIndex((p) => p.pubkey === s.pubkey)
     if (index === -1) {
       throw new Error(`Unknown signer: ${s.name}`)
     }
-    if (!verifySignature(txId, s.pubkey, s.signature)) {
-      throw new Error(`Invalid signature from signer ${s.name}`)
-    }
+    verifyTxSignature(config, selectedSignerNames, txId, s, s.signature)
     if (txSignatures[index] !== '') {
       throw new Error(`Duplicate signature from signer ${s.name}`)
     }
@@ -202,6 +201,34 @@ export async function submitMultisigTx(
     unsignedTx: unsignedTx,
     signatures: txSignatures.filter((s) => s !== ''),
   })
+}
+
+function verifyTxSignature(
+  multisigConfig: MultisigConfig,
+  selectedSignerNames: string[],
+  txId: string,
+  expectedSigner: { name: string, pubkey: string },
+  signature: string
+) {
+  if (verifySignature(txId, expectedSigner.pubkey, signature)) {
+    return
+  }
+
+  multisigConfig.pubkeys.forEach((signer) => {
+    if (signer.pubkey === expectedSigner.pubkey) return // we have checked this one
+    const valid = verifySignature(txId, signer.pubkey, signature)
+    if (!valid) return
+    if (selectedSignerNames.includes(signer.name)) {
+      throw new Error(`The signature ${shortSignature(signature)} is from ${signer.name}, not ${expectedSigner.name}`)
+    }
+    throw new Error(`The signature ${shortSignature(signature)} is from ${signer.name}, who is not among the selected signers`)
+  })
+
+  throw new Error(`Invalid signature ${shortSignature(signature)}`)
+}
+
+function shortSignature(signature: string) {
+  return `${signature.slice(0, 6)}...${signature.slice(-6)}`
 }
 
 export async function waitTxSubmitted(
