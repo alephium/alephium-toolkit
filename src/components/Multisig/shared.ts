@@ -219,22 +219,18 @@ function verifyTxSignature(
     return
   }
 
-  multisigConfig.pubkeys.forEach((signer) => {
+  const selectedSigners = selectedSignerNames.map(
+    (name) => multisigConfig.pubkeys.find((s) => s.name === name)!
+  )
+  selectedSigners.forEach((signer) => {
     if (signer.pubkey === expectedSigner.pubkey) return // we have checked this one
-    const valid = verifySignature(txId, signer.pubkey, signature)
-    if (!valid) return
-    if (selectedSignerNames.includes(signer.name)) {
+    if (verifySignature(txId, signer.pubkey, signature)) {
       throw new Error(
         `The signature ${shortSignature(signature)} is from ${
           signer.name
         }, not ${expectedSigner.name}`
       )
     }
-    throw new Error(
-      `The signature ${shortSignature(signature)} is from ${
-        signer.name
-      }, who is not among the selected signers`
-    )
   })
 
   throw new Error(`Invalid signature ${shortSignature(signature)}`)

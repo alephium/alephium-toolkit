@@ -32,6 +32,9 @@ function SignMultisigTx() {
   const [multisigConfig, setMultisigConfig] = useState<
     (MultisigConfig & { address: string }) | undefined
   >()
+  const [unlockScript, setUnlockScript] = useState<
+    P2MPKUnlockScript | undefined
+  >()
   const [txInfo, setTxInfo] = useState<
     { recipient: string; amount: string; txId: string } | undefined
   >()
@@ -55,6 +58,7 @@ function SignMultisigTx() {
         )
         const recipientOutput = decodedTx.unsignedTx.fixedOutputs[0]
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
+        setUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)
         setTxInfo({
           recipient: recipientOutput.address,
@@ -88,10 +92,9 @@ function SignMultisigTx() {
       if (wallet === undefined) throw new Error('Wallet is not connected')
 
       if (
-        multisigConfig !== undefined &&
-        multisigConfig.pubkeys.find(
-          (p) => p.pubkey === wallet.account.publicKey
-        ) === undefined
+        unlockScript !== undefined &&
+        unlockScript.find((p) => p.pubkey === wallet.account.publicKey) ===
+          undefined
       ) {
         throw new Error(
           'The currently connected account is not the expected signer'
@@ -104,7 +107,7 @@ function SignMultisigTx() {
       setSigningError(`Error: ${error}`)
       console.error(error)
     }
-  }, [wallet, unsignedTx, setSignature, multisigConfig])
+  }, [wallet, unsignedTx, setSignature, unlockScript])
 
   const reset = useCallback(() => {
     setLoadingTxInfo(false)
@@ -113,6 +116,7 @@ function SignMultisigTx() {
     setTxInfo(undefined)
     setLoadingTxError(undefined)
     setSigningError(undefined)
+    setUnlockScript(undefined)
   }, [setLoadingTxInfo, setSignature, setMultisigConfig])
 
   return (
