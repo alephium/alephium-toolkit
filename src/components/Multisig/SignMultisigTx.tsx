@@ -171,9 +171,9 @@ function SignMultisigTx() {
               ) : (
                 <Mark color="red">unknown</Mark>
               ),
-              Recipient: txInfo?.recipient,
+              Recipient: <CopyTextarea value={txInfo?.recipient ?? ''} />,
               'ALPH Amount': txInfo?.amount,
-              'Tx Hash': <CopyTextarea value={txInfo?.txId || ''} />,
+              'Tx Hash': <CopyTextarea value={txInfo?.txId ?? ''} />,
             }}
           />
         </Box>
