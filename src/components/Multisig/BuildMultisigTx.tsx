@@ -82,15 +82,18 @@ function BuildMultisigTx() {
   const explorerProvider = useExplorer()
 
   const [buildTxError, setBuildTxError] = useState<string | undefined>()
-  const getInputPropsWithResetError = useCallback((path: string) => {
-    const inputProps = form.getInputProps(path)
-    const onChange = (e: any) => {
-      inputProps.onChange(e)
-      // clear the error when changing the transfer amount
-      setBuildTxError(undefined)
-    }
-    return { ...inputProps, onChange }
-  }, [form, setBuildTxError])
+  const getInputPropsWithResetError = useCallback(
+    (path: string) => {
+      const inputProps = form.getInputProps(path)
+      const onChange = (e: any) => {
+        inputProps.onChange(e)
+        // clear the error when changing the transfer amount
+        setBuildTxError(undefined)
+      }
+      return { ...inputProps, onChange }
+    },
+    [form, setBuildTxError]
+  )
 
   const buildTxCallback = useCallback(async () => {
     try {
@@ -286,7 +289,9 @@ function BuildMultisigTx() {
                         hideControls
                         rightSection="ALPH"
                         rightSectionWidth={'4rem'}
-                        {...getInputPropsWithResetError('destinations.0.alphAmount')}
+                        {...getInputPropsWithResetError(
+                          'destinations.0.alphAmount'
+                        )}
                       />
                     </Group>
                   </MyBox>
@@ -413,7 +418,7 @@ function BuildMultisigTx() {
                       form.setValues({ step: 0 })
                     }}
                   >
-                      Create more transactions
+                    Create more transactions
                   </Button>
                 </Stack>
               )}

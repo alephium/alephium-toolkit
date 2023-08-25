@@ -118,12 +118,17 @@ async function checkAlphBalance(
   address: string,
   alphAmount: bigint
 ) {
-  const balances = await nodeProvider.addresses.getAddressesAddressBalance(address)
-  const availableAlphAmount = BigInt(balances.balance) - BigInt(balances.lockedBalance)
+  const balances = await nodeProvider.addresses.getAddressesAddressBalance(
+    address
+  )
+  const availableAlphAmount =
+    BigInt(balances.balance) - BigInt(balances.lockedBalance)
   if (availableAlphAmount <= alphAmount) {
     const expected = prettifyAttoAlphAmount(alphAmount)
     const got = prettifyAttoAlphAmount(availableAlphAmount)
-    throw new Error(`Not enough balance, expect ${expected} ALPH, got ${got} ALPH`)
+    throw new Error(
+      `Not enough balance, expect ${expected} ALPH, got ${got} ALPH`
+    )
   }
 }
 
@@ -207,7 +212,7 @@ function verifyTxSignature(
   multisigConfig: MultisigConfig,
   selectedSignerNames: string[],
   txId: string,
-  expectedSigner: { name: string, pubkey: string },
+  expectedSigner: { name: string; pubkey: string },
   signature: string
 ) {
   if (verifySignature(txId, expectedSigner.pubkey, signature)) {
@@ -219,9 +224,17 @@ function verifyTxSignature(
     const valid = verifySignature(txId, signer.pubkey, signature)
     if (!valid) return
     if (selectedSignerNames.includes(signer.name)) {
-      throw new Error(`The signature ${shortSignature(signature)} is from ${signer.name}, not ${expectedSigner.name}`)
+      throw new Error(
+        `The signature ${shortSignature(signature)} is from ${
+          signer.name
+        }, not ${expectedSigner.name}`
+      )
     }
-    throw new Error(`The signature ${shortSignature(signature)} is from ${signer.name}, who is not among the selected signers`)
+    throw new Error(
+      `The signature ${shortSignature(signature)} is from ${
+        signer.name
+      }, who is not among the selected signers`
+    )
   })
 
   throw new Error(`Invalid signature ${shortSignature(signature)}`)

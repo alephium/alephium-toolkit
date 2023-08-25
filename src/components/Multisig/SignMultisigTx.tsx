@@ -11,7 +11,12 @@ import {
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from '@alephium/web3-react'
 import { MultisigConfig, getAllMultisigConfig, signMultisigTx } from './shared'
-import { NodeProvider, isHexString, node, prettifyAttoAlphAmount } from '@alephium/web3'
+import {
+  NodeProvider,
+  isHexString,
+  node,
+  prettifyAttoAlphAmount,
+} from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
 import { useAlephium } from '../../utils/utils'
 import MyTable from '../Misc/MyTable'
@@ -27,7 +32,9 @@ function SignMultisigTx() {
   const [multisigConfig, setMultisigConfig] = useState<
     (MultisigConfig & { address: string }) | undefined
   >()
-  const [txInfo, setTxInfo] = useState<{ recipient: string, amount: string, txId: string } | undefined>()
+  const [txInfo, setTxInfo] = useState<
+    { recipient: string; amount: string; txId: string } | undefined
+  >()
   const wallet = useWallet()
 
   const [loadingTxError, setLoadingTxError] = useState<string>()
@@ -43,14 +50,18 @@ function SignMultisigTx() {
         }
 
         const decodedTx = await getDecodedUnsignedTx(nodeProvider, unsignedTx)
-        const unlockScript = decodeUnlockScript(decodedTx.unsignedTx.inputs[0].unlockScript)
+        const unlockScript = decodeUnlockScript(
+          decodedTx.unsignedTx.inputs[0].unlockScript
+        )
         const recipientOutput = decodedTx.unsignedTx.fixedOutputs[0]
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)
         setTxInfo({
           recipient: recipientOutput.address,
-          amount: prettifyAttoAlphAmount(BigInt(recipientOutput.attoAlphAmount))!,
-          txId: decodedTx.unsignedTx.txId
+          amount: prettifyAttoAlphAmount(
+            BigInt(recipientOutput.attoAlphAmount)
+          )!,
+          txId: decodedTx.unsignedTx.txId,
         })
         setLoadingTxInfo(false)
         setLoadingTxError(undefined)
@@ -76,8 +87,15 @@ function SignMultisigTx() {
       }
       if (wallet === undefined) throw new Error('Wallet is not connected')
 
-      if (multisigConfig !== undefined && multisigConfig.pubkeys.find((p) => p.pubkey === wallet.account.publicKey) === undefined) {
-        throw new Error('The currently connected account is not the expected signer')
+      if (
+        multisigConfig !== undefined &&
+        multisigConfig.pubkeys.find(
+          (p) => p.pubkey === wallet.account.publicKey
+        ) === undefined
+      ) {
+        throw new Error(
+          'The currently connected account is not the expected signer'
+        )
       }
 
       const signature = await signMultisigTx(wallet.signer, unsignedTx)
@@ -174,7 +192,12 @@ function SignMultisigTx() {
         </Box>
       ) : (
         <Group position="right" mt="xl" mx="md">
-          <Button disabled={loadingTxInfo || !!loadingTxError || !unsignedTx} onClick={sign}>Sign Transaction</Button>
+          <Button
+            disabled={loadingTxInfo || !!loadingTxError || !unsignedTx}
+            onClick={sign}
+          >
+            Sign Transaction
+          </Button>
         </Group>
       )}
     </Box>
