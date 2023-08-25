@@ -24,13 +24,16 @@ import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import { convertAlphAmountWithDecimals, isBase58, node } from '@alephium/web3'
 import {
+  buildMultisigAddress,
   buildMultisigTx,
   defaultNewMultisigTx,
   isSignatureValid,
   newMultisigTxStorageKey,
   resetNewMultisigTx,
+  showBalance,
   submitMultisigTx,
   useAllMultisig,
+  useBalance,
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
@@ -81,6 +84,20 @@ function BuildMultisigTx() {
   const nodeProvider = useAlephium()
   const explorerProvider = useExplorer()
 
+  const [multisigAddress, setMultisigAddress] = useState<string>()
+  const balance = useBalance(multisigAddress)
+
+  useEffect(() => {
+    if (form.values.multisig === '') {
+      setMultisigAddress(undefined)
+    } else {
+      const config = allMultisig.find((c) => c.name === form.values.multisig)
+      if (config !== undefined) {
+      setMultisigAddress(buildMultisigAddress(config))
+      }
+    }
+  }, [form.values.multisig, allMultisig])
+
   const [buildTxError, setBuildTxError] = useState<string | undefined>()
   const getInputPropsWithResetError = useCallback(
     (path: string) => {
@@ -94,7 +111,6 @@ function BuildMultisigTx() {
     },
     [form, setBuildTxError]
   )
-
   const buildTxCallback = useCallback(async () => {
     try {
       // we can not use the `form.validate()` because the `signatures` is invalid now,
@@ -282,7 +298,7 @@ function BuildMultisigTx() {
                         w="28rem"
                       />
                       <NumberInput
-                        label="Alephium"
+                        label={`Max: ${showBalance(balance)}`}
                         ta="left"
                         precision={6}
                         placeholder="Amount"

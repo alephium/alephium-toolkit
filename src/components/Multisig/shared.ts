@@ -13,6 +13,8 @@ import {
   verifySignature,
 } from '@alephium/web3'
 import blake from 'blakejs'
+import { useEffect, useState } from 'react'
+import { useAlephium } from '../../utils/utils'
 
 export const newMultisigStorageKey = 'multisig-wip'
 export const allMultisigStorageKey = 'multisig-all'
@@ -111,6 +113,27 @@ function tryGetMultisig(configName: string) {
     throw new Error(`The multisig ${configName} does not exist`)
   }
   return config
+}
+
+export function useBalance(address: string | undefined) {
+  const alephium = useAlephium()
+  const [balance, setBalance] = useState<node.Balance>()
+  useEffect(() => {
+    if (address === undefined) return
+
+    alephium.addresses
+      .getAddressesAddressBalance(address)
+      .then(setBalance)
+      .catch((error) => {
+        console.error(`Get balance error: ${error}`)
+      })
+  }, [address])
+  return balance
+}
+
+export function showBalance(balance: node.Balance | undefined) {
+  if (balance === undefined) return ''
+  return prettifyAttoAlphAmount(BigInt(balance.balance))
 }
 
 async function checkAlphBalance(
