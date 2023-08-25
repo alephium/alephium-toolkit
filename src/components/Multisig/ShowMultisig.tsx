@@ -127,7 +127,7 @@ function ShowMultiSig() {
               Signers: (
                 <Grid>
                   {theMultisig.pubkeys.map(({ name, pubkey }) => [
-                    <Grid.Col span={2} key={pubkey}>
+                    <Grid.Col span={2} key={name}>
                       <Stack h="100%">
                         <Text fw="450" my="auto" ta="right">
                           {name}:
