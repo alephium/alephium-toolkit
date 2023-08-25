@@ -406,7 +406,15 @@ function BuildMultisigTx() {
                   >
                     View on Explorer
                   </Anchor>
-                  <Button mx="auto">Create more transactions</Button>
+                  <Button
+                    mx="auto"
+                    onClick={() => {
+                      reset()
+                      form.setValues({ step: 0 })
+                    }}
+                  >
+                      Create more transactions
+                  </Button>
                 </Stack>
               )}
             </Box>
