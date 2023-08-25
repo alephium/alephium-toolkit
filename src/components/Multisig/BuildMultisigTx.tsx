@@ -93,7 +93,7 @@ function BuildMultisigTx() {
     } else {
       const config = allMultisig.find((c) => c.name === form.values.multisig)
       if (config !== undefined) {
-      setMultisigAddress(buildMultisigAddress(config))
+        setMultisigAddress(buildMultisigAddress(config))
       }
     }
   }, [form.values.multisig, allMultisig])
