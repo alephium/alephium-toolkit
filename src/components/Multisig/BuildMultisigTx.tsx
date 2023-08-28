@@ -293,12 +293,12 @@ function BuildMultisigTx() {
                         label="Recipient"
                         ta="left"
                         placeholder="Address"
-                        icon={<IconAt size={"1.25rem"}/>}
+                        icon={<IconAt size={'1.25rem'} />}
                         {...form.getInputProps('destinations.0.address')}
                         w="28rem"
                       />
                       <NumberInput
-                        label={`Max: ${showBalance(balance)}`}
+                        label={`Balance: ${showBalance(balance)}`}
                         ta="left"
                         precision={6}
                         placeholder="Amount"
@@ -339,7 +339,7 @@ function BuildMultisigTx() {
                 </Anchor>
               </Input.Description>
               <Space h="lg" />
-              <CopyTextarea value={btoa(form.values.unsignedTx ?? '')} />
+              <CopyTextarea value={form.values.unsignedTx ?? ''} />
               <Group mt="xl" position="apart" mx="lg">
                 <Button
                   onClick={() => {

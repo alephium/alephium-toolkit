@@ -136,8 +136,8 @@ function SignMultisigTx() {
           if (e.target.value === '') {
             setUnsignedTx(undefined)
           } else {
-            setUnsignedTx(atob(e.target.value))
-            tryLoadMultisigTxInfo(atob(e.target.value))
+            setUnsignedTx(e.target.value)
+            tryLoadMultisigTxInfo(e.target.value)
           }
         }}
         styles={{

@@ -110,7 +110,7 @@ export function AppHeader() {
             <Menu.Target>
               <Button
                 size="md"
-                w="5.5rem"
+                w="5.25rem"
                 tt="capitalize"
                 radius={'md'}
                 compact
