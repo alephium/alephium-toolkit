@@ -26,6 +26,7 @@ import { IconAlertCircle } from '@tabler/icons-react'
 import MyTable from '../Misc/MyTable'
 import CopyTextarea from '../Misc/CopyTextarea'
 import { addressFromPublicKey } from '@alephium/web3'
+import { useWallet } from '@alephium/web3-react'
 
 function useMultisigConfig(): [
   AllMultisig,
@@ -58,6 +59,7 @@ function useMultisigConfig(): [
 function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
   const [opened, { open, close }] = useDisclosure(false)
+  const wallet = useWallet()
   const navigate = useNavigate()
 
   return (
@@ -126,18 +128,27 @@ function ShowMultiSig() {
               'Required Signers': theMultisig.mOfN,
               Signers: (
                 <Grid>
-                  {theMultisig.pubkeys.map(({ name, pubkey }) => [
-                    <Grid.Col span={2} key={name}>
-                      <Stack h="100%">
-                        <Text fw="450" my="auto" ta="right">
-                          {name}:
-                        </Text>
-                      </Stack>
-                    </Grid.Col>,
-                    <Grid.Col span={10} key={pubkey}>
-                      <CopyTextarea value={addressFromPublicKey(pubkey)} />
-                    </Grid.Col>,
-                  ])}
+                  {theMultisig.pubkeys.map(({ name, pubkey }) => {
+                    const address = addressFromPublicKey(pubkey)
+                    return [
+                      <Grid.Col span={2} key={name}>
+                        <Stack h="100%">
+                          <Text fw="450" my="auto" ta="right">
+                            {name}:
+                          </Text>
+                        </Stack>
+                      </Grid.Col>,
+                      <Grid.Col span={10} key={pubkey}>
+                        <CopyTextarea
+                          value={address}
+                          color={
+                            wallet?.account.address === address
+                              ? 'yellow'
+                              : undefined
+                          }
+                        />
+                      </Grid.Col>,
+                    ]})}
                 </Grid>
               ),
             }}
