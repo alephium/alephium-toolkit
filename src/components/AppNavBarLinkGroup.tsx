@@ -122,11 +122,16 @@ export function LinksGroup({
       <UnstyledButton
         onClick={() => {
           setOpened((o) => !o)
+          if (!hasLinks) {
+            setActive(label)
+          }
           if (groupLink) {
             navigate(groupLink)
           }
         }}
-        className={classes.control}
+        className={cx(classes.control, {
+          [classes.linkActive]: !hasLinks && label === active,
+        })}
       >
         <Group position="apart" spacing={0}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
