@@ -340,7 +340,10 @@ function BuildMultisigTx() {
                 </Anchor>
               </Input.Description>
               <Space h="lg" />
-              <CopyTextarea value={form.values.unsignedTx ?? ''} variant='outline'/>
+              <CopyTextarea
+                value={form.values.unsignedTx ?? ''}
+                variant="outline"
+              />
               <Group mt="xl" position="apart" mx="lg">
                 <Button
                   onClick={() => {

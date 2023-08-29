@@ -1,4 +1,10 @@
-import { Button, ButtonProps, CopyButton, MantineColor, Tooltip } from '@mantine/core'
+import {
+  Button,
+  ButtonProps,
+  CopyButton,
+  MantineColor,
+  Tooltip,
+} from '@mantine/core'
 
 interface CopyTextareaProps {
   value: string
