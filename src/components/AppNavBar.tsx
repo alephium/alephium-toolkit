@@ -112,7 +112,7 @@ const useStyles = createStyles((theme) => ({
 export function NavbarNested() {
   const { classes } = useStyles()
   const location = useLocation()
-  const [active, setActive] = useState<string>(mockdata[0].label)
+  const [active, setActive] = useState<string>(location.pathname)
 
   useEffect(() => {
     setActive(location.pathname)
