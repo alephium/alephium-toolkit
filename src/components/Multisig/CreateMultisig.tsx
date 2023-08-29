@@ -18,6 +18,7 @@ import { IconGripVertical, IconSquareRoundedMinus } from '@tabler/icons-react'
 import { useEffect, useMemo, useRef } from 'react'
 import MyBox from '../Misc/MyBox'
 import {
+  MultisigConfig,
   addMultisigConfig,
   buildMultisigAddress,
   defaultNewMultisig,
@@ -35,9 +36,20 @@ function getPubkeyIndexByPath(path: string): number {
 }
 
 function CreateMultisig() {
+  const initialValues = useMemo(() => {
+    const storedValue = window.localStorage.getItem(newMultisigStorageKey)
+    if (storedValue) {
+      try {
+        return JSON.parse(storedValue) as MultisigConfig
+      } catch (e) {
+        console.log('Failed to parse stored value')
+        return defaultNewMultisig
+      }
+    }
+  }, [])
   const form = useForm({
     validateInputOnChange: [`pubkeys.${FORM_INDEX}.pubkey`],
-    initialValues: defaultNewMultisig,
+    initialValues: initialValues,
     validate: {
       name: (value) =>
         value === ''
@@ -65,17 +77,6 @@ function CreateMultisig() {
   })
   const handlers = useRef<NumberInputHandlers>()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const storedValue = window.localStorage.getItem(newMultisigStorageKey)
-    if (storedValue) {
-      try {
-        form.setValues(JSON.parse(storedValue))
-      } catch (e) {
-        console.log('Failed to parse stored value')
-      }
-    }
-  }, [])
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -181,7 +182,7 @@ function CreateMultisig() {
           </DragDropContext>
 
           <Group position="apart" mt="lg">
-            <Button variant="light" radius={'md'} onClick={() => form.reset()}>
+            <Button variant="light" radius={'md'} onClick={() => form.setValues(defaultNewMultisig)}>
               Reset Signers
             </Button>
             <Button

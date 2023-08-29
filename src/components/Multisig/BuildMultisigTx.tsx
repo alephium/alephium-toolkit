@@ -40,6 +40,17 @@ import CopyTextarea from '../Misc/CopyTextarea'
 import { useAlephium, useExplorer, useExplorerFE } from '../../utils/utils'
 
 function BuildMultisigTx() {
+  const initialValues = useMemo(() => {
+    const storedValue = window.localStorage.getItem(newMultisigTxStorageKey)
+    if (storedValue) {
+      try {
+        return JSON.parse(storedValue) as typeof defaultNewMultisigTx
+      } catch (e) {
+        console.log('Failed to parse stored value')
+        return defaultNewMultisigTx
+      }
+    }
+  }, [])
   const form = useForm<{
     multisig: string
     signers: string[]
@@ -53,7 +64,7 @@ function BuildMultisigTx() {
       `destinations.${FORM_INDEX}.alphAmount`,
       `signatures.${FORM_INDEX}.signature`,
     ],
-    initialValues: defaultNewMultisigTx,
+    initialValues: initialValues,
     validate: {
       multisig: (value) => (value === '' ? 'Please select multisig' : null),
       destinations: {
@@ -75,6 +86,7 @@ function BuildMultisigTx() {
       },
     },
   })
+
   const allMultisig = useAllMultisig()
 
   const [submitTxResult, setSubmitTxResult] = useState<
@@ -185,17 +197,6 @@ function BuildMultisigTx() {
   }, [form.values.multisig, allMultisig])
 
   useEffect(() => {
-    const storedValue = window.localStorage.getItem(newMultisigTxStorageKey)
-    if (storedValue) {
-      try {
-        form.setValues(JSON.parse(storedValue))
-      } catch (e) {
-        console.log('Failed to parse stored value')
-      }
-    }
-  }, [])
-
-  useEffect(() => {
     window.localStorage.setItem(
       newMultisigTxStorageKey,
       JSON.stringify(form.values)
@@ -203,7 +204,7 @@ function BuildMultisigTx() {
   }, [form.values])
 
   const reset = useCallback(() => {
-    form.reset()
+    form.setValues(defaultNewMultisigTx)
     setBuildTxError(undefined)
   }, [form, setBuildTxError])
 
