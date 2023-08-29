@@ -135,6 +135,7 @@ function SignMultisigTx() {
         placeholder="Paste your multisig transaction here"
         minRows={6}
         mt="md"
+        value={unsignedTx ?? ''}
         onChange={(e) => {
           reset()
           if (e.target.value === '') {
@@ -200,7 +201,13 @@ function SignMultisigTx() {
           </Group>
         </Box>
       ) : (
-        <Group position="right" mt="xl" mx="md">
+        <Group position="apart" mt="xl" mx="md">
+          <Button
+            disabled={loadingTxInfo || !!loadingTxError || !unsignedTx}
+            onClick={() => setUnsignedTx(undefined)}
+          >
+            Reset
+          </Button>
           <Button
             disabled={loadingTxInfo || !!loadingTxError || !unsignedTx}
             onClick={sign}
