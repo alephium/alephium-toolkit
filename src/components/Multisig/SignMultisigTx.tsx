@@ -177,8 +177,8 @@ function SignMultisigTx() {
               ),
               Recipient: <CopyTextarea value={txInfo?.recipient ?? ''} />,
               'ALPH Amount': txInfo?.amount + ' ALPH',
-              'Transaction fee': txInfo?.fee + ' ALPH',
-              'Tx Hash': <CopyTextarea value={txInfo?.txId ?? ''} />,
+              'Transaction Fee': txInfo?.fee + ' ALPH',
+              'Transaction Hash': <CopyTextarea value={txInfo?.txId ?? ''} />,
             }}
           />
         </Box>
