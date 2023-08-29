@@ -340,7 +340,7 @@ function BuildMultisigTx() {
                 </Anchor>
               </Input.Description>
               <Space h="lg" />
-              <CopyTextarea value={form.values.unsignedTx ?? ''} />
+              <CopyTextarea value={form.values.unsignedTx ?? ''} variant='outline'/>
               <Group mt="xl" position="apart" mx="lg">
                 <Button
                   onClick={() => {
@@ -450,6 +450,14 @@ function BuildMultisigTx() {
               onStepClick={(s) => form.setValues({ step: s })}
               orientation="vertical"
               allowNextStepsSelect={false}
+              styles={(theme) => ({
+                stepIcon: {
+                  backgroundColor: theme.fn.variant({
+                    variant: 'light',
+                    color: theme.primaryColor,
+                  }).background,
+                },
+              })}
             >
               <Stepper.Step
                 label="Create"
