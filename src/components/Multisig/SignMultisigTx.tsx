@@ -36,7 +36,7 @@ function SignMultisigTx() {
     P2MPKUnlockScript | undefined
   >()
   const [txInfo, setTxInfo] = useState<
-    { recipient: string; amount: string; txId: string } | undefined
+    { recipient: string; amount: string; fee: string; txId: string } | undefined
   >()
   const wallet = useWallet()
 
@@ -64,6 +64,10 @@ function SignMultisigTx() {
           recipient: recipientOutput.address,
           amount: prettifyAttoAlphAmount(
             BigInt(recipientOutput.attoAlphAmount)
+          )!,
+          fee: prettifyAttoAlphAmount(
+            BigInt(decodedTx.unsignedTx.gasPrice) *
+              BigInt(decodedTx.unsignedTx.gasAmount)
           )!,
           txId: decodedTx.unsignedTx.txId,
         })
@@ -129,7 +133,7 @@ function SignMultisigTx() {
       </Input.Description>
       <Textarea
         placeholder="Paste your multisig transaction here"
-        minRows={8}
+        minRows={6}
         mt="md"
         onChange={(e) => {
           reset()
@@ -172,7 +176,8 @@ function SignMultisigTx() {
                 <Mark color="red">unknown</Mark>
               ),
               Recipient: <CopyTextarea value={txInfo?.recipient ?? ''} />,
-              'ALPH Amount': txInfo?.amount,
+              'ALPH Amount': txInfo?.amount + ' ALPH',
+              'Transaction fee': txInfo?.fee + ' ALPH',
               'Tx Hash': <CopyTextarea value={txInfo?.txId ?? ''} />,
             }}
           />
