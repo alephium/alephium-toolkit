@@ -148,7 +148,8 @@ function ShowMultiSig() {
                           }
                         />
                       </Grid.Col>,
-                    ]})}
+                    ]
+                  })}
                 </Grid>
               ),
             }}

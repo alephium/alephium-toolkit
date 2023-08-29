@@ -182,7 +182,11 @@ function CreateMultisig() {
           </DragDropContext>
 
           <Group position="apart" mt="lg">
-            <Button variant="light" radius={'md'} onClick={() => form.setValues(defaultNewMultisig)}>
+            <Button
+              variant="light"
+              radius={'md'}
+              onClick={() => form.setValues(defaultNewMultisig)}
+            >
               Reset Signers
             </Button>
             <Button
@@ -235,7 +239,7 @@ function CreateMultisig() {
               <NumberInput
                 hideControls
                 value={form.values.mOfN}
-                size={"xs"}
+                size={'xs'}
                 onChange={(val) =>
                   form.setValues({ mOfN: val !== '' ? val : 1 })
                 }
