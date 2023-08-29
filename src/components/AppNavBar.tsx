@@ -7,6 +7,7 @@ import {
   IconFileAnalytics,
 } from '@tabler/icons-react'
 import { LinksGroup } from './AppNavBarLinkGroup'
+import { useState } from 'react'
 
 const mockdata = [
   {
@@ -109,8 +110,14 @@ const useStyles = createStyles((theme) => ({
 
 export function NavbarNested() {
   const { classes } = useStyles()
+  const [active, setActive] = useState<string>(mockdata[0].label)
   const links = mockdata.map((item) => (
-    <LinksGroup {...item} key={item.label} />
+    <LinksGroup
+      {...item}
+      key={item.label}
+      active={active}
+      setActive={setActive}
+    />
   ))
 
   return (

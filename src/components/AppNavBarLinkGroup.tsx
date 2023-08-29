@@ -8,6 +8,7 @@ import {
   UnstyledButton,
   createStyles,
   rem,
+  getStylesRef,
 } from '@mantine/core'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -55,6 +56,21 @@ const useStyles = createStyles((theme) => ({
     },
   },
 
+  linkActive: {
+    '&, &:hover': {
+      backgroundColor: theme.fn.variant({
+        variant: 'light',
+        color: theme.primaryColor,
+      }).background,
+      color: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
+        .color,
+      [`& .${getStylesRef('icon')}`]: {
+        color: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
+          .color,
+      },
+    },
+  },
+
   chevron: {
     transition: 'transform 200ms ease',
   },
@@ -67,6 +83,8 @@ interface LinksGroupProps {
   initiallyOpened?: boolean
   groupLink?: string
   links?: { label: string; link: string }[]
+  active: string
+  setActive: (label: string) => void
 }
 
 export function LinksGroup({
@@ -75,8 +93,10 @@ export function LinksGroup({
   initiallyOpened,
   links,
   groupLink,
+  active,
+  setActive,
 }: LinksGroupProps) {
-  const { classes, theme } = useStyles()
+  const { classes, theme, cx } = useStyles()
   const navigate = useNavigate()
 
   const hasLinks = Array.isArray(links)
@@ -85,10 +105,13 @@ export function LinksGroup({
   const items = (hasLinks ? links : []).map((link) => (
     <Text
       component={Link}
-      className={classes.link}
+      className={cx(classes.link, {
+        [classes.linkActive]: label + link.label === active,
+      })}
       to={link.link}
       key={link.label}
       ta="left"
+      onClick={() => setActive(label + link.label)}
     >
       {link.label}
     </Text>
