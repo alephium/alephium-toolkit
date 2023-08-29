@@ -7,7 +7,8 @@ import {
   IconFileAnalytics,
 } from '@tabler/icons-react'
 import { LinksGroup } from './AppNavBarLinkGroup'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const mockdata = [
   {
@@ -110,7 +111,13 @@ const useStyles = createStyles((theme) => ({
 
 export function NavbarNested() {
   const { classes } = useStyles()
+  const location = useLocation()
   const [active, setActive] = useState<string>(mockdata[0].label)
+
+  useEffect(() => {
+    setActive(location.pathname)
+  }, [location.pathname])
+
   const links = mockdata.map((item) => (
     <LinksGroup
       {...item}

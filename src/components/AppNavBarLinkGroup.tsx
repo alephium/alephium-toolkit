@@ -106,12 +106,12 @@ export function LinksGroup({
     <Text
       component={Link}
       className={cx(classes.link, {
-        [classes.linkActive]: label + link.label === active,
+        [classes.linkActive]: link.link === active,
       })}
       to={link.link}
       key={link.label}
       ta="left"
-      onClick={() => setActive(label + link.label)}
+      onClick={() => setActive(link.link)}
     >
       {link.label}
     </Text>
@@ -123,14 +123,14 @@ export function LinksGroup({
         onClick={() => {
           setOpened((o) => !o)
           if (!hasLinks) {
-            setActive(label)
+            setActive(groupLink ?? '')
           }
           if (groupLink) {
             navigate(groupLink)
           }
         }}
         className={cx(classes.control, {
-          [classes.linkActive]: !hasLinks && label === active,
+          [classes.linkActive]: !hasLinks && groupLink === active,
         })}
       >
         <Group position="apart" spacing={0}>
