@@ -224,7 +224,7 @@ function CreateMultisig() {
             />
             <Group spacing={5} mt="md">
               <ActionIcon
-                size={42}
+                size={36}
                 variant="default"
                 onClick={() => handlers.current!.decrement()}
               >
@@ -234,6 +234,7 @@ function CreateMultisig() {
               <NumberInput
                 hideControls
                 value={form.values.mOfN}
+                size={"xs"}
                 onChange={(val) =>
                   form.setValues({ mOfN: val !== '' ? val : 1 })
                 }
@@ -245,7 +246,7 @@ function CreateMultisig() {
               />
 
               <ActionIcon
-                size={42}
+                size={36}
                 variant="default"
                 onClick={() => handlers.current!.increment()}
               >
@@ -256,7 +257,7 @@ function CreateMultisig() {
         </MyBox>
         {/* </Group> */}
 
-        <Group position="right" mt="xl">
+        <Group position="right" mt="xl" mx="lg">
           <Button type="submit">Create Multisig</Button>
         </Group>
       </form>
