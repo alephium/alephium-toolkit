@@ -43,9 +43,9 @@ function CreateMultisig() {
         return JSON.parse(storedValue) as MultisigConfig
       } catch (e) {
         console.log('Failed to parse stored value')
-        return defaultNewMultisig
       }
-    }
+    } 
+    return defaultNewMultisig
   }, [])
   const form = useForm({
     validateInputOnChange: [`pubkeys.${FORM_INDEX}.pubkey`],
@@ -100,6 +100,8 @@ function CreateMultisig() {
       navigate('/multisig/show?name=' + values.name)
     })
   }, [form, navigate])
+
+  console.log(`form.values`, form.values)
 
   const fields = form.values.pubkeys.map((_, index) => (
     <Draggable key={index} index={index} draggableId={index.toString()}>

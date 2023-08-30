@@ -47,9 +47,9 @@ function BuildMultisigTx() {
         return JSON.parse(storedValue) as typeof defaultNewMultisigTx
       } catch (e) {
         console.log('Failed to parse stored value')
-        return defaultNewMultisigTx
       }
     }
+    return defaultNewMultisigTx
   }, [])
   const form = useForm<{
     multisig: string
