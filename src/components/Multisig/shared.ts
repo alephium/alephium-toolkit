@@ -26,11 +26,11 @@ export const defaultNewMultisig = {
 }
 export const defaultNewMultisigTx = {
   multisig: '',
-  signers: [],
+  signers: [] as string[],
   destinations: [{ address: '', alphAmount: undefined as number | undefined }],
   sweep: undefined as boolean | undefined,
   unsignedTx: undefined as string | undefined,
-  signatures: [],
+  signatures: [] as { name: string; signature: string }[],
   step: 0,
 }
 export type MultisigConfig = typeof defaultNewMultisig
