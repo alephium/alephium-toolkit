@@ -17,14 +17,21 @@ import {
   Text,
   TextInput,
   ThemeIcon,
+  rem,
 } from '@mantine/core'
 import { IconAt, IconCheck } from '@tabler/icons-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
-import { convertAlphAmountWithDecimals, isBase58, node } from '@alephium/web3'
+import {
+  convertAlphAmountWithDecimals,
+  isBase58,
+  node,
+  number256ToNumber,
+} from '@alephium/web3'
 import {
   buildMultisigAddress,
+  buildMultisigSweepTx,
   buildMultisigTx,
   defaultNewMultisigTx,
   isSignatureValid,
@@ -51,14 +58,7 @@ function BuildMultisigTx() {
     }
     return defaultNewMultisigTx
   }, [])
-  const form = useForm<{
-    multisig: string
-    signers: string[]
-    destinations: { address: string; alphAmount: string }[]
-    unsignedTx: string | undefined
-    signatures: { name: string; signature: string }[]
-    step: number
-  }>({
+  const form = useForm<typeof defaultNewMultisigTx>({
     validateInputOnChange: [
       `destinations.${FORM_INDEX}.address`,
       `destinations.${FORM_INDEX}.alphAmount`,
@@ -75,7 +75,7 @@ function BuildMultisigTx() {
             ? 'Invalid address'
             : null,
         alphAmount: (value) => {
-          if (value === '') return 'Empty amount'
+          if (value === undefined) return 'Empty amount'
           const amount = convertAlphAmountWithDecimals(value)
           return amount === undefined || amount <= 0n ? 'Invalid amount' : null
         },
@@ -123,8 +123,58 @@ function BuildMultisigTx() {
     },
     [form, setBuildTxError]
   )
+  const setMaxALPH = useCallback(async () => {
+    try {
+      const hasError = form.values.destinations.some((_, index) => {
+        const validateAddress = form.validateField(
+          `destinations.${index}.address`
+        )
+        return validateAddress.error
+      })
+      if (hasError) throw new Error('Invalid destinations')
+
+      if (form.validateField(`signers`).hasError) {
+        throw new Error('Please select signers')
+      }
+
+      const [rawUnsignedTx, buildTxResult] = await buildMultisigSweepTx(
+        nodeProvider,
+        form.values.multisig,
+        form.values.signers,
+        form.values.destinations[0].address
+      )
+      console.log(`Build multisig tx result:`, buildTxResult)
+      const rawALPHAmount = BigInt(
+        buildTxResult.unsignedTx.fixedOutputs[0].attoAlphAmount
+      )
+      const maxBalance = number256ToNumber(rawALPHAmount, 18)
+      console.log(rawALPHAmount, maxBalance)
+
+      setBuildTxError(undefined)
+      form.setValues({
+        sweep: true,
+        unsignedTx: rawUnsignedTx,
+        destinations: [
+          {
+            address: form.values.destinations[0].address,
+            alphAmount: maxBalance,
+          },
+        ],
+      })
+    } catch (error) {
+      setBuildTxError(`Error in build multisig tx: ${error}`)
+      console.error(error)
+    }
+  }, [form])
+
   const buildTxCallback = useCallback(async () => {
     try {
+      // Sweep tx has been built, go to the next step directly
+      if (form.values.sweep) {
+        form.setValues({ step: 1 })
+        return
+      }
+
       // we can not use the `form.validate()` because the `signatures` is invalid now,
       // and `validateField('destinations')` does not display error properly in the UI
       const hasError = form.values.destinations.some((_, index) => {
@@ -299,7 +349,22 @@ function BuildMultisigTx() {
                         w="28rem"
                       />
                       <NumberInput
-                        label={`Balance: ${showBalance(balance)}`}
+                        label={
+                          <Group position="apart" w="95%" mx="auto">
+                            <Text>Balance: {showBalance(balance)}</Text>
+                            <Button
+                              size={rem(13)}
+                              m={2}
+                              p={3}
+                              variant="light"
+                              color="indigo"
+                              compact
+                              onClick={setMaxALPH}
+                            >
+                              Max
+                            </Button>
+                          </Group>
+                        }
                         ta="left"
                         precision={6}
                         placeholder="Amount"
@@ -309,6 +374,22 @@ function BuildMultisigTx() {
                         {...getInputPropsWithResetError(
                           'destinations.0.alphAmount'
                         )}
+                        onChange={(value) => {
+                          form.setValues({
+                            sweep: false,
+                            destinations: [
+                              {
+                                address: form.values.destinations[0].address,
+                                alphAmount: Number(value),
+                              },
+                            ],
+                          })
+                        }}
+                        styles={{
+                          label: {
+                            width: '100%',
+                          },
+                        }}
                       />
                     </Group>
                   </MyBox>
