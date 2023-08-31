@@ -26,10 +26,11 @@ export const defaultNewMultisig = {
 }
 export const defaultNewMultisigTx = {
   multisig: '',
-  signers: [],
-  destinations: [{ address: '', alphAmount: '' }],
-  unsignedTx: undefined,
-  signatures: [],
+  signers: [] as string[],
+  destinations: [{ address: '', alphAmount: undefined as number | undefined }],
+  sweep: undefined as boolean | undefined,
+  unsignedTx: undefined as string | undefined,
+  signatures: [] as { name: string; signature: string }[],
   step: 0,
 }
 export type MultisigConfig = typeof defaultNewMultisig
@@ -159,7 +160,7 @@ export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
   signerNames: string[],
-  destinations: { address: string; alphAmount: string }[]
+  destinations: (typeof defaultNewMultisigTx)['destinations']
 ) {
   const config = tryGetMultisig(configName)
   if (signerNames.length !== config.mOfN) {
@@ -170,6 +171,9 @@ export async function buildMultisigTx(
   )
   let totalAlphAmount = 0n
   const transferDestinations = destinations.map((d) => {
+    if (d.alphAmount === undefined) {
+      throw new Error('Please input the amount')
+    }
     const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
     totalAlphAmount += alphAmount
     return { address: d.address, attoAlphAmount: alphAmount.toString() }
@@ -180,6 +184,32 @@ export async function buildMultisigTx(
     fromPublicKeys: signerPublicKeys,
     destinations: transferDestinations,
   })
+}
+
+export async function buildMultisigSweepTx(
+  nodeProvider: NodeProvider,
+  configName: string,
+  signerNames: string[],
+  destination: string
+) {
+  const config = tryGetMultisig(configName)
+  if (signerNames.length !== config.mOfN) {
+    throw new Error(`Please select ${config.mOfN} signers`)
+  }
+  const signerPublicKeys = signerNames.map(
+    (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
+  )
+  const txResult = await nodeProvider.multisig.postMultisigSweep({
+    fromAddress: config.address,
+    fromPublicKeys: signerPublicKeys,
+    toAddress: destination,
+  })
+  const unsignedTx = txResult.unsignedTxs[0].unsignedTx
+  const decodedTx =
+    await nodeProvider.transactions.postTransactionsDecodeUnsignedTx({
+      unsignedTx,
+    })
+  return [unsignedTx, decodedTx] as const
 }
 
 export async function signMultisigTx(

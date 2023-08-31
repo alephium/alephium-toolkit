@@ -44,7 +44,7 @@ function CreateMultisig() {
       } catch (e) {
         console.log('Failed to parse stored value')
       }
-    } 
+    }
     return defaultNewMultisig
   }, [])
   const form = useForm({
