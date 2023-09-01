@@ -38,7 +38,7 @@ function SignMultisigTx() {
   const [txInfo, setTxInfo] = useState<
     { recipient: string; amount: string; fee: string; txId: string } | undefined
   >()
-  const wallet = useWallet()
+  const { account, signer, connectionStatus } = useWallet()
 
   const [loadingTxError, setLoadingTxError] = useState<string>()
 
@@ -86,18 +86,18 @@ function SignMultisigTx() {
   useEffect(() => {
     // clear the error when switching accounts
     setSigningError(undefined)
-  }, [wallet])
+  }, [account])
 
   const sign = useCallback(async () => {
     try {
       if (unsignedTx === undefined || !isHexString(unsignedTx)) {
         throw new Error('Invalid unsigned tx')
       }
-      if (wallet === undefined) throw new Error('Wallet is not connected')
+      if (connectionStatus !== 'connected') throw new Error('Wallet is not connected')
 
       if (
         unlockScript !== undefined &&
-        unlockScript.find((p) => p.pubkey === wallet.account.publicKey) ===
+        unlockScript.find((p) => p.pubkey === account.publicKey) ===
           undefined
       ) {
         throw new Error(
@@ -105,13 +105,13 @@ function SignMultisigTx() {
         )
       }
 
-      const signature = await signMultisigTx(wallet.signer, unsignedTx)
+      const signature = await signMultisigTx(signer, unsignedTx)
       setSignature(signature)
     } catch (error) {
       setSigningError(`Error: ${error}`)
       console.error(error)
     }
-  }, [wallet, unsignedTx, setSignature, unlockScript])
+  }, [unsignedTx, setSignature, unlockScript, signer, account, connectionStatus])
 
   const reset = useCallback(() => {
     setLoadingTxInfo(false)

@@ -59,7 +59,7 @@ function useMultisigConfig(): [
 function ShowMultiSig() {
   const [allMultisig, multisigName, theMultisig] = useMultisigConfig()
   const [opened, { open, close }] = useDisclosure(false)
-  const wallet = useWallet()
+  const { account } = useWallet()
   const navigate = useNavigate()
 
   return (
@@ -142,7 +142,7 @@ function ShowMultiSig() {
                         <CopyTextarea
                           value={address}
                           color={
-                            wallet?.account.address === address
+                            account?.address === address
                               ? 'yellow'
                               : undefined
                           }
