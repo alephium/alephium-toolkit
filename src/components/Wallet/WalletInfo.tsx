@@ -1,22 +1,17 @@
 import { useWallet } from '@alephium/web3-react'
 import { Center, Text } from '@mantine/core'
 import MyTable from '../Misc/MyTable'
-import { useEffect } from 'react'
 import { NoWallet } from '../Misc/NoWallet'
 import CopyTextarea from '../Misc/CopyTextarea'
 
 function WalletInfo() {
-  const wallet = useWallet()
+  const { account, connectionStatus } = useWallet()
 
-  useEffect(() => {
-    console.log(`===== useEffect`)
-  })
+  console.log(`WalletInfo:`, account, connectionStatus)
 
-  if (wallet === undefined) {
-    return <NoWallet />
-  }
+  if (connectionStatus === 'connecting' && !account) return null
+  if (connectionStatus === 'disconnected') return <NoWallet />
 
-  const account = wallet.account
   return (
     <Center mt="10%">
       <MyTable

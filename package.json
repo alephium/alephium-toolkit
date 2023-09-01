@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@alephium/token-list": "^0.0.10",
-    "@alephium/web3": "^0.19.2",
-    "@alephium/web3-react": "^0.19.2",
+    "@alephium/web3": "^0.20.0",
+    "@alephium/web3-react": "^0.20.0",
     "@emotion/react": "^11.11.1",
     "@mantine/core": "^6.0.19",
     "@mantine/form": "^6.0.19",
@@ -27,7 +27,7 @@
     "react-router-dom": "^6.14.2"
   },
   "devDependencies": {
-    "@alephium/cli": "^0.19.2",
+    "@alephium/cli": "^0.20.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
