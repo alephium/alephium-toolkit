@@ -93,12 +93,12 @@ function SignMultisigTx() {
       if (unsignedTx === undefined || !isHexString(unsignedTx)) {
         throw new Error('Invalid unsigned tx')
       }
-      if (connectionStatus !== 'connected') throw new Error('Wallet is not connected')
+      if (connectionStatus !== 'connected')
+        throw new Error('Wallet is not connected')
 
       if (
         unlockScript !== undefined &&
-        unlockScript.find((p) => p.pubkey === account.publicKey) ===
-          undefined
+        unlockScript.find((p) => p.pubkey === account.publicKey) === undefined
       ) {
         throw new Error(
           'The currently connected account is not the expected signer'
@@ -111,7 +111,14 @@ function SignMultisigTx() {
       setSigningError(`Error: ${error}`)
       console.error(error)
     }
-  }, [unsignedTx, setSignature, unlockScript, signer, account, connectionStatus])
+  }, [
+    unsignedTx,
+    setSignature,
+    unlockScript,
+    signer,
+    account,
+    connectionStatus,
+  ])
 
   const reset = useCallback(() => {
     setLoadingTxInfo(false)

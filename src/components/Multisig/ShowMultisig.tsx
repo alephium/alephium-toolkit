@@ -142,9 +142,7 @@ function ShowMultiSig() {
                         <CopyTextarea
                           value={address}
                           color={
-                            account?.address === address
-                              ? 'yellow'
-                              : undefined
+                            account?.address === address ? 'yellow' : undefined
                           }
                         />
                       </Grid.Col>,
