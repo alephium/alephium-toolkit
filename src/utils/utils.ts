@@ -3,8 +3,9 @@ import {
   mainnetTokensMetadata,
   testnetTokensMetadata,
 } from '@alephium/token-list'
-import { ExplorerProvider, NetworkId, NodeProvider } from '@alephium/web3'
-import { useLocalStorage } from '@mantine/hooks'
+import { ExplorerProvider, NetworkId, NodeProvider, web3 } from '@alephium/web3'
+import { useWalletConfig } from '@alephium/web3-react'
+import { useEffect, useMemo } from 'react'
 
 const mainnet_node_url = 'https://wallet-v20.mainnet.alephium.org'
 const testnet_node_url = 'https://wallet-v20.testnet.alephium.org'
@@ -18,35 +19,64 @@ const devnet_explorer_url = 'http://localhost:23000'
 
 const networkStorageKey = 'alephium-network'
 
+export function loadNetworkIdFromLocalStorage(): NetworkId {
+  const network = localStorage.getItem(networkStorageKey)
+  if (network === 'mainnet' || network === 'testnet' || network === 'devnet') {
+    return network
+  }
+  return 'mainnet'
+}
+
+export function saveNetworkIdToLocalStorage(network: NetworkId): void {
+  localStorage.setItem(networkStorageKey, network)
+}
+
 export function useNetworkId(): [NetworkId, (network: NetworkId) => void] {
-  const [network, setNetwork] = useLocalStorage<NetworkId>({
-    key: networkStorageKey,
-    defaultValue: 'mainnet',
-    getInitialValueInEffect: false,
-  })
+  const { network, setNetwork } = useWalletConfig()
+
+  useEffect(() => {
+    saveNetworkIdToLocalStorage(network)
+  }, [network])
+
   return [network, setNetwork]
 }
 
 export function useAlephium(): NodeProvider {
   const [network] = useNetworkId()
-  return new NodeProvider(
-    network === 'mainnet'
-      ? mainnet_node_url
-      : network === 'testnet'
-      ? testnet_node_url
-      : devnet_node_url
+  const nodeProvider = useMemo(
+    () =>
+      new NodeProvider(
+        network === 'mainnet'
+          ? mainnet_node_url
+          : network === 'testnet'
+          ? testnet_node_url
+          : devnet_node_url
+      ),
+    [network]
   )
+
+  useEffect(() => {
+    web3.setCurrentNodeProvider(nodeProvider)
+  }, [nodeProvider])
+
+  return nodeProvider
 }
 
 export function useExplorer(): ExplorerProvider {
   const [network] = useNetworkId()
-  return new ExplorerProvider(
+  const explorerProvider = useMemo(() => new ExplorerProvider(
     network === 'mainnet'
       ? mainnet_explorer_backend_url
       : network === 'testnet'
       ? testnet_explorer_backend_url
       : devnet_explorer_backend_url
-  )
+  ), [network])
+
+  useEffect(() => {
+    web3.setCurrentExplorerProvider(explorerProvider)
+  }, [ExplorerProvider])
+
+  return explorerProvider
 }
 
 export function useExplorerFE(): string {

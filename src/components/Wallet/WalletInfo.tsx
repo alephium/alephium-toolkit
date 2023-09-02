@@ -1,4 +1,4 @@
-import { useWallet } from '@alephium/web3-react'
+import { useWallet, useWalletConfig } from '@alephium/web3-react'
 import { Center, Text } from '@mantine/core'
 import MyTable from '../Misc/MyTable'
 import { NoWallet } from '../Misc/NoWallet'
@@ -6,8 +6,9 @@ import CopyTextarea from '../Misc/CopyTextarea'
 
 function WalletInfo() {
   const { account, connectionStatus } = useWallet()
+  const { network, addressGroup, keyType } = useWalletConfig()
 
-  console.log(`WalletInfo:`, account, connectionStatus)
+  console.log(`WalletInfo:`, connectionStatus, network, addressGroup, keyType, account)
 
   if (connectionStatus === 'connecting' && !account) return null
   if (connectionStatus === 'disconnected') return <NoWallet />
