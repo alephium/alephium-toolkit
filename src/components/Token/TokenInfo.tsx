@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { getTokenMetadata, useAlephium } from '../../utils/utils'
 import {
   FungibleTokenMetaData,
+  addressFromPublicKey,
   addressFromTokenId,
   hexToString,
   prettifyTokenAmount,
@@ -11,6 +12,8 @@ import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
 
 const network = 'devnet'
+
+console.log(`address: ${addressFromPublicKey('0323d1ed1218c23738cf8784cf542c25ac64f85c4cac1856dc4240c5efee81bb08')}`)
 
 type TokenInfo = FungibleTokenMetaData & {
   verified: boolean

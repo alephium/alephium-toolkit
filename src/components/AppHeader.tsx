@@ -7,6 +7,8 @@ import {
   rem,
   Menu,
   Button,
+  Image,
+  useMantineTheme,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import LightDarkModeButton from './LightDarkButton'
@@ -14,6 +16,8 @@ import { Link } from 'react-router-dom'
 
 import { AlephiumConnectButton } from '@alephium/web3-react'
 import { useNetworkId } from '../utils/utils'
+import AlephiumLight from '../assets/alephium-light.png'
+import AlephiumDark from '../assets/alephium-dark.png'
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -88,12 +92,13 @@ export function AppHeader() {
   const [drawerOpened, { toggle: toggleDrawer }] = useDisclosure(false)
   const { classes } = useStyles()
 
+  const theme = useMantineTheme()
   const [network, setNetwork] = useNetworkId()
 
   return (
     <Header height={60} px="md">
       <Group position="apart" sx={{ height: '100%' }}>
-        <Text
+        {/* <Text
           component={Link}
           to="/"
           fw="bold"
@@ -102,7 +107,13 @@ export function AppHeader() {
           gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
         >
           Alephium Toolkit
-        </Text>
+        </Text> */}
+        <Image
+          src={theme.colorScheme === 'dark' ? AlephiumDark : AlephiumLight}
+          height={55}
+          width={'auto'}
+          ml={'sm'}
+        />
 
         <Group className={classes.hiddenMobile}>
           <LightDarkModeButton />
