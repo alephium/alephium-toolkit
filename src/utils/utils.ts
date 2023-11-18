@@ -64,13 +64,17 @@ export function useAlephium(): NodeProvider {
 
 export function useExplorer(): ExplorerProvider {
   const [network] = useNetworkId()
-  const explorerProvider = useMemo(() => new ExplorerProvider(
-    network === 'mainnet'
-      ? mainnet_explorer_backend_url
-      : network === 'testnet'
-      ? testnet_explorer_backend_url
-      : devnet_explorer_backend_url
-  ), [network])
+  const explorerProvider = useMemo(
+    () =>
+      new ExplorerProvider(
+        network === 'mainnet'
+          ? mainnet_explorer_backend_url
+          : network === 'testnet'
+          ? testnet_explorer_backend_url
+          : devnet_explorer_backend_url
+      ),
+    [network]
+  )
 
   useEffect(() => {
     web3.setCurrentExplorerProvider(explorerProvider)
