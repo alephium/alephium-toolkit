@@ -19,6 +19,7 @@ import { useAlephium } from '../../utils/utils'
 export const newMultisigStorageKey = 'multisig-wip'
 export const allMultisigStorageKey = 'multisig-all'
 export const newMultisigTxStorageKey = 'multisig-tx-wip'
+export const newMultisigDappTxStorageKey = 'multisig-dapp-tx-wip'
 export const defaultNewMultisig = {
   name: '',
   pubkeys: [{ name: '', pubkey: '' }],
@@ -35,6 +36,15 @@ export const defaultNewMultisigTx = {
 }
 export type MultisigConfig = typeof defaultNewMultisig
 export type AllMultisig = (MultisigConfig & { address: string })[]
+
+export const defaultNewMultisigDappTx = {
+  multisig: '',
+  signers: [] as string[],
+  wcURI: '',
+  unsignedTx: undefined as string | undefined,
+  signatures: [] as { name: string; signature: string }[],
+  step: 0,
+}
 
 export function resetNewMultisig() {
   window.localStorage.setItem(

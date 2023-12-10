@@ -9,6 +9,7 @@ import {
 } from '@alephium/web3'
 import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
+import { useLocation } from 'react-router-dom'
 
 type TokenInfo = FungibleTokenMetaData & {
   verified: boolean
@@ -21,6 +22,10 @@ function TokenInfo() {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>()
   const nodeProvider = useAlephium()
   const [network] = useNetworkId()
+
+  const location = useLocation()
+  const urlParams = new URLSearchParams(location.search)
+  const urlTokenId = urlParams.get('id')
 
   const searchToken = useCallback(async (tokenId: string) => {
     setValue(tokenId)
@@ -41,6 +46,10 @@ function TokenInfo() {
       setTokenInfo(undefined)
     }
   }, [])
+
+  if (urlTokenId) {
+    searchToken(urlTokenId)
+  }
 
   return (
     <Center h={rem('80%')}>

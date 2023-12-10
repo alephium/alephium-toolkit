@@ -57,6 +57,7 @@ const mockdata = [
       { label: 'Import Multisig', link: '/multisig/import' },
       { label: 'Show Multisig', link: '/multisig/show' },
       { label: 'Build Transaction', link: '/multisig/build-tx' },
+      { label: 'Dapp Transaction', link: '/multisig/dapp-tx' },
       { label: 'Sign Transaction', link: '/multisig/sign-tx' },
     ],
   },

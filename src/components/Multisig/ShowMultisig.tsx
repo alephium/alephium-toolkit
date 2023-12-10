@@ -34,8 +34,8 @@ function useMultisigConfig(): [
   MultisigConfig | undefined
 ] {
   const allMultisig = useAllMultisig()
-  const location = useLocation()
 
+  const location = useLocation()
   const urlParams = new URLSearchParams(location.search)
   const multisigName = urlParams.get('name')
 
