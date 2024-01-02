@@ -24,7 +24,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
+  FungibleTokenMetaData,
   convertAlphAmountWithDecimals,
+  convertAmountWithDecimals,
+  hexToBinUnsafe,
   isBase58,
   node,
   number256ToNumber,
@@ -35,10 +38,13 @@ import {
   buildMultisigTx,
   defaultNewMultisigTx,
   isSignatureValid,
+  isTokenIdValid,
   newMultisigTxStorageKey,
   resetNewMultisigTx,
-  showBalance,
+  showALPHBalance,
+  showTokenBalance,
   submitMultisigTx,
+  toUtf8String,
   useAllMultisig,
   useBalance,
   waitTxSubmitted,
@@ -62,6 +68,8 @@ function BuildMultisigTx() {
     validateInputOnChange: [
       `destinations.${FORM_INDEX}.address`,
       `destinations.${FORM_INDEX}.alphAmount`,
+      `destinations.${FORM_INDEX}.tokenId`,
+      `destinations.${FORM_INDEX}.tokenAmount`,
       `signatures.${FORM_INDEX}.signature`,
     ],
     initialValues: initialValues,
@@ -75,10 +83,19 @@ function BuildMultisigTx() {
             ? 'Invalid address'
             : null,
         alphAmount: (value) => {
-          if (value === undefined) return 'Empty amount'
+          if (value === undefined) return null
           const amount = convertAlphAmountWithDecimals(value)
-          return amount === undefined || amount <= 0n ? 'Invalid amount' : null
+          return amount === undefined || amount <= 0n ? 'Invalid ALPH amount' : null
         },
+        tokenId: (value) => value === '' || isTokenIdValid(value) ? null : 'Invalid token id',
+        tokenAmount: (value, values) => {
+          if (value === undefined) return null
+          const tokenInfo = tokenInfos.find((t) => t.id === values.destinations[0].tokenId)
+          if (tokenInfo !== undefined) {
+            const amount = convertAmountWithDecimals(value, tokenInfo.decimals)
+            return amount === undefined || amount <= 0n ? 'Invalid token amount' : null
+          }
+        }
       },
       signatures: {
         signature: (value) =>
@@ -97,7 +114,26 @@ function BuildMultisigTx() {
   const explorerProvider = useExplorer()
 
   const [multisigAddress, setMultisigAddress] = useState<string>()
+  const [tokenInfos, setTokenInfos] = useState<(FungibleTokenMetaData & { id: string })[]>([])
   const balance = useBalance(multisigAddress)
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (balance?.tokenBalances === undefined) return
+      const tokenInfos: (FungibleTokenMetaData & { id: string })[] = []
+      for (const token of balance.tokenBalances) {
+        try {
+          const tokenMetaData = await nodeProvider.fetchFungibleTokenMetaData(token.id)
+          tokenInfos.push({ ...tokenMetaData, symbol: toUtf8String(tokenMetaData.symbol), id: token.id })
+        } catch (error: any) {
+          console.error(`failed to fetch token metadata, token id: ${token.id}, error: ${error}`)
+        }
+      }
+      setTokenInfos(tokenInfos)
+    }
+
+    fetch().catch((error: any) => console.error(error))
+  }, [balance])
 
   useEffect(() => {
     if (form.values.multisig === '') {
@@ -123,8 +159,12 @@ function BuildMultisigTx() {
     },
     [form, setBuildTxError]
   )
+
   const setMaxALPH = useCallback(async () => {
     try {
+      if (form.values.destinations.some((d) => d.tokenId !== '' && d.tokenAmount !== undefined)) {
+        throw new Error('Token should be empty for sweep transaction')
+      }
       const hasError = form.values.destinations.some((_, index) => {
         const validateAddress = form.validateField(
           `destinations.${index}.address`
@@ -158,6 +198,8 @@ function BuildMultisigTx() {
           {
             address: form.values.destinations[0].address,
             alphAmount: maxBalance,
+            tokenId: form.values.destinations[0].tokenId,
+            tokenAmount: form.values.destinations[0].tokenAmount
           },
         ],
       })
@@ -177,14 +219,22 @@ function BuildMultisigTx() {
 
       // we can not use the `form.validate()` because the `signatures` is invalid now,
       // and `validateField('destinations')` does not display error properly in the UI
-      const hasError = form.values.destinations.some((_, index) => {
+      const hasError = form.values.destinations.some((d, index) => {
         const validateAddress = form.validateField(
           `destinations.${index}.address`
         )
         const validateAmount = form.validateField(
           `destinations.${index}.alphAmount`
         )
-        return validateAddress.hasError || validateAmount.hasError
+        const validateTokenId = form.validateField(
+          `destinations.${index}.tokenId`
+        )
+        const validateTokenAmount = form.validateField(
+          `destinations.${index}.tokenAmount`
+        )
+        const emptyAsset = d.alphAmount === undefined && (d.tokenId === '' || d.tokenAmount === undefined)
+        const hasError = validateAddress.hasError || validateAmount.hasError || validateTokenId.hasError || validateTokenAmount.hasError
+        return emptyAsset || hasError
       })
       if (hasError) throw new Error('Invalid destinations')
 
@@ -192,7 +242,8 @@ function BuildMultisigTx() {
         nodeProvider,
         form.values.multisig,
         form.values.signers,
-        form.values.destinations
+        form.values.destinations,
+        tokenInfos
       )
       setBuildTxError(undefined)
       console.log(`Build multisig tx result: ${JSON.stringify(buildTxResult)}`)
@@ -257,6 +308,10 @@ function BuildMultisigTx() {
     form.setValues(defaultNewMultisigTx)
     setBuildTxError(undefined)
   }, [form, setBuildTxError])
+
+  const getTokenInfo = useCallback(() => {
+    return tokenInfos.find((t) => t.id === form.values.destinations[0].tokenId)
+  }, [form, tokenInfos])
 
   return (
     <Box maw={1200} mx="auto" mt="5rem">
@@ -346,12 +401,12 @@ function BuildMultisigTx() {
                         placeholder="Address"
                         icon={<IconAt size={'1.25rem'} />}
                         {...form.getInputProps('destinations.0.address')}
-                        w="28rem"
+                        w="14rem"
                       />
                       <NumberInput
                         label={
                           <Group position="apart" w="95%" mx="auto">
-                            <Text>Balance: {showBalance(balance)}</Text>
+                            <Text>Balance: {showALPHBalance(balance)}</Text>
                             <Button
                               size={rem(13)}
                               m={2}
@@ -381,6 +436,8 @@ function BuildMultisigTx() {
                               {
                                 address: form.values.destinations[0].address,
                                 alphAmount: Number(value),
+                                tokenId: form.values.destinations[0].tokenId,
+                                tokenAmount: form.values.destinations[0].tokenAmount
                               },
                             ],
                           })
@@ -390,6 +447,59 @@ function BuildMultisigTx() {
                             width: '100%',
                           },
                         }}
+                        w="14rem"
+                      />
+                      <NumberInput
+                        label={
+                          <Group position="apart" w="95%" mx="auto">
+                            <Text>Balance: {showTokenBalance(balance, getTokenInfo())}</Text>
+                          </Group>
+                        }
+                        ta="left"
+                        precision={6}
+                        placeholder="Amount"
+                        hideControls
+                        rightSection={<Select
+                          label=""
+                          placeholder="Token"
+                          data={tokenInfos.map((t) => t.symbol)}
+                          onChange={(value) => {
+                            form.setValues({
+                              sweep: false,
+                              destinations: [
+                                {
+                                  address: form.values.destinations[0].address,
+                                  alphAmount: form.values.destinations[0].alphAmount,
+                                  tokenId: tokenInfos.find((t) => t.symbol === value)!.id,
+                                  tokenAmount: form.values.destinations[0].tokenAmount
+                                },
+                              ]
+                            })
+                          }}
+                        />}
+                        rightSectionWidth={'6rem'}
+                        {...getInputPropsWithResetError(
+                          'destinations.0.tokenAmount'
+                        )}
+                        onChange={(value) => {
+                          form.setValues({
+                            sweep: false,
+                            destinations: [
+                              {
+                                address: form.values.destinations[0].address,
+                                alphAmount: form.values.destinations[0].alphAmount,
+                                tokenId: form.values.destinations[0].tokenId,
+                                tokenAmount: Number(value)
+                              },
+                            ],
+                          })
+                        }}
+                        styles={{
+                          label: {
+                            width: '100%',
+                          },
+                        }}
+                        w="14rem"
                       />
                     </Group>
                   </MyBox>

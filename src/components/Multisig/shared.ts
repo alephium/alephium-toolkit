@@ -1,15 +1,19 @@
 import {
+  DUST_AMOUNT,
   ExplorerProvider,
+  FungibleTokenMetaData,
   NodeProvider,
   SignerProvider,
   binToHex,
   bs58,
   convertAlphAmountWithDecimals,
+  convertAmountWithDecimals,
   encodeI256,
   hexToBinUnsafe,
   isHexString,
   node,
   prettifyAttoAlphAmount,
+  prettifyTokenAmount,
   verifySignature,
 } from '@alephium/web3'
 import blake from 'blakejs'
@@ -27,7 +31,7 @@ export const defaultNewMultisig = {
 export const defaultNewMultisigTx = {
   multisig: '',
   signers: [] as string[],
-  destinations: [{ address: '', alphAmount: undefined as number | undefined }],
+  destinations: [{ address: '', alphAmount: undefined as number | undefined, tokenId: '', tokenAmount: undefined as number | undefined }],
   sweep: undefined as boolean | undefined,
   unsignedTx: undefined as string | undefined,
   signatures: [] as { name: string; signature: string }[],
@@ -132,9 +136,25 @@ export function useBalance(address: string | undefined) {
   return balance
 }
 
-export function showBalance(balance: node.Balance | undefined) {
+export function showALPHBalance(balance: node.Balance | undefined) {
   if (balance === undefined) return ''
   return prettifyAttoAlphAmount(BigInt(balance.balance))
+}
+
+export function showTokenBalance(balance: node.Balance | undefined, tokenInfo: (FungibleTokenMetaData & { id: string }) | undefined) {
+  if (balance === undefined || tokenInfo === undefined) return ''
+  const token = balance.tokenBalances?.find((t) => t.id === tokenInfo.id)
+  if (token === undefined) return ''
+  return prettifyTokenAmount(token.amount, tokenInfo.decimals)
+}
+
+export function isTokenIdValid(tokenId: string) {
+  return tokenId.length === 64 && isHexString(tokenId)
+}
+
+export function toUtf8String(str: string) {
+  const decoder = new TextDecoder('utf-8')
+  return decoder.decode(hexToBinUnsafe(str))
 }
 
 async function checkAlphBalance(
@@ -160,7 +180,8 @@ export async function buildMultisigTx(
   nodeProvider: NodeProvider,
   configName: string,
   signerNames: string[],
-  destinations: (typeof defaultNewMultisigTx)['destinations']
+  destinations: (typeof defaultNewMultisigTx)['destinations'],
+  tokenInfos: (FungibleTokenMetaData & { id: string })[]
 ) {
   const config = tryGetMultisig(configName)
   if (signerNames.length !== config.mOfN) {
@@ -171,12 +192,22 @@ export async function buildMultisigTx(
   )
   let totalAlphAmount = 0n
   const transferDestinations = destinations.map((d) => {
-    if (d.alphAmount === undefined) {
+    if (d.alphAmount === undefined && (d.tokenId === '' && d.tokenAmount === undefined)) {
       throw new Error('Please input the amount')
     }
-    const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
-    totalAlphAmount += alphAmount
-    return { address: d.address, attoAlphAmount: alphAmount.toString() }
+    let result: Partial<node.Destination> = { address: d.address }
+    if (d.alphAmount !== undefined) {
+      const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
+      totalAlphAmount += alphAmount
+      result = { ...result, attoAlphAmount: alphAmount.toString() }
+    }
+    if (d.tokenId !== '' && d.tokenAmount !== undefined) {
+      const tokenInfo = tokenInfos.find((t) => t.id === d.tokenId)!
+      const tokenAmount = convertAmountWithDecimals(d.tokenAmount, tokenInfo.decimals)!
+      result = { ...result, tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }] }
+      if (d.alphAmount === undefined) result = { ...result, attoAlphAmount: DUST_AMOUNT.toString() }
+    }
+    return result as node.Destination
   })
   await checkAlphBalance(nodeProvider, config.address, totalAlphAmount)
   return await nodeProvider.multisig.postMultisigBuild({
