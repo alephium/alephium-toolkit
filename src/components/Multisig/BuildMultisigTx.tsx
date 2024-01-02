@@ -209,6 +209,26 @@ function BuildMultisigTx() {
     }
   }, [form])
 
+  const setMaxToken = useCallback(() => {
+    const tokenId = form.values.destinations[0].tokenId
+    const tokenInfo = tokenInfos.find((t) => t.id === tokenId)
+    if (balance !== undefined && tokenId !== '' && tokenInfo !== undefined) {
+      const rawAmount = balance.tokenBalances?.find((t) => t.id === tokenId)?.amount ?? 0n
+      const amount = number256ToNumber(rawAmount, tokenInfo.decimals)
+      form.setValues({
+        sweep: false,
+        destinations: [
+          {
+            address: form.values.destinations[0].address,
+            alphAmount: form.values.destinations[0].alphAmount,
+            tokenId: form.values.destinations[0].tokenId,
+            tokenAmount: amount
+          },
+        ]
+      })
+    }
+  }, [form, balance, tokenInfos])
+
   const buildTxCallback = useCallback(async () => {
     try {
       // Sweep tx has been built, go to the next step directly
@@ -453,6 +473,17 @@ function BuildMultisigTx() {
                         label={
                           <Group position="apart" w="95%" mx="auto">
                             <Text>Balance: {showTokenBalance(balance, getTokenInfo())}</Text>
+                            <Button
+                              size={rem(13)}
+                              m={2}
+                              p={3}
+                              variant="light"
+                              color="indigo"
+                              compact
+                              onClick={setMaxToken}
+                            >
+                              Max
+                            </Button>
                           </Group>
                         }
                         ta="left"
