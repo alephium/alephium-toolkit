@@ -1,4 +1,5 @@
 import {
+  ALPH_TOKEN_ID,
   DUST_AMOUNT,
   ExplorerProvider,
   FungibleTokenMetaData,
@@ -31,7 +32,7 @@ export const defaultNewMultisig = {
 export const defaultNewMultisigTx = {
   multisig: '',
   signers: [] as string[],
-  destinations: [{ address: '', alphAmount: undefined as number | undefined, tokenId: '', tokenAmount: undefined as number | undefined }],
+  destinations: [{ address: '', tokenId: '', tokenAmount: undefined as number | undefined }],
   sweep: undefined as boolean | undefined,
   unsignedTx: undefined as string | undefined,
   signatures: [] as { name: string; signature: string }[],
@@ -136,16 +137,13 @@ export function useBalance(address: string | undefined) {
   return balance
 }
 
-export function showALPHBalance(balance: node.Balance | undefined) {
-  if (balance === undefined) return ''
-  return prettifyAttoAlphAmount(BigInt(balance.balance))
-}
-
 export function showTokenBalance(balance: node.Balance | undefined, tokenInfo: (FungibleTokenMetaData & { id: string }) | undefined) {
   if (balance === undefined || tokenInfo === undefined) return ''
-  const token = balance.tokenBalances?.find((t) => t.id === tokenInfo.id)
-  if (token === undefined) return ''
-  return prettifyTokenAmount(token.amount, tokenInfo.decimals)
+  const tokenAmount = tokenInfo.id === ALPH_TOKEN_ID
+    ? balance.balance
+    : balance.tokenBalances?.find((t) => t.id === tokenInfo.id)?.amount
+  if (tokenAmount === undefined) return ''
+  return prettifyTokenAmount(tokenAmount, tokenInfo.decimals)
 }
 
 export function isTokenIdValid(tokenId: string) {
@@ -160,25 +158,19 @@ export function toUtf8String(str: string) {
 async function checkBalances(
   nodeProvider: NodeProvider,
   address: string,
-  alphAmount: bigint,
   tokenBalances: Map<string, bigint>,
   tokenInfos: (FungibleTokenMetaData & { id: string })[]
 ) {
   const balances = await nodeProvider.addresses.getAddressesAddressBalance(
     address
   )
-  const availableAlphAmount =
-    BigInt(balances.balance) - BigInt(balances.lockedBalance)
-  if (availableAlphAmount <= alphAmount) {
-    const expected = prettifyAttoAlphAmount(alphAmount)
-    const got = prettifyAttoAlphAmount(availableAlphAmount)
-    throw new Error(
-      `Not enough balance, expect ${expected} ALPH, got ${got} ALPH`
-    )
-  }
   tokenBalances.forEach((amount, id) => {
-    const locked = balances.lockedTokenBalances?.find((t) => t.id === id)?.amount ?? 0n
-    const total = balances.tokenBalances?.find((t) => t.id === id)?.amount ?? 0n
+    const locked = id === ALPH_TOKEN_ID
+      ? balances.lockedBalance
+      : (balances.lockedTokenBalances?.find((t) => t.id === id)?.amount ?? 0n)
+    const total = id === ALPH_TOKEN_ID
+      ? balances.balance
+      : (balances.tokenBalances?.find((t) => t.id === id)?.amount ?? 0n)
     const available = BigInt(total) - BigInt(locked)
     const tokenInfo = tokenInfos.find((t) => t.id === id)!
     if (available < amount) {
@@ -203,31 +195,27 @@ export async function buildMultisigTx(
   const signerPublicKeys = signerNames.map(
     (name) => config.pubkeys.find((p) => p.name === name)!.pubkey
   )
-  let totalAlphAmount = 0n
   const tokenBalances = new Map<string, bigint>()
   const transferDestinations = destinations.map((d) => {
-    if (d.alphAmount === undefined && (d.tokenId === '' && d.tokenAmount === undefined)) {
+    if (d.tokenId === '' || d.tokenAmount === undefined) {
       throw new Error('Please input the amount')
     }
-    let result: Partial<node.Destination> = { address: d.address }
-    if (d.alphAmount !== undefined) {
-      const alphAmount = convertAlphAmountWithDecimals(d.alphAmount)!
-      totalAlphAmount += alphAmount
-      result = { ...result, attoAlphAmount: alphAmount.toString() }
-    }
-    if (d.tokenId !== '' && d.tokenAmount !== undefined) {
-      const tokenInfo = tokenInfos.find((t) => t.id === d.tokenId)!
-      const tokenAmount = convertAmountWithDecimals(d.tokenAmount, tokenInfo.decimals)!
-      const tokenBalance = tokenBalances.get(d.tokenId)
-      if (tokenBalance === undefined) tokenBalances.set(d.tokenId, tokenAmount)
-      else tokenBalances.set(d.tokenId, tokenAmount + tokenBalance)
+    const tokenInfo = tokenInfos.find((t) => t.id === d.tokenId)!
+    const tokenAmount = convertAmountWithDecimals(d.tokenAmount, tokenInfo.decimals)!
+    const tokenBalance = tokenBalances.get(d.tokenId)
+    if (tokenBalance === undefined) tokenBalances.set(d.tokenId, tokenAmount)
+    else tokenBalances.set(d.tokenId, tokenAmount + tokenBalance)
 
-      result = { ...result, tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }] }
-      if (d.alphAmount === undefined) result = { ...result, attoAlphAmount: DUST_AMOUNT.toString() }
+    if (d.tokenId !== ALPH_TOKEN_ID) {
+      const alphBalance = tokenBalances.get(ALPH_TOKEN_ID)
+      if (alphBalance === undefined) tokenBalances.set(ALPH_TOKEN_ID, DUST_AMOUNT)
+      else tokenBalances.set(ALPH_TOKEN_ID, alphBalance + DUST_AMOUNT)
+      return { address: d.address, attoAlphAmount: DUST_AMOUNT.toString(), tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }] }
+    } else {
+      return { address: d.address, attoAlphAmount: tokenAmount.toString() }
     }
-    return result as node.Destination
   })
-  await checkBalances(nodeProvider, config.address, totalAlphAmount, tokenBalances, tokenInfos)
+  await checkBalances(nodeProvider, config.address, tokenBalances, tokenInfos)
   return await nodeProvider.multisig.postMultisigBuild({
     fromAddress: config.address,
     fromPublicKeys: signerPublicKeys,

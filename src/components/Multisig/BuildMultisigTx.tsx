@@ -24,10 +24,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
+  ALPH_TOKEN_ID,
   FungibleTokenMetaData,
-  convertAlphAmountWithDecimals,
   convertAmountWithDecimals,
-  hexToBinUnsafe,
   isBase58,
   node,
   number256ToNumber,
@@ -41,7 +40,6 @@ import {
   isTokenIdValid,
   newMultisigTxStorageKey,
   resetNewMultisigTx,
-  showALPHBalance,
   showTokenBalance,
   submitMultisigTx,
   toUtf8String,
@@ -51,6 +49,7 @@ import {
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
 import { useAlephium, useExplorer, useExplorerFE } from '../../utils/utils'
+import { ALPH } from '@alephium/token-list'
 
 function BuildMultisigTx() {
   const initialValues = useMemo(() => {
@@ -67,7 +66,6 @@ function BuildMultisigTx() {
   const form = useForm<typeof defaultNewMultisigTx>({
     validateInputOnChange: [
       `destinations.${FORM_INDEX}.address`,
-      `destinations.${FORM_INDEX}.alphAmount`,
       `destinations.${FORM_INDEX}.tokenId`,
       `destinations.${FORM_INDEX}.tokenAmount`,
       `signatures.${FORM_INDEX}.signature`,
@@ -82,14 +80,9 @@ function BuildMultisigTx() {
             : !isBase58(value)
             ? 'Invalid address'
             : null,
-        alphAmount: (value) => {
-          if (value === undefined) return null
-          const amount = convertAlphAmountWithDecimals(value)
-          return amount === undefined || amount <= 0n ? 'Invalid ALPH amount' : null
-        },
-        tokenId: (value) => value === '' || isTokenIdValid(value) ? null : 'Invalid token id',
+        tokenId: (value) => isTokenIdValid(value) ? null : 'Invalid token id',
         tokenAmount: (value, values) => {
-          if (value === undefined) return null
+          if (value === undefined) return 'Token amount is empty'
           const tokenInfo = tokenInfos.find((t) => t.id === values.destinations[0].tokenId)
           if (tokenInfo !== undefined) {
             const amount = convertAmountWithDecimals(value, tokenInfo.decimals)
@@ -119,9 +112,9 @@ function BuildMultisigTx() {
 
   useEffect(() => {
     const fetch = async () => {
-      if (balance?.tokenBalances === undefined) return
+      if (balance === undefined) return
       const tokenInfos: (FungibleTokenMetaData & { id: string })[] = []
-      for (const token of balance.tokenBalances) {
+      for (const token of (balance.tokenBalances ?? [])) {
         try {
           const tokenMetaData = await nodeProvider.fetchFungibleTokenMetaData(token.id)
           tokenInfos.push({ ...tokenMetaData, symbol: toUtf8String(tokenMetaData.symbol), id: token.id })
@@ -129,6 +122,13 @@ function BuildMultisigTx() {
           console.error(`failed to fetch token metadata, token id: ${token.id}, error: ${error}`)
         }
       }
+      tokenInfos.push({
+        id: ALPH_TOKEN_ID,
+        name: ALPH.name,
+        decimals: ALPH.decimals,
+        symbol: ALPH.symbol,
+        totalSupply: 10_000_000_000n
+      })
       setTokenInfos(tokenInfos)
     }
 
@@ -160,75 +160,6 @@ function BuildMultisigTx() {
     [form, setBuildTxError]
   )
 
-  const setMaxALPH = useCallback(async () => {
-    try {
-      if (form.values.destinations.some((d) => d.tokenId !== '' && d.tokenAmount !== undefined)) {
-        throw new Error('Token should be empty for sweep transaction')
-      }
-      const hasError = form.values.destinations.some((_, index) => {
-        const validateAddress = form.validateField(
-          `destinations.${index}.address`
-        )
-        return validateAddress.error
-      })
-      if (hasError) throw new Error('Invalid destinations')
-
-      if (form.validateField(`signers`).hasError) {
-        throw new Error('Please select signers')
-      }
-
-      const [rawUnsignedTx, buildTxResult] = await buildMultisigSweepTx(
-        nodeProvider,
-        form.values.multisig,
-        form.values.signers,
-        form.values.destinations[0].address
-      )
-      console.log(`Build multisig tx result:`, buildTxResult)
-      const rawALPHAmount = BigInt(
-        buildTxResult.unsignedTx.fixedOutputs[0].attoAlphAmount
-      )
-      const maxBalance = number256ToNumber(rawALPHAmount, 18)
-      console.log(rawALPHAmount, maxBalance)
-
-      setBuildTxError(undefined)
-      form.setValues({
-        sweep: true,
-        unsignedTx: rawUnsignedTx,
-        destinations: [
-          {
-            address: form.values.destinations[0].address,
-            alphAmount: maxBalance,
-            tokenId: form.values.destinations[0].tokenId,
-            tokenAmount: form.values.destinations[0].tokenAmount
-          },
-        ],
-      })
-    } catch (error) {
-      setBuildTxError(`Error in build multisig tx: ${error}`)
-      console.error(error)
-    }
-  }, [form])
-
-  const setMaxToken = useCallback(() => {
-    const tokenId = form.values.destinations[0].tokenId
-    const tokenInfo = tokenInfos.find((t) => t.id === tokenId)
-    if (balance !== undefined && tokenId !== '' && tokenInfo !== undefined) {
-      const rawAmount = balance.tokenBalances?.find((t) => t.id === tokenId)?.amount ?? 0n
-      const amount = number256ToNumber(rawAmount, tokenInfo.decimals)
-      form.setValues({
-        sweep: false,
-        destinations: [
-          {
-            address: form.values.destinations[0].address,
-            alphAmount: form.values.destinations[0].alphAmount,
-            tokenId: form.values.destinations[0].tokenId,
-            tokenAmount: amount
-          },
-        ]
-      })
-    }
-  }, [form, balance, tokenInfos])
-
   const buildTxCallback = useCallback(async () => {
     try {
       // Sweep tx has been built, go to the next step directly
@@ -243,17 +174,14 @@ function BuildMultisigTx() {
         const validateAddress = form.validateField(
           `destinations.${index}.address`
         )
-        const validateAmount = form.validateField(
-          `destinations.${index}.alphAmount`
-        )
         const validateTokenId = form.validateField(
           `destinations.${index}.tokenId`
         )
         const validateTokenAmount = form.validateField(
           `destinations.${index}.tokenAmount`
         )
-        const emptyAsset = d.alphAmount === undefined && (d.tokenId === '' || d.tokenAmount === undefined)
-        const hasError = validateAddress.hasError || validateAmount.hasError || validateTokenId.hasError || validateTokenAmount.hasError
+        const emptyAsset = d.tokenId === '' || d.tokenAmount === undefined
+        const hasError = validateAddress.hasError || validateTokenId.hasError || validateTokenAmount.hasError
         return emptyAsset || hasError
       })
       if (hasError) throw new Error('Invalid destinations')
@@ -272,7 +200,78 @@ function BuildMultisigTx() {
       setBuildTxError(`Error in build multisig tx: ${error}`)
       console.error(error)
     }
-  }, [form])
+  }, [form, tokenInfos])
+
+  const setMax = useCallback(async () => {
+    try {
+      const hasError = form.values.destinations.some((_, index) => {
+        const validateAddress = form.validateField(
+          `destinations.${index}.address`
+        )
+        return validateAddress.error
+      })
+      if (hasError) throw new Error('Invalid destinations')
+
+      if (form.validateField(`signers`).hasError) {
+        throw new Error('Please select signers')
+      }
+
+      if (form.values.destinations[0].tokenId === '') {
+        throw new Error('Please select token')
+      }
+      if (form.values.destinations[0].tokenId === ALPH_TOKEN_ID) {
+        const [rawUnsignedTx, buildTxResult] = await buildMultisigSweepTx(
+          nodeProvider,
+          form.values.multisig,
+          form.values.signers,
+          form.values.destinations[0].address
+        )
+        console.log(`Build multisig tx result:`, buildTxResult)
+        const rawALPHAmount = BigInt(
+          buildTxResult.unsignedTx.fixedOutputs[0].attoAlphAmount
+        )
+        const maxBalance = number256ToNumber(rawALPHAmount, 18)
+        console.log(rawALPHAmount, maxBalance)
+
+        setBuildTxError(undefined)
+        form.setValues({
+          sweep: true,
+          unsignedTx: rawUnsignedTx,
+          destinations: [
+            {
+              address: form.values.destinations[0].address,
+              tokenId: form.values.destinations[0].tokenId,
+              tokenAmount: maxBalance
+            },
+          ],
+        })
+      } else if (balance !== undefined) {
+        const tokenId = form.values.destinations[0].tokenId
+        const tokenInfo = tokenInfos.find((t) => t.id === tokenId)!
+        const tokenAmount = balance.tokenBalances!.find((t) => t.id === tokenId)!.amount
+        form.setValues({
+          sweep: false,
+          destinations: [
+            {
+              address: form.values.destinations[0].address,
+              tokenId,
+              tokenAmount: number256ToNumber(tokenAmount, tokenInfo.decimals)
+            }
+          ]
+        })
+      }
+    } catch (error) {
+      setBuildTxError(`Error in build multisig tx: ${error}`)
+      console.error(error)
+    }
+  }, [form, balance, tokenInfos])
+
+  const showBalance = useCallback(() => {
+    const destination = form.values.destinations[0]
+    if (destination.tokenId === '' || balance === undefined) return
+    const tokenInfo = tokenInfos.find((t) => t.id === destination.tokenId)
+    return showTokenBalance(balance, tokenInfo)
+  }, [form, balance, tokenInfos])
 
   const [txSubmitted, setTxSubmitted] = useState<boolean>(false)
   const [submitTxError, setSubmitTxError] = useState<string>()
@@ -328,10 +327,6 @@ function BuildMultisigTx() {
     form.setValues(defaultNewMultisigTx)
     setBuildTxError(undefined)
   }, [form, setBuildTxError])
-
-  const getTokenInfo = useCallback(() => {
-    return tokenInfos.find((t) => t.id === form.values.destinations[0].tokenId)
-  }, [form, tokenInfos])
 
   return (
     <Box maw={1200} mx="auto" mt="5rem">
@@ -421,12 +416,12 @@ function BuildMultisigTx() {
                         placeholder="Address"
                         icon={<IconAt size={'1.25rem'} />}
                         {...form.getInputProps('destinations.0.address')}
-                        w="14rem"
+                        w="26rem"
                       />
                       <NumberInput
                         label={
                           <Group position="apart" w="95%" mx="auto">
-                            <Text>Balance: {showALPHBalance(balance)}</Text>
+                            <Text>Balance: {showBalance()}</Text>
                             <Button
                               size={rem(13)}
                               m={2}
@@ -434,53 +429,7 @@ function BuildMultisigTx() {
                               variant="light"
                               color="indigo"
                               compact
-                              onClick={setMaxALPH}
-                            >
-                              Max
-                            </Button>
-                          </Group>
-                        }
-                        ta="left"
-                        precision={6}
-                        placeholder="Amount"
-                        hideControls
-                        rightSection="ALPH"
-                        rightSectionWidth={'4rem'}
-                        {...getInputPropsWithResetError(
-                          'destinations.0.alphAmount'
-                        )}
-                        onChange={(value) => {
-                          form.setValues({
-                            sweep: false,
-                            destinations: [
-                              {
-                                address: form.values.destinations[0].address,
-                                alphAmount: Number(value),
-                                tokenId: form.values.destinations[0].tokenId,
-                                tokenAmount: form.values.destinations[0].tokenAmount
-                              },
-                            ],
-                          })
-                        }}
-                        styles={{
-                          label: {
-                            width: '100%',
-                          },
-                        }}
-                        w="14rem"
-                      />
-                      <NumberInput
-                        label={
-                          <Group position="apart" w="95%" mx="auto">
-                            <Text>Balance: {showTokenBalance(balance, getTokenInfo())}</Text>
-                            <Button
-                              size={rem(13)}
-                              m={2}
-                              p={3}
-                              variant="light"
-                              color="indigo"
-                              compact
-                              onClick={setMaxToken}
+                              onClick={setMax}
                             >
                               Max
                             </Button>
@@ -500,7 +449,6 @@ function BuildMultisigTx() {
                               destinations: [
                                 {
                                   address: form.values.destinations[0].address,
-                                  alphAmount: form.values.destinations[0].alphAmount,
                                   tokenId: tokenInfos.find((t) => t.symbol === value)!.id,
                                   tokenAmount: form.values.destinations[0].tokenAmount
                                 },
@@ -518,7 +466,6 @@ function BuildMultisigTx() {
                             destinations: [
                               {
                                 address: form.values.destinations[0].address,
-                                alphAmount: form.values.destinations[0].alphAmount,
                                 tokenId: form.values.destinations[0].tokenId,
                                 tokenAmount: Number(value)
                               },
@@ -530,7 +477,6 @@ function BuildMultisigTx() {
                             width: '100%',
                           },
                         }}
-                        w="14rem"
                       />
                     </Group>
                   </MyBox>
