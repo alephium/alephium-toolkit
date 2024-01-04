@@ -34,7 +34,7 @@ export const defaultNewMultisigTx = {
   multisig: '',
   signers: [] as string[],
   destinations: [
-    { address: '', tokenId: '', tokenAmount: undefined as number | undefined },
+    { address: '', symbol: '', tokenId: '', tokenAmount: undefined as number | undefined },
   ],
   sweep: undefined as boolean | undefined,
   unsignedTx: undefined as string | undefined,

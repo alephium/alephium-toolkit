@@ -239,6 +239,7 @@ function BuildMultisigTx() {
           destinations: [
             {
               address: form.values.destinations[0].address,
+              symbol: form.values.destinations[0].symbol,
               tokenId: form.values.destinations[0].tokenId,
               tokenAmount: maxBalance,
             },
@@ -255,6 +256,7 @@ function BuildMultisigTx() {
           destinations: [
             {
               address: form.values.destinations[0].address,
+              symbol: form.values.destinations[0].symbol,
               tokenId,
               tokenAmount: number256ToNumber(tokenAmount, tokenInfo.decimals),
             },
@@ -443,6 +445,7 @@ function BuildMultisigTx() {
                         rightSection={
                           <Select
                             label=""
+                            value={form.values.destinations[0].symbol}
                             placeholder="Token"
                             data={tokenInfos.map((t) => t.symbol)}
                             onChange={(value) => {
@@ -452,6 +455,9 @@ function BuildMultisigTx() {
                                   {
                                     address:
                                       form.values.destinations[0].address,
+                                    symbol: tokenInfos.find(
+                                      (t) => t.symbol === value
+                                    )!.symbol,
                                     tokenId: tokenInfos.find(
                                       (t) => t.symbol === value
                                     )!.id,
@@ -473,6 +479,7 @@ function BuildMultisigTx() {
                             destinations: [
                               {
                                 address: form.values.destinations[0].address,
+                                symbol: form.values.destinations[0].symbol,
                                 tokenId: form.values.destinations[0].tokenId,
                                 tokenAmount: Number(value),
                               },
