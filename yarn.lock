@@ -33,10 +33,10 @@
     "@alephium/web3" "^0.21.0"
     bowser "^2.11.0"
 
-"@alephium/token-list@^0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@alephium/token-list/-/token-list-0.0.12.tgz#b3148d1985b945068b090d946356c2c9fafb3649"
-  integrity sha512-4/hEmkHpnvl3ttkc8Z5sW97uf4Y/5MLqDFeUKSoB3EDdCmHb6Soa3tc1XkS0rexT92aYf0Bvrwh70V1uia9scw==
+"@alephium/token-list@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@alephium/token-list/-/token-list-0.0.13.tgz#1208c91b58555520db211dcb9a74902b3ad8d9c8"
+  integrity sha512-CHOJttB6cKtQ048rW5LSCPJUaM1h1iZeDoxRwb7WfoMiChNu9O6NKaLrsJYSkiLL/+rD3kkx7hEGFerp+9SYhA==
   dependencies:
     cross-fetch "^3.1.8"
 

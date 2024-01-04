@@ -25,7 +25,6 @@ import MyBox from '../Misc/MyBox'
 import { FORM_INDEX, useForm } from '@mantine/form'
 import {
   ALPH_TOKEN_ID,
-  FungibleTokenMetaData,
   convertAmountWithDecimals,
   isBase58,
   node,
@@ -42,14 +41,18 @@ import {
   resetNewMultisigTx,
   showTokenBalance,
   submitMultisigTx,
-  toUtf8String,
   useAllMultisig,
   useBalance,
   waitTxSubmitted,
 } from './shared'
 import CopyTextarea from '../Misc/CopyTextarea'
-import { useAlephium, useExplorer, useExplorerFE } from '../../utils/utils'
-import { ALPH } from '@alephium/token-list'
+import {
+  useAlephium,
+  useExplorer,
+  useExplorerFE,
+  useTokenList,
+} from '../../utils/utils'
+import { ALPH, TokenInfo } from '@alephium/token-list'
 
 function BuildMultisigTx() {
   const initialValues = useMemo(() => {
@@ -80,15 +83,19 @@ function BuildMultisigTx() {
             : !isBase58(value)
             ? 'Invalid address'
             : null,
-        tokenId: (value) => isTokenIdValid(value) ? null : 'Invalid token id',
+        tokenId: (value) => (isTokenIdValid(value) ? null : 'Invalid token id'),
         tokenAmount: (value, values) => {
           if (value === undefined) return 'Token amount is empty'
-          const tokenInfo = tokenInfos.find((t) => t.id === values.destinations[0].tokenId)
+          const tokenInfo = tokenInfos.find(
+            (t) => t.id === values.destinations[0].tokenId
+          )
           if (tokenInfo !== undefined) {
             const amount = convertAmountWithDecimals(value, tokenInfo.decimals)
-            return amount === undefined || amount <= 0n ? 'Invalid token amount' : null
+            return amount === undefined || amount <= 0n
+              ? 'Invalid token amount'
+              : null
           }
-        }
+        },
       },
       signatures: {
         signature: (value) =>
@@ -105,34 +112,23 @@ function BuildMultisigTx() {
 
   const nodeProvider = useAlephium()
   const explorerProvider = useExplorer()
+  const tokenList = useTokenList()
 
   const [multisigAddress, setMultisigAddress] = useState<string>()
-  const [tokenInfos, setTokenInfos] = useState<(FungibleTokenMetaData & { id: string })[]>([])
+  const [tokenInfos, setTokenInfos] = useState<TokenInfo[]>([])
   const balance = useBalance(multisigAddress)
 
   useEffect(() => {
-    const fetch = async () => {
-      if (balance === undefined) return
-      const tokenInfos: (FungibleTokenMetaData & { id: string })[] = []
-      for (const token of (balance.tokenBalances ?? [])) {
-        try {
-          const tokenMetaData = await nodeProvider.fetchFungibleTokenMetaData(token.id)
-          tokenInfos.push({ ...tokenMetaData, symbol: toUtf8String(tokenMetaData.symbol), id: token.id })
-        } catch (error: any) {
-          console.error(`failed to fetch token metadata, token id: ${token.id}, error: ${error}`)
-        }
+    if (balance === undefined) return
+    const tokenInfos: TokenInfo[] = []
+    for (const token of balance.tokenBalances ?? []) {
+      const tokenMetaData = tokenList.find((t) => t.id === token.id)
+      if (tokenMetaData) {
+        tokenInfos.push({ ...tokenMetaData })
       }
-      tokenInfos.push({
-        id: ALPH_TOKEN_ID,
-        name: ALPH.name,
-        decimals: ALPH.decimals,
-        symbol: ALPH.symbol,
-        totalSupply: 10_000_000_000n
-      })
-      setTokenInfos(tokenInfos)
     }
-
-    fetch().catch((error: any) => console.error(error))
+    tokenInfos.push(ALPH)
+    setTokenInfos(tokenInfos)
   }, [balance])
 
   useEffect(() => {
@@ -181,7 +177,10 @@ function BuildMultisigTx() {
           `destinations.${index}.tokenAmount`
         )
         const emptyAsset = d.tokenId === '' || d.tokenAmount === undefined
-        const hasError = validateAddress.hasError || validateTokenId.hasError || validateTokenAmount.hasError
+        const hasError =
+          validateAddress.hasError ||
+          validateTokenId.hasError ||
+          validateTokenAmount.hasError
         return emptyAsset || hasError
       })
       if (hasError) throw new Error('Invalid destinations')
@@ -241,23 +240,25 @@ function BuildMultisigTx() {
             {
               address: form.values.destinations[0].address,
               tokenId: form.values.destinations[0].tokenId,
-              tokenAmount: maxBalance
+              tokenAmount: maxBalance,
             },
           ],
         })
       } else if (balance !== undefined) {
         const tokenId = form.values.destinations[0].tokenId
         const tokenInfo = tokenInfos.find((t) => t.id === tokenId)!
-        const tokenAmount = balance.tokenBalances!.find((t) => t.id === tokenId)!.amount
+        const tokenAmount = balance.tokenBalances!.find(
+          (t) => t.id === tokenId
+        )!.amount
         form.setValues({
           sweep: false,
           destinations: [
             {
               address: form.values.destinations[0].address,
               tokenId,
-              tokenAmount: number256ToNumber(tokenAmount, tokenInfo.decimals)
-            }
-          ]
+              tokenAmount: number256ToNumber(tokenAmount, tokenInfo.decimals),
+            },
+          ],
         })
       }
     } catch (error) {
@@ -439,23 +440,29 @@ function BuildMultisigTx() {
                         precision={6}
                         placeholder="Amount"
                         hideControls
-                        rightSection={<Select
-                          label=""
-                          placeholder="Token"
-                          data={tokenInfos.map((t) => t.symbol)}
-                          onChange={(value) => {
-                            form.setValues({
-                              sweep: false,
-                              destinations: [
-                                {
-                                  address: form.values.destinations[0].address,
-                                  tokenId: tokenInfos.find((t) => t.symbol === value)!.id,
-                                  tokenAmount: form.values.destinations[0].tokenAmount
-                                },
-                              ]
-                            })
-                          }}
-                        />}
+                        rightSection={
+                          <Select
+                            label=""
+                            placeholder="Token"
+                            data={tokenInfos.map((t) => t.symbol)}
+                            onChange={(value) => {
+                              form.setValues({
+                                sweep: false,
+                                destinations: [
+                                  {
+                                    address:
+                                      form.values.destinations[0].address,
+                                    tokenId: tokenInfos.find(
+                                      (t) => t.symbol === value
+                                    )!.id,
+                                    tokenAmount:
+                                      form.values.destinations[0].tokenAmount,
+                                  },
+                                ],
+                              })
+                            }}
+                          />
+                        }
                         rightSectionWidth={'6rem'}
                         {...getInputPropsWithResetError(
                           'destinations.0.tokenAmount'
@@ -467,7 +474,7 @@ function BuildMultisigTx() {
                               {
                                 address: form.values.destinations[0].address,
                                 tokenId: form.values.destinations[0].tokenId,
-                                tokenAmount: Number(value)
+                                tokenAmount: Number(value),
                               },
                             ],
                           })

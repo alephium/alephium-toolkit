@@ -20,6 +20,7 @@ import {
 import blake from 'blakejs'
 import { useEffect, useState } from 'react'
 import { useAlephium } from '../../utils/utils'
+import { TokenInfo } from '@alephium/token-list'
 
 export const newMultisigStorageKey = 'multisig-wip'
 export const allMultisigStorageKey = 'multisig-all'
@@ -32,7 +33,9 @@ export const defaultNewMultisig = {
 export const defaultNewMultisigTx = {
   multisig: '',
   signers: [] as string[],
-  destinations: [{ address: '', tokenId: '', tokenAmount: undefined as number | undefined }],
+  destinations: [
+    { address: '', tokenId: '', tokenAmount: undefined as number | undefined },
+  ],
   sweep: undefined as boolean | undefined,
   unsignedTx: undefined as string | undefined,
   signatures: [] as { name: string; signature: string }[],
@@ -137,11 +140,15 @@ export function useBalance(address: string | undefined) {
   return balance
 }
 
-export function showTokenBalance(balance: node.Balance | undefined, tokenInfo: (FungibleTokenMetaData & { id: string }) | undefined) {
+export function showTokenBalance(
+  balance: node.Balance | undefined,
+  tokenInfo: TokenInfo | undefined
+) {
   if (balance === undefined || tokenInfo === undefined) return ''
-  const tokenAmount = tokenInfo.id === ALPH_TOKEN_ID
-    ? balance.balance
-    : balance.tokenBalances?.find((t) => t.id === tokenInfo.id)?.amount
+  const tokenAmount =
+    tokenInfo.id === ALPH_TOKEN_ID
+      ? balance.balance
+      : balance.tokenBalances?.find((t) => t.id === tokenInfo.id)?.amount
   if (tokenAmount === undefined) return ''
   return prettifyTokenAmount(tokenAmount, tokenInfo.decimals)
 }
@@ -159,24 +166,28 @@ async function checkBalances(
   nodeProvider: NodeProvider,
   address: string,
   tokenBalances: Map<string, bigint>,
-  tokenInfos: (FungibleTokenMetaData & { id: string })[]
+  tokenInfos: TokenInfo[]
 ) {
   const balances = await nodeProvider.addresses.getAddressesAddressBalance(
     address
   )
   tokenBalances.forEach((amount, id) => {
-    const locked = id === ALPH_TOKEN_ID
-      ? balances.lockedBalance
-      : (balances.lockedTokenBalances?.find((t) => t.id === id)?.amount ?? 0n)
-    const total = id === ALPH_TOKEN_ID
-      ? balances.balance
-      : (balances.tokenBalances?.find((t) => t.id === id)?.amount ?? 0n)
+    const locked =
+      id === ALPH_TOKEN_ID
+        ? balances.lockedBalance
+        : balances.lockedTokenBalances?.find((t) => t.id === id)?.amount ?? 0n
+    const total =
+      id === ALPH_TOKEN_ID
+        ? balances.balance
+        : balances.tokenBalances?.find((t) => t.id === id)?.amount ?? 0n
     const available = BigInt(total) - BigInt(locked)
     const tokenInfo = tokenInfos.find((t) => t.id === id)!
     if (available < amount) {
       const expected = prettifyTokenAmount(amount, tokenInfo.decimals)
       const got = prettifyTokenAmount(available, tokenInfo.decimals)
-      throw new Error(`Not enough balance, expect ${expected} ${tokenInfo.symbol}, got ${got} ${tokenInfo.symbol}`)
+      throw new Error(
+        `Not enough balance, expect ${expected} ${tokenInfo.symbol}, got ${got} ${tokenInfo.symbol}`
+      )
     }
   })
 }
@@ -186,7 +197,7 @@ export async function buildMultisigTx(
   configName: string,
   signerNames: string[],
   destinations: (typeof defaultNewMultisigTx)['destinations'],
-  tokenInfos: (FungibleTokenMetaData & { id: string })[]
+  tokenInfos: TokenInfo[]
 ) {
   const config = tryGetMultisig(configName)
   if (signerNames.length !== config.mOfN) {
@@ -201,16 +212,24 @@ export async function buildMultisigTx(
       throw new Error('Please input the amount')
     }
     const tokenInfo = tokenInfos.find((t) => t.id === d.tokenId)!
-    const tokenAmount = convertAmountWithDecimals(d.tokenAmount, tokenInfo.decimals)!
+    const tokenAmount = convertAmountWithDecimals(
+      d.tokenAmount,
+      tokenInfo.decimals
+    )!
     const tokenBalance = tokenBalances.get(d.tokenId)
     if (tokenBalance === undefined) tokenBalances.set(d.tokenId, tokenAmount)
     else tokenBalances.set(d.tokenId, tokenAmount + tokenBalance)
 
     if (d.tokenId !== ALPH_TOKEN_ID) {
       const alphBalance = tokenBalances.get(ALPH_TOKEN_ID)
-      if (alphBalance === undefined) tokenBalances.set(ALPH_TOKEN_ID, DUST_AMOUNT)
+      if (alphBalance === undefined)
+        tokenBalances.set(ALPH_TOKEN_ID, DUST_AMOUNT)
       else tokenBalances.set(ALPH_TOKEN_ID, alphBalance + DUST_AMOUNT)
-      return { address: d.address, attoAlphAmount: DUST_AMOUNT.toString(), tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }] }
+      return {
+        address: d.address,
+        attoAlphAmount: DUST_AMOUNT.toString(),
+        tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }],
+      }
     } else {
       return { address: d.address, attoAlphAmount: tokenAmount.toString() }
     }
