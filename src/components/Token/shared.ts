@@ -26,4 +26,6 @@ export async function deployNewToken(
     attoAlphAmount: ONE_ALPH,
   })
   console.log(result)
+  // return the result so we have the txId and can update balance using it
+  // do we need to do this?
 }

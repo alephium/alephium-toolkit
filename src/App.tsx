@@ -7,6 +7,7 @@ import {
 } from '@mantine/core'
 import { useLocalStorage, useHotkeys } from '@mantine/hooks'
 import AppShellExample from './components/AppShell'
+import { Notifications } from '@mantine/notifications';
 
 import { AlephiumWalletProvider } from '@alephium/web3-react'
 import { loadNetworkIdFromLocalStorage } from './utils/utils'
@@ -40,6 +41,7 @@ function App() {
             withNormalizeCSS
             theme={{ colorScheme }}
           >
+            <Notifications />
             <Paper>
               <AppShellExample />
             </Paper>

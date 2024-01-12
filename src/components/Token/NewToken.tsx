@@ -1,6 +1,7 @@
-import { useForm } from '@mantine/form'
+import { useForm, isInRange, hasLength } from '@mantine/form'
 import {
   TextInput,
+  Text,
   Button,
   Group,
   Box,
@@ -8,90 +9,115 @@ import {
   rem,
   Stack,
   NumberInput,
+  Alert,
+  Space,
+  Title,
 } from '@mantine/core'
-import { useWallet, useBalance } from '@alephium/web3-react'
+import { useWallet } from '@alephium/web3-react'
+import { deployNewToken } from './shared'
+import { useNetworkId } from '../../utils/utils'
+import { IconInfoCircle } from '@tabler/icons-react';
+import { useState } from 'react'
+import { notifications } from '@mantine/notifications'
+
+interface NewTokenSchema {
+  name: string,
+  symbol: string,
+  decimals: number,
+  supply: number,
+}
 
 function NewToken() {
-  const wallet = useWallet()
-  const form = useForm({
+  const [isSubmitting, setIsSubmitting]= useState(false)
+  const { signer } = useWallet()
+  const [networkId] = useNetworkId()
+  const form = useForm<NewTokenSchema>({
     initialValues: {
       name: '',
       symbol: '',
       decimals: 18,
       supply: 1000_000,
     },
-
     validate: {
-      name: (value) =>
-        value.length < 3 ? 'Name must have at least 3 letters' : null,
+      name: hasLength({ min: 3 }, 'Name must have 3 or more characters'),
       symbol: (value) =>
         /[A-Z]{3,6}/.test(value) ? null : 'Symbol must be 3-6 capital letters',
-      decimals: (value) =>
-        value < 0 || value > 18 ? 'Decimals must be between 0 and 18' : null,
-      supply: (value) =>
-        value < 0 || !Number.isInteger(value)
-          ? 'Supply must be positive integer'
-          : null,
+      decimals: isInRange({min: 0, max: 18}, "Decimals must be between 0 and 18"),
+      supply: isInRange({min: 1}, 'Supply must be a positive integer')
     },
   })
-  const { balance, updateBalanceForTx } = useBalance()
 
-  console.log(`==== `, balance, updateBalanceForTx)
+  const onSuccess = () => {
+    notifications.show({
+      title: 'Tokens successfully issued!',
+      message: 'View your minting transaction here [TODO URL]',
+    })
+  }
 
-  if (wallet === undefined || wallet.signer === undefined) {
-    return <></>
+  const onSubmit = (values: NewTokenSchema) => {
+    setIsSubmitting(true)
+
+    // TODO: use notification to show error
+    deployNewToken(networkId, signer!, values).then(onSuccess).catch(console.error).finally(() => setIsSubmitting(false))
   }
 
   return (
     <Center h={rem('80%')}>
       <Stack>
-        <Box ta="left" w="40rem" mx="auto">
+        <Box ta="left" w="40rem" mx="auto" >
+          {!signer && (
+            <>
+              <Alert icon={<IconInfoCircle />} variant='light' color="blue" title="No wallet connected">
+                You must connect a wallet with funds to be able to issue new tokens.
+              </Alert>
+              <Space h="md" />
+            </>
+          )}
+          <Title order={1}>Issue new tokens</Title>
+          <Text size="xs" c="dimmed">Newly created tokens will be owned by your currently connected wallet account.</Text>
+          <Space h="md" />
+          <form onSubmit={form.onSubmit(onSubmit)}>
           <TextInput
             label="Token Name"
+            withAsterisk
             placeholder="Token Name"
             {...form.getInputProps('name')}
           />
           <TextInput
             mt="md"
-            label="Token Symbol (3-6 capital letters)"
+            label="Token Symbol"
+            withAsterisk
+            description="Symbol must be 3-6 capital letters"
             placeholder="Token Symbol"
             {...form.getInputProps('symbol')}
           />
           <TextInput
             mt="md"
             label="Decimals"
+            withAsterisk
+            description="Must be in the range of 0-18"
             placeholder="Decimals"
             {...form.getInputProps('decimals')}
           />
           <NumberInput
             mt="md"
             label="Token Supply"
+            withAsterisk
             placeholder="supply"
             hideControls
             {...form.getInputProps('supply')}
           />
-          <TextInput
-            mt="md"
-            label="Owner"
-            placeholder=""
-            value={wallet.account?.address}
-            disabled
-          />
-        </Box>
-
-        <Group position="center" mt="xl">
+        <Group position="right" mt="xl">
           <Button
-            variant="outline"
-            onClick={() => {
-              // deployNewToken(context.signerProvider!, form.values)
-              updateBalanceForTx(
-                'fe9ede54e19411ccdbaaa620e1249fffeeb494266c26d2a9d1e6e6aec16d0bfe'
-              )
-            }}
+            type="submit"
+            disabled={!signer}
+            loading={isSubmitting}
           >
-            Create
+            Issue Tokens
           </Button>
         </Group>
+          </form>
+        </Box>
       </Stack>
     </Center>
   )
