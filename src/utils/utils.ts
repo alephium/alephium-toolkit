@@ -93,9 +93,13 @@ export function useExplorerFE(): string {
     : devnet_explorer_url
 }
 
-export function useTokenList(): TokenInfo[]  {
+export function useTokenList(): TokenInfo[] {
   const [network] = useNetworkId()
-  return network === 'mainnet' ? mainnetTokensMetadata.tokens : network === 'testnet' ? testnetTokensMetadata.tokens : []
+  return network === 'mainnet'
+    ? mainnetTokensMetadata.tokens
+    : network === 'testnet'
+    ? testnetTokensMetadata.tokens
+    : []
 }
 
 export function getTokenMetadata(network: 'mainnet' | 'testnet'): TokenList {
