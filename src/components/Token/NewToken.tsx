@@ -16,11 +16,7 @@ import {
 import { useWallet } from '@alephium/web3-react'
 import { deployNewToken } from './shared'
 import { useExplorerFE, useNetworkId } from '../../utils/utils'
-import {
-  IconExternalLink,
-  IconCheck,
-  IconX,
-} from '@tabler/icons-react'
+import { IconExternalLink, IconCheck, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 import { notifications } from '@mantine/notifications'
 import { NoWalletAlert } from '../NoWalletAlert'
@@ -92,58 +88,56 @@ function NewToken() {
 
   return (
     <Center h={rem('80%')}>
-      <Paper shadow='xs' p="md">
-      <Stack spacing="md">
-        <Box ta="left" w="40rem" mx="auto">
-          {!signer && 
-              <NoWalletAlert />
-          }
-          <Title order={1}>Issue new tokens</Title>
-          <Text size="xs" c="dimmed">
-            Newly created tokens will be owned by your currently connected
-            wallet account.
-          </Text>
-          <Space h="md" />
-          <form onSubmit={form.onSubmit(onSubmit)}>
-            <TextInput
-              label="Token Name"
-              withAsterisk
-              placeholder="Token Name"
-              {...form.getInputProps('name')}
-            />
-            <TextInput
-              mt="md"
-              label="Token Symbol"
-              withAsterisk
-              description="Symbol must be 3-6 capital letters"
-              placeholder="Token Symbol"
-              {...form.getInputProps('symbol')}
-            />
-            <NumberInput
-              mt="md"
-              label="Decimals"
-              withAsterisk
-              description="Must be in the range of 0-18"
-              placeholder="Decimals"
-              hideControls
-              {...form.getInputProps('decimals')}
-            />
-            <NumberInput
-              mt="md"
-              label="Token Supply"
-              withAsterisk
-              placeholder="supply"
-              hideControls
-              {...form.getInputProps('supply')}
-            />
-            <Group position="right" mt="xl">
-              <Button type="submit" disabled={!signer} loading={isSubmitting}>
-                Issue Tokens
-              </Button>
-            </Group>
-          </form>
-        </Box>
-      </Stack>
+      <Paper shadow="xs" p="md">
+        <Stack spacing="md">
+          <Box ta="left" w="40rem" mx="auto">
+            {!signer && <NoWalletAlert />}
+            <Title order={1}>Issue new tokens</Title>
+            <Text size="xs" c="dimmed">
+              Newly created tokens will be owned by your currently connected
+              wallet account.
+            </Text>
+            <Space h="md" />
+            <form onSubmit={form.onSubmit(onSubmit)}>
+              <TextInput
+                label="Token Name"
+                withAsterisk
+                placeholder="Token Name"
+                {...form.getInputProps('name')}
+              />
+              <TextInput
+                mt="md"
+                label="Token Symbol"
+                withAsterisk
+                description="Symbol must be 3-6 capital letters"
+                placeholder="Token Symbol"
+                {...form.getInputProps('symbol')}
+              />
+              <NumberInput
+                mt="md"
+                label="Decimals"
+                withAsterisk
+                description="Must be in the range of 0-18"
+                placeholder="Decimals"
+                hideControls
+                {...form.getInputProps('decimals')}
+              />
+              <NumberInput
+                mt="md"
+                label="Token Supply"
+                withAsterisk
+                placeholder="supply"
+                hideControls
+                {...form.getInputProps('supply')}
+              />
+              <Group position="right" mt="xl">
+                <Button type="submit" disabled={!signer} loading={isSubmitting}>
+                  Issue Tokens
+                </Button>
+              </Group>
+            </form>
+          </Box>
+        </Stack>
       </Paper>
     </Center>
   )
