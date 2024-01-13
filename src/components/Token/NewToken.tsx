@@ -66,6 +66,7 @@ function NewToken() {
         </span>
       ),
       icon: <IconCheck size="1.1rem" />,
+      color: 'teal',
     })
   }
 
@@ -75,6 +76,7 @@ function NewToken() {
       title: 'Failed to issue tokens',
       message: `Error: ${e.message}`,
       icon: <IconX size="1.1rem" />,
+      color: 'red',
     })
   }
 
