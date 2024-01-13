@@ -42,7 +42,7 @@ function AppShellExample() {
           <Route path="/" element={<WalletInfo />} />
           <Route path="/token/all" element={<WIP />} />
           <Route path="/token/info" element={<TokenInfo />} />
-          <Route path="/token/new" element={<NewToken /> } />
+          <Route path="/token/new" element={<NewToken />} />
           <Route path="/token/burn" element={<WIP />} />
           <Route path="/nft/all" element={<WIP />} />
           <Route path="/nft/info" element={<WIP />} />
