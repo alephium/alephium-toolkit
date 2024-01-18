@@ -10,6 +10,7 @@ import ImportMultisig from './Multisig/ImportMultisig'
 import ShowMultiSig from './Multisig/ShowMultisig'
 import SignMultisigTx from './Multisig/SignMultisigTx'
 import BuildMultisigTx from './Multisig/BuildMultisigTx'
+import NewToken from './Token/NewToken'
 
 function AppShellExample() {
   const theme = useMantineTheme()
@@ -41,7 +42,7 @@ function AppShellExample() {
           <Route path="/" element={<WalletInfo />} />
           <Route path="/token/all" element={<WIP />} />
           <Route path="/token/info" element={<TokenInfo />} />
-          <Route path="/token/new" element={<WIP />} />
+          <Route path="/token/new" element={<NewToken />} />
           <Route path="/token/burn" element={<WIP />} />
           <Route path="/nft/all" element={<WIP />} />
           <Route path="/nft/info" element={<WIP />} />

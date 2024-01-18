@@ -8,7 +8,14 @@ function WalletInfo() {
   const { account, connectionStatus } = useWallet()
   const { network, addressGroup, keyType } = useWalletConfig()
 
-  console.log(`WalletInfo:`, connectionStatus, network, addressGroup, keyType, account)
+  console.log(
+    `WalletInfo:`,
+    connectionStatus,
+    network,
+    addressGroup,
+    keyType,
+    account
+  )
 
   if (connectionStatus === 'connecting' && !account) return null
   if (connectionStatus === 'disconnected') return <NoWallet />

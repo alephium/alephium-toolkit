@@ -12,9 +12,8 @@ export async function deployNewToken(
     decimals,
     supply,
   }: { name: string; symbol: string; decimals: number; supply: number }
-) {
+): Promise<string> {
   const deployments = loadDeployments(network)
-  console.log(await signer.getSelectedAccount())
   const result = await DeployNewToken.execute(signer, {
     initialFields: {
       templateId: deployments.contracts.SimpleToken.contractInstance.contractId,
@@ -26,4 +25,5 @@ export async function deployNewToken(
     attoAlphAmount: ONE_ALPH,
   })
   console.log(result)
+  return result.txId
 }
