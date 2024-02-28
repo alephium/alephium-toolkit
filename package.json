@@ -43,5 +43,8 @@
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-node-polyfills": "^0.21.0"
+  },
+  "resolutions": {
+    "clipboardy": "3.0.0"
   }
 }
