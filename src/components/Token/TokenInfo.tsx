@@ -1,25 +1,51 @@
 import { Box, Center, Stack, TextInput, rem } from '@mantine/core'
 import { useCallback, useState } from 'react'
-import { getTokenMetadata, useAlephium, useNetworkId } from '../../utils/utils'
+import { getTokenMetadata, useAlephium, useExplorer, useNetworkId } from '../../utils/utils'
 import {
   FungibleTokenMetaData,
   addressFromTokenId,
+  groupOfAddress,
   hexToString,
   prettifyTokenAmount,
+  codec,
+  ExplorerProvider,
+  Address,
 } from '@alephium/web3'
 import MyTable from '../Misc/MyTable'
 import CopyText from '../Misc/CopyText'
+import { Buffer } from 'buffer'
+
+function isContractUpgradable(contract: codec.contract.Contract): boolean {
+  return contract.methods.some((method) =>
+    method.instrs.some((instr) => {
+      return instr.code === codec.MigrateSimple.code || instr.code === codec.MigrateWithFields.code
+  }))
+}
+
+async function isAdditionalTokenIssuanceAllowed(
+  explorerProvider: ExplorerProvider,
+  contract: codec.contract.Contract,
+  address: Address,
+): Promise<boolean> {
+  const result = await explorerProvider.contracts.getContractsContractAddressParent(address)
+  return result.parent !== undefined && contract.methods.some((method) => {
+    return method.instrs.some((instr) => instr.code === codec.DestroySelf.code)
+  })
+}
 
 type TokenInfo = FungibleTokenMetaData & {
   verified: boolean
   tokenId: string
   tokenAddress: string
+  upgradable: boolean
+  additionalIssuanceAllowed: boolean
 }
 
 function TokenInfo() {
   const [value, setValue] = useState('')
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>()
   const nodeProvider = useAlephium()
+  const explorerProvider = useExplorer()
   const [network] = useNetworkId()
 
   const searchToken = useCallback(async (tokenId: string) => {
@@ -36,7 +62,12 @@ function TokenInfo() {
               (token) => token.id === tokenId
             ) !== undefined
       const tokenAddress = addressFromTokenId(tokenId)
-      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress })
+      const group = groupOfAddress(tokenAddress)
+      const contractState = await nodeProvider.contracts.getContractsAddressState(tokenAddress, { group })
+      const contract = codec.contract.contractCodec.decodeContract(Buffer.from(contractState.bytecode, 'hex'))
+      const upgradable = isContractUpgradable(contract)
+      const additionalIssuanceAllowed = await isAdditionalTokenIssuanceAllowed(explorerProvider, contract, tokenAddress)
+      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress, upgradable, additionalIssuanceAllowed })
     } else {
       setTokenInfo(undefined)
     }
@@ -82,6 +113,8 @@ function TokenInfo() {
               ) : (
                 'undefined'
               ),
+              'Token Contract Upgradable': `${tokenInfo?.upgradable}`,
+              'Additional Issuance Allowed': `${tokenInfo?.additionalIssuanceAllowed}`
             }}
           />
         </Box>
