@@ -22,7 +22,7 @@ function isContractUpgradable(contract: codec.contract.Contract): boolean {
   }))
 }
 
-async function isTokenAllowAdditionalIssuance(
+async function isAdditionalTokenIssuanceAllowed(
   explorerProvider: ExplorerProvider,
   contract: codec.contract.Contract,
   address: Address,
@@ -38,7 +38,7 @@ type TokenInfo = FungibleTokenMetaData & {
   tokenId: string
   tokenAddress: string
   upgradable: boolean
-  allowAdditionalIssuance: boolean
+  additionalIssuanceAllowed: boolean
 }
 
 function TokenInfo() {
@@ -66,8 +66,8 @@ function TokenInfo() {
       const contractState = await nodeProvider.contracts.getContractsAddressState(tokenAddress, { group })
       const contract = codec.contract.contractCodec.decodeContract(Buffer.from(contractState.bytecode, 'hex'))
       const upgradable = isContractUpgradable(contract)
-      const allowAdditionalIssuance = await isTokenAllowAdditionalIssuance(explorerProvider, contract, tokenAddress)
-      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress, upgradable, allowAdditionalIssuance })
+      const additionalIssuanceAllowed = await isAdditionalTokenIssuanceAllowed(explorerProvider, contract, tokenAddress)
+      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress, upgradable, additionalIssuanceAllowed })
     } else {
       setTokenInfo(undefined)
     }
@@ -113,8 +113,8 @@ function TokenInfo() {
               ) : (
                 'undefined'
               ),
-              Upgradable: `${tokenInfo?.upgradable}`,
-              'Allow Additional Issuance': `${tokenInfo?.allowAdditionalIssuance}`
+              'Token Contract Upgradable': `${tokenInfo?.upgradable}`,
+              'Additional Issuance Allowed': `${tokenInfo?.additionalIssuanceAllowed}`
             }}
           />
         </Box>
