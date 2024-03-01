@@ -22,15 +22,19 @@ function isContractUpgradable(contract: codec.contract.Contract): boolean {
   }))
 }
 
+function isContractDestroyable(contract: codec.contract.Contract): boolean {
+  return contract.methods.some((method) => {
+    return method.instrs.some((instr) => instr.code === codec.DestroySelf.code)
+  })
+}
+
 async function isAdditionalTokenIssuanceAllowed(
   explorerProvider: ExplorerProvider,
   contract: codec.contract.Contract,
   address: Address,
 ): Promise<boolean> {
   const result = await explorerProvider.contracts.getContractsContractAddressParent(address)
-  return result.parent !== undefined && contract.methods.some((method) => {
-    return method.instrs.some((instr) => instr.code === codec.DestroySelf.code)
-  })
+  return result.parent !== undefined && isContractDestroyable(contract)
 }
 
 type TokenInfo = FungibleTokenMetaData & {
@@ -38,6 +42,7 @@ type TokenInfo = FungibleTokenMetaData & {
   tokenId: string
   tokenAddress: string
   upgradable: boolean
+  destroyable: boolean
   additionalIssuanceAllowed: boolean
 }
 
@@ -66,15 +71,16 @@ function TokenInfo() {
       const contractState = await nodeProvider.contracts.getContractsAddressState(tokenAddress, { group })
       const contract = codec.contract.contractCodec.decodeContract(Buffer.from(contractState.bytecode, 'hex'))
       const upgradable = isContractUpgradable(contract)
+      const destroyable = isContractDestroyable(contract)
       const additionalIssuanceAllowed = await isAdditionalTokenIssuanceAllowed(explorerProvider, contract, tokenAddress)
-      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress, upgradable, additionalIssuanceAllowed })
+      setTokenInfo({ ...tokenMetadata, verified, tokenId, tokenAddress, upgradable, destroyable, additionalIssuanceAllowed })
     } else {
       setTokenInfo(undefined)
     }
   }, [])
 
   return (
-    <Center h={rem('80%')}>
+    <Center mt={"xl"}>
       <Stack>
         <TextInput
           w={rem('40rem')}
@@ -89,7 +95,6 @@ function TokenInfo() {
         <Box mt={'xl'} w={rem('55rem')}>
           <MyTable
             data={{
-              Verified: `${tokenInfo?.verified}`,
               Name: `${tokenInfo ? hexToString(tokenInfo.name) : undefined}`,
               Symbol: `${
                 tokenInfo ? hexToString(tokenInfo.symbol) : undefined
@@ -114,6 +119,7 @@ function TokenInfo() {
                 'undefined'
               ),
               'Token Contract Upgradable': `${tokenInfo?.upgradable}`,
+              'Token Contract Destroyable': `${tokenInfo?.destroyable}`,
               'Additional Issuance Allowed': `${tokenInfo?.additionalIssuanceAllowed}`
             }}
           />
