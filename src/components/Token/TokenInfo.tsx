@@ -120,7 +120,7 @@ function TokenInfo() {
               ),
               'Token Contract Upgradable': `${tokenInfo?.upgradable}`,
               'Token Contract Destroyable': `${tokenInfo?.destroyable}`,
-              'Additional Issuance Allowed': `${tokenInfo?.additionalIssuanceAllowed}`
+              // 'Additional Issuance Allowed': `${tokenInfo?.additionalIssuanceAllowed}`
             }}
           />
         </Box>
