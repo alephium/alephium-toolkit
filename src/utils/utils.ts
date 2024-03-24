@@ -1,12 +1,13 @@
 import {
   TokenInfo,
   TokenList,
-  mainnetTokensMetadata,
-  testnetTokensMetadata,
+  getTokensURL,
+  mainnet,
+  testnet,
 } from '@alephium/token-list'
 import { ExplorerProvider, NetworkId, NodeProvider, web3 } from '@alephium/web3'
 import { useWalletConfig } from '@alephium/web3-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const mainnet_node_url = 'https://wallet-v20.mainnet.alephium.org'
 const testnet_node_url = 'https://wallet-v20.testnet.alephium.org'
@@ -95,15 +96,30 @@ export function useExplorerFE(): string {
 
 export function useTokenList(): TokenInfo[] {
   const [network] = useNetworkId()
-  return network === 'mainnet'
-    ? mainnetTokensMetadata.tokens
-    : network === 'testnet'
-    ? testnetTokensMetadata.tokens
-    : []
+  const [tokens, setTokens] = useState<TokenInfo[]>(network === 'mainnet' ? mainnet.tokens : network === 'testnet' ? testnet.tokens : [])
+
+  useEffect(() => {
+    const updateTokens = async () => {
+      if (network === 'mainnet' || network === 'testnet') {
+        const tokenURL = getTokensURL(network)
+        const response = await fetch(tokenURL)
+        if (!response.ok) {
+          console.error('Failed to update token list')
+          return
+        }
+        const data = await response.json() as TokenList
+        setTokens(data.tokens)
+      }
+    }
+
+    void updateTokens()
+  }, [network])
+
+  return tokens
 }
 
 export function getTokenMetadata(network: 'mainnet' | 'testnet'): TokenList {
-  return network === 'mainnet' ? mainnetTokensMetadata : testnetTokensMetadata
+  return network === 'mainnet' ? mainnet : testnet
 }
 
 function isObject(object: any): boolean {
