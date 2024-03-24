@@ -16,17 +16,21 @@ import {
   isHexString,
   node,
   prettifyAttoAlphAmount,
+  prettifyTokenAmount,
 } from '@alephium/web3'
 import CopyTextarea from '../Misc/CopyTextarea'
-import { useAlephium } from '../../utils/utils'
+import { useAlephium, useTokenList } from '../../utils/utils'
 import MyTable from '../Misc/MyTable'
+import { TokenInfo } from '@alephium/token-list'
 
 type P2MPKUnlockScript = { pubkey: string; index: number }[]
+type TxInfo = { recipient: string; tokens: {symbol: string, amount: string}[]; fee: string; txId: string }
 
 function SignMultisigTx() {
   const [signature, setSignature] = useState<
     { signer: string; signature: string } | undefined
   >()
+  const tokens = useTokenList()
   const [unsignedTx, setUnsignedTx] = useState<string | undefined>()
   const [loadingTxInfo, setLoadingTxInfo] = useState<boolean>(false)
   const [multisigConfig, setMultisigConfig] = useState<
@@ -35,9 +39,7 @@ function SignMultisigTx() {
   const [unlockScript, setUnlockScript] = useState<
     P2MPKUnlockScript | undefined
   >()
-  const [txInfo, setTxInfo] = useState<
-    { recipient: string; amount: string; fee: string; txId: string } | undefined
-  >()
+  const [txInfo, setTxInfo] = useState<TxInfo>()
   const { account, signer, connectionStatus } = useWallet()
 
   const [loadingTxError, setLoadingTxError] = useState<string>()
@@ -56,21 +58,10 @@ function SignMultisigTx() {
         const unlockScript = decodeUnlockScript(
           decodedTx.unsignedTx.inputs[0].unlockScript
         )
-        const recipientOutput = decodedTx.unsignedTx.fixedOutputs[0]
         const multisigConfig = getMultisigByUnlockScript(unlockScript)
         setUnlockScript(unlockScript)
         setMultisigConfig(multisigConfig)
-        setTxInfo({
-          recipient: recipientOutput.address,
-          amount: prettifyAttoAlphAmount(
-            BigInt(recipientOutput.attoAlphAmount)
-          )!,
-          fee: prettifyAttoAlphAmount(
-            BigInt(decodedTx.unsignedTx.gasPrice) *
-              BigInt(decodedTx.unsignedTx.gasAmount)
-          )!,
-          txId: decodedTx.unsignedTx.txId,
-        })
+        setTxInfo(getDecodedTxInfo(decodedTx, tokens))
         setLoadingTxInfo(false)
         setLoadingTxError(undefined)
       } catch (error) {
@@ -184,7 +175,11 @@ function SignMultisigTx() {
                 <Mark color="red">unknown</Mark>
               ),
               Recipient: <CopyTextarea value={txInfo?.recipient ?? ''} />,
-              'ALPH Amount': txInfo?.amount + ' ALPH',
+              'Token Amount': txInfo?.tokens.map(({ symbol, amount }) => (
+                <Box key={symbol}>
+                  {amount} {symbol}
+                </Box>
+              )),
               'Transaction Fee': txInfo?.fee + ' ALPH',
               'Transaction Hash': <CopyTextarea value={txInfo?.txId ?? ''} />,
             }}
@@ -283,6 +278,36 @@ async function getDecodedUnsignedTx(
     throw new Error(`Invalid unsigned tx, the input from different address`)
   }
   return decodedTx
+}
+
+function getDecodedTxInfo(
+  decodedTx: node.DecodeUnsignedTxResult,
+  tokens: TokenInfo[]
+): TxInfo {
+  const recipientOutput = decodedTx.unsignedTx.fixedOutputs[0]
+  return {
+    recipient: recipientOutput.address,
+    tokens: [
+      {
+        symbol: 'ALPH',
+        amount: prettifyAttoAlphAmount(BigInt(recipientOutput.attoAlphAmount))!,
+      },
+      ...recipientOutput.tokens.map((token) => {
+        const tokenInfo = tokens.find((t) => t.id === token.id)
+        return {
+          symbol: tokenInfo?.symbol ?? token.id,
+          amount:
+            prettifyTokenAmount(token.amount, tokenInfo?.decimals ?? 0) ??
+            '???',
+        }
+      }),
+    ],
+    fee: prettifyAttoAlphAmount(
+      BigInt(decodedTx.unsignedTx.gasPrice) *
+        BigInt(decodedTx.unsignedTx.gasAmount)
+    )!,
+    txId: decodedTx.unsignedTx.txId,
+  }
 }
 
 export default SignMultisigTx
