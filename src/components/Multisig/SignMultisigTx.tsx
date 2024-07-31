@@ -273,7 +273,7 @@ async function getDecodedUnsignedTx(
   const unlockScript = decodedTx.unsignedTx.inputs[0].unlockScript
   const fromSameAddress = decodedTx.unsignedTx.inputs
     .slice(1)
-    .every((i) => i.unlockScript === unlockScript)
+    .every((i) => i.unlockScript === unlockScript || i.unlockScript === '03') // '03' is SameAsPrevious
   if (!fromSameAddress) {
     throw new Error(`Invalid unsigned tx, the input from different address`)
   }
