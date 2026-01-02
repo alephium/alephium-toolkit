@@ -26,7 +26,6 @@ function WalletInfo() {
         w={900}
         data={{
           'Network Type': <Text tt="capitalize">{account?.network}</Text>,
-          'Address Group': account?.group,
           Address: <CopyTextarea value={account?.address ?? '???'} />,
           'Public Key': <CopyTextarea value={account?.publicKey ?? '???'} />,
         }}

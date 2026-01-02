@@ -67,9 +67,8 @@ function TokenInfo() {
               (token) => token.id === tokenId
             ) !== undefined
       const tokenAddress = addressFromTokenId(tokenId)
-      const group = groupOfAddress(tokenAddress)
-      const contractState = await nodeProvider.contracts.getContractsAddressState(tokenAddress, { group })
-      const contract = codec.contract.contractCodec.decodeContract(Buffer.from(contractState.bytecode, 'hex'))
+      const contractState = await nodeProvider.contracts.getContractsAddressState(tokenAddress)
+      const contract = codec.contract.contractCodec.decodeContract(Uint8Array.from(Buffer.from(contractState.bytecode, 'hex')))
       const upgradable = isContractUpgradable(contract)
       const destroyable = isContractDestroyable(contract)
       const additionalIssuanceAllowed = await isAdditionalTokenIssuanceAllowed(explorerProvider, contract, tokenAddress)
