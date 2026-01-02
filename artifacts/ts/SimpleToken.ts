@@ -9,7 +9,7 @@ import {
   TestContractResult,
   HexString,
   ContractFactory,
-  SubscribeOptions,
+  EventSubscribeOptions,
   EventSubscription,
   CallContractParams,
   CallContractResult,
@@ -21,11 +21,20 @@ import {
   callMethod,
   multicallMethods,
   fetchContractState,
+  Asset,
   ContractInstance,
   getContractEventsCurrentCount,
+  TestContractParamsWithoutMaps,
+  TestContractResultWithoutMaps,
+  SignExecuteContractMethodParams,
+  SignExecuteScriptTxResult,
+  signExecuteMethod,
+  addStdIdToFields,
+  encodeContractFields,
+  Narrow,
 } from "@alephium/web3";
 import { default as SimpleTokenContractJson } from "../SimpleToken.ral.json";
-import { getContractByCodeHash } from "./contracts";
+import { getContractByCodeHash, registerContract } from "./contracts";
 
 // Custom types for the contract
 export namespace SimpleTokenTypes {
@@ -63,6 +72,10 @@ export namespace SimpleTokenTypes {
       params: Omit<CallContractParams<{}>, "args">;
       result: CallContractResult<bigint>;
     };
+    withdraw: {
+      params: CallContractParams<{ amount: bigint }>;
+      result: CallContractResult<null>;
+    };
   }
   export type CallMethodParams<T extends keyof CallMethodTable> =
     CallMethodTable[T]["params"];
@@ -76,14 +89,60 @@ export namespace SimpleTokenTypes {
       ? CallMethodTable[MaybeName]["result"]
       : undefined;
   };
+  export type MulticallReturnType<Callss extends MultiCallParams[]> = {
+    [index in keyof Callss]: MultiCallResults<Callss[index]>;
+  };
+
+  export interface SignExecuteMethodTable {
+    getSymbol: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
+    getName: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
+    getDecimals: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
+    getTotalSupply: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
+    balance: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
+    withdraw: {
+      params: SignExecuteContractMethodParams<{ amount: bigint }>;
+      result: SignExecuteScriptTxResult;
+    };
+  }
+  export type SignExecuteMethodParams<T extends keyof SignExecuteMethodTable> =
+    SignExecuteMethodTable[T]["params"];
+  export type SignExecuteMethodResult<T extends keyof SignExecuteMethodTable> =
+    SignExecuteMethodTable[T]["result"];
 }
 
 class Factory extends ContractFactory<
   SimpleTokenInstance,
   SimpleTokenTypes.Fields
 > {
+  encodeFields(fields: SimpleTokenTypes.Fields) {
+    return encodeContractFields(
+      addStdIdToFields(this.contract, fields),
+      this.contract.fieldsSig,
+      []
+    );
+  }
+
+  eventIndex = { Withdraw: 0 };
   consts = {
-    ErrorCodes: { InvalidOwner: BigInt(0), InvalidWithdrawAmount: BigInt(1) },
+    ErrorCodes: {
+      InvalidOwner: BigInt("0"),
+      InvalidWithdrawAmount: BigInt("1"),
+    },
   };
 
   at(address: string): SimpleTokenInstance {
@@ -93,50 +152,61 @@ class Factory extends ContractFactory<
   tests = {
     getSymbol: async (
       params: Omit<
-        TestContractParams<SimpleTokenTypes.Fields, never>,
-        "testArgs"
+        TestContractParamsWithoutMaps<SimpleTokenTypes.Fields, never>,
+        "args"
       >
-    ): Promise<TestContractResult<HexString>> => {
-      return testMethod(this, "getSymbol", params);
+    ): Promise<TestContractResultWithoutMaps<HexString>> => {
+      return testMethod(this, "getSymbol", params, getContractByCodeHash);
     },
     getName: async (
       params: Omit<
-        TestContractParams<SimpleTokenTypes.Fields, never>,
-        "testArgs"
+        TestContractParamsWithoutMaps<SimpleTokenTypes.Fields, never>,
+        "args"
       >
-    ): Promise<TestContractResult<HexString>> => {
-      return testMethod(this, "getName", params);
+    ): Promise<TestContractResultWithoutMaps<HexString>> => {
+      return testMethod(this, "getName", params, getContractByCodeHash);
     },
     getDecimals: async (
       params: Omit<
-        TestContractParams<SimpleTokenTypes.Fields, never>,
-        "testArgs"
+        TestContractParamsWithoutMaps<SimpleTokenTypes.Fields, never>,
+        "args"
       >
-    ): Promise<TestContractResult<bigint>> => {
-      return testMethod(this, "getDecimals", params);
+    ): Promise<TestContractResultWithoutMaps<bigint>> => {
+      return testMethod(this, "getDecimals", params, getContractByCodeHash);
     },
     getTotalSupply: async (
       params: Omit<
-        TestContractParams<SimpleTokenTypes.Fields, never>,
-        "testArgs"
+        TestContractParamsWithoutMaps<SimpleTokenTypes.Fields, never>,
+        "args"
       >
-    ): Promise<TestContractResult<bigint>> => {
-      return testMethod(this, "getTotalSupply", params);
+    ): Promise<TestContractResultWithoutMaps<bigint>> => {
+      return testMethod(this, "getTotalSupply", params, getContractByCodeHash);
     },
     balance: async (
       params: Omit<
-        TestContractParams<SimpleTokenTypes.Fields, never>,
-        "testArgs"
+        TestContractParamsWithoutMaps<SimpleTokenTypes.Fields, never>,
+        "args"
       >
-    ): Promise<TestContractResult<bigint>> => {
-      return testMethod(this, "balance", params);
+    ): Promise<TestContractResultWithoutMaps<bigint>> => {
+      return testMethod(this, "balance", params, getContractByCodeHash);
     },
     withdraw: async (
-      params: TestContractParams<SimpleTokenTypes.Fields, { amount: bigint }>
-    ): Promise<TestContractResult<null>> => {
-      return testMethod(this, "withdraw", params);
+      params: TestContractParamsWithoutMaps<
+        SimpleTokenTypes.Fields,
+        { amount: bigint }
+      >
+    ): Promise<TestContractResultWithoutMaps<null>> => {
+      return testMethod(this, "withdraw", params, getContractByCodeHash);
     },
   };
+
+  stateForTest(
+    initFields: SimpleTokenTypes.Fields,
+    asset?: Asset,
+    address?: string
+  ) {
+    return this.stateForTest_(initFields, asset, address, undefined);
+  }
 }
 
 // Use this object to test and deploy the contract
@@ -144,9 +214,11 @@ export const SimpleToken = new Factory(
   Contract.fromJson(
     SimpleTokenContractJson,
     "",
-    "baf828fcd7be3dca1f72793e385762d18e8de775dbaa4a1508e6c66b5ad2b4a0"
+    "33cc064ef0e8efe76bf2d40a68e1caff81046c690309a11bbb06c28a2ba9fcfc",
+    []
   )
 );
+registerContract(SimpleToken);
 
 // Use this class to interact with the blockchain
 export class SimpleTokenInstance extends ContractInstance {
@@ -163,7 +235,7 @@ export class SimpleTokenInstance extends ContractInstance {
   }
 
   subscribeWithdrawEvent(
-    options: SubscribeOptions<SimpleTokenTypes.WithdrawEvent>,
+    options: EventSubscribeOptions<SimpleTokenTypes.WithdrawEvent>,
     fromCount?: number
   ): EventSubscription {
     return subscribeContractEvent(
@@ -175,7 +247,7 @@ export class SimpleTokenInstance extends ContractInstance {
     );
   }
 
-  methods = {
+  view = {
     getSymbol: async (
       params?: SimpleTokenTypes.CallMethodParams<"getSymbol">
     ): Promise<SimpleTokenTypes.CallMethodResult<"getSymbol">> => {
@@ -231,16 +303,68 @@ export class SimpleTokenInstance extends ContractInstance {
         getContractByCodeHash
       );
     },
+    withdraw: async (
+      params: SimpleTokenTypes.CallMethodParams<"withdraw">
+    ): Promise<SimpleTokenTypes.CallMethodResult<"withdraw">> => {
+      return callMethod(
+        SimpleToken,
+        this,
+        "withdraw",
+        params,
+        getContractByCodeHash
+      );
+    },
+  };
+
+  transact = {
+    getSymbol: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"getSymbol">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"getSymbol">> => {
+      return signExecuteMethod(SimpleToken, this, "getSymbol", params);
+    },
+    getName: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"getName">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"getName">> => {
+      return signExecuteMethod(SimpleToken, this, "getName", params);
+    },
+    getDecimals: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"getDecimals">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"getDecimals">> => {
+      return signExecuteMethod(SimpleToken, this, "getDecimals", params);
+    },
+    getTotalSupply: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"getTotalSupply">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"getTotalSupply">> => {
+      return signExecuteMethod(SimpleToken, this, "getTotalSupply", params);
+    },
+    balance: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"balance">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"balance">> => {
+      return signExecuteMethod(SimpleToken, this, "balance", params);
+    },
+    withdraw: async (
+      params: SimpleTokenTypes.SignExecuteMethodParams<"withdraw">
+    ): Promise<SimpleTokenTypes.SignExecuteMethodResult<"withdraw">> => {
+      return signExecuteMethod(SimpleToken, this, "withdraw", params);
+    },
   };
 
   async multicall<Calls extends SimpleTokenTypes.MultiCallParams>(
     calls: Calls
-  ): Promise<SimpleTokenTypes.MultiCallResults<Calls>> {
-    return (await multicallMethods(
+  ): Promise<SimpleTokenTypes.MultiCallResults<Calls>>;
+  async multicall<Callss extends SimpleTokenTypes.MultiCallParams[]>(
+    callss: Narrow<Callss>
+  ): Promise<SimpleTokenTypes.MulticallReturnType<Callss>>;
+  async multicall<
+    Callss extends
+      | SimpleTokenTypes.MultiCallParams
+      | SimpleTokenTypes.MultiCallParams[]
+  >(callss: Callss): Promise<unknown> {
+    return await multicallMethods(
       SimpleToken,
       this,
-      calls,
+      callss,
       getContractByCodeHash
-    )) as SimpleTokenTypes.MultiCallResults<Calls>;
+    );
   }
 }
