@@ -5,6 +5,7 @@ import {
   IconGauge,
   IconPresentationAnalytics,
   IconFileAnalytics,
+  IconSignature,
 } from '@tabler/icons-react'
 import { LinksGroup } from './AppNavBarLinkGroup'
 import { useEffect, useState } from 'react'
@@ -15,6 +16,11 @@ const mockdata = [
     label: 'Wallet Info',
     icon: IconGauge,
     groupLink: '/',
+  },
+  {
+    label: 'Sign Message',
+    icon: IconSignature,
+    groupLink: '/sign-message',
   },
   {
     label: 'Fungible Tokens',

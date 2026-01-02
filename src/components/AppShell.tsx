@@ -4,6 +4,7 @@ import NavbarNested from './AppNavBar'
 import AppHeader from './AppHeader'
 import WalletInfo from './Wallet/WalletInfo'
 import { WIP } from './Misc/WIP'
+import SignMessage from './Misc/SignMessage'
 import TokenInfo from './Token/TokenInfo'
 import CreateMultisig from './Multisig/CreateMultisig'
 import ImportMultisig from './Multisig/ImportMultisig'
@@ -40,6 +41,7 @@ function AppShellExample() {
       >
         <Routes>
           <Route path="/" element={<WalletInfo />} />
+          <Route path="/sign-message" element={<SignMessage />} />
           <Route path="/token/all" element={<WIP />} />
           <Route path="/token/info" element={<TokenInfo />} />
           <Route path="/token/new" element={<NewToken />} />
