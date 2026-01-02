@@ -9,13 +9,13 @@ import {
   bs58,
   convertAlphAmountWithDecimals,
   convertAmountWithDecimals,
-  encodeI256,
   hexToBinUnsafe,
   isHexString,
   node,
   prettifyAttoAlphAmount,
   prettifyTokenAmount,
   verifySignature,
+  codec,
 } from '@alephium/web3'
 import blake from 'blakejs'
 import { useEffect, useState } from 'react'
@@ -105,9 +105,9 @@ export function buildMultisigAddress(config: MultisigConfig): string {
     return blake.blake2b(bytes, undefined, 32)
   })
   const pubkeyLength = config.pubkeys.length
-  const bytesArray = [Uint8Array.from([1]), encodeI256(BigInt(pubkeyLength))]
+  const bytesArray = [Uint8Array.from([1]), codec.i32Codec.encode(pubkeyLength)]
     .concat(pubkeyHashes)
-    .concat([encodeI256(BigInt(config.mOfN))])
+    .concat([codec.i32Codec.encode(config.mOfN)])
   const encoded = Uint8Array.from(
     bytesArray.reduce(
       (acc, cur) => Uint8Array.from([...acc, ...cur]),
