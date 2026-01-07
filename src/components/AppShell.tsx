@@ -27,10 +27,13 @@ function AppShellExample() {
               theme.colorScheme === 'dark'
                 ? theme.colors.dark[8]
                 : theme.colors.gray[0],
+            minHeight: '100vh',
+            paddingTop: '60px !important',
           },
         }}
         navbarOffsetBreakpoint="sm"
         asideOffsetBreakpoint="sm"
+        padding={0}
         navbar={<NavbarNested hidden={!navbarOpened} onLinkClick={() => setNavbarOpened(false)} />}
         footer={
           <Footer height={60} p="md">

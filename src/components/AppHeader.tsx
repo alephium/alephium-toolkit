@@ -86,6 +86,12 @@ const useStyles = createStyles((theme) => ({
       display: 'none',
     },
   },
+
+  logo: {
+    [theme.fn.smallerThan('sm')]: {
+      display: 'none',
+    },
+  },
 }))
 
 interface AppHeaderProps {
@@ -101,7 +107,15 @@ export function AppHeader({ navbarOpened, setNavbarOpened }: AppHeaderProps) {
 
   return (
     <Header height={60} px="md">
-      <Group position="apart" sx={{ height: '100%' }}>
+      <Group
+        position="apart"
+        sx={(theme) => ({
+          height: '100%',
+          [theme.fn.smallerThan('sm')]: {
+            justifyContent: 'flex-end',
+          },
+        })}
+      >
         {/* <Text
           component={Link}
           to="/"
@@ -117,6 +131,7 @@ export function AppHeader({ navbarOpened, setNavbarOpened }: AppHeaderProps) {
           height={55}
           width={'auto'}
           ml={'sm'}
+          className={classes.logo}
         />
 
         <Group className={classes.hiddenMobile}>

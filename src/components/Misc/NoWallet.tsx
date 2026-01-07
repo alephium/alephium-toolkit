@@ -4,16 +4,25 @@ import { AlephiumConnectButton } from '@alephium/web3-react'
 
 const useStyles = createStyles((theme) => ({
   root: {
-    paddingTop: rem(80),
-    paddingBottom: rem(120),
+    paddingTop: rem(40),
+    paddingBottom: rem(80),
+    minHeight: 'calc(100vh - 60px - 60px)',
+    display: 'flex',
+    alignItems: 'center',
     backgroundColor: theme.fn.variant({
       variant: 'filled',
       color: theme.primaryColor,
     }).background,
 
-    [theme.fn.smallerThan('sm')]: {
-      paddingTop: rem(40),
+    [theme.fn.smallerThan('md')]: {
+      paddingTop: rem(30),
       paddingBottom: rem(60),
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      paddingTop: rem(20),
+      paddingBottom: rem(40),
+      minHeight: 'calc(100vh - 60px - 60px)',
     },
   },
 
@@ -25,9 +34,14 @@ const useStyles = createStyles((theme) => ({
     marginBottom: `calc(${theme.spacing.xl} * 1.5)`,
     color: theme.colors[theme.primaryColor][3],
 
+    [theme.fn.smallerThan('md')]: {
+      fontSize: rem(80),
+      marginBottom: theme.spacing.xl,
+    },
+
     [theme.fn.smallerThan('sm')]: {
-      fontSize: rem(60),
-      marginBottom: theme.spacing.lg,
+      fontSize: rem(48),
+      marginBottom: theme.spacing.md,
     },
   },
 
@@ -38,10 +52,17 @@ const useStyles = createStyles((theme) => ({
     fontSize: rem(38),
     color: theme.white,
 
-    [theme.fn.smallerThan('sm')]: {
-      fontSize: rem(24),
+    [theme.fn.smallerThan('md')]: {
+      fontSize: rem(28),
       paddingLeft: theme.spacing.md,
       paddingRight: theme.spacing.md,
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      fontSize: rem(20),
+      lineHeight: 1.3,
+      paddingLeft: theme.spacing.sm,
+      paddingRight: theme.spacing.sm,
     },
   },
 
@@ -61,10 +82,16 @@ const useStyles = createStyles((theme) => ({
     fontSize: theme.fontSizes.md,
     lineHeight: 1.6,
 
-    [theme.fn.smallerThan('sm')]: {
-      fontSize: theme.fontSizes.sm,
+    [theme.fn.smallerThan('md')]: {
+      fontSize: theme.fontSizes.md,
       paddingLeft: theme.spacing.md,
       paddingRight: theme.spacing.md,
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      fontSize: theme.fontSizes.sm,
+      paddingLeft: theme.spacing.sm,
+      paddingRight: theme.spacing.sm,
     },
   },
 
@@ -76,10 +103,16 @@ const useStyles = createStyles((theme) => ({
     color: theme.white,
     opacity: 0.8,
 
+    [theme.fn.smallerThan('md')]: {
+      width: rem(100),
+      height: rem(100),
+      marginBottom: theme.spacing.lg,
+    },
+
     [theme.fn.smallerThan('sm')]: {
-      width: rem(80),
-      height: rem(80),
-      marginBottom: theme.spacing.md,
+      width: rem(70),
+      height: rem(70),
+      marginBottom: theme.spacing.sm,
     },
   },
 
@@ -96,22 +129,40 @@ const useStyles = createStyles((theme) => ({
   dimmedText: {
     color: theme.colors[theme.primaryColor][1],
 
-    [theme.fn.smallerThan('sm')]: {
+    [theme.fn.smallerThan('md')]: {
       paddingLeft: theme.spacing.md,
       paddingRight: theme.spacing.md,
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      paddingLeft: theme.spacing.sm,
+      paddingRight: theme.spacing.sm,
+      fontSize: theme.fontSizes.sm,
     },
   },
 
   walletLinksGroup: {
-    [theme.fn.smallerThan('sm')]: {
+    [theme.fn.smallerThan('md')]: {
       flexDirection: 'column',
       gap: theme.spacing.sm,
+      width: '100%',
+      maxWidth: rem(300),
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      gap: theme.spacing.xs,
+      maxWidth: rem(250),
     },
   },
 
   container: {
+    [theme.fn.smallerThan('md')]: {
+      padding: theme.spacing.sm,
+    },
+
     [theme.fn.smallerThan('sm')]: {
       padding: theme.spacing.xs,
+      maxWidth: '100%',
     },
   },
 
@@ -128,11 +179,24 @@ const useStyles = createStyles((theme) => ({
     '& button': {
       minHeight: rem(36),
       fontWeight: 600,
+      fontSize: theme.fontSizes.md,
+    },
+
+    [theme.fn.smallerThan('md')]: {
+      width: '100%',
+      maxWidth: rem(300),
+      padding: theme.spacing.sm,
+      '& button': {
+        fontSize: theme.fontSizes.sm,
+      },
     },
 
     [theme.fn.smallerThan('sm')]: {
-      width: '100%',
-      maxWidth: rem(300),
+      maxWidth: rem(250),
+      padding: theme.spacing.xs,
+      '& button': {
+        minHeight: rem(32),
+      },
     },
   },
 }))
@@ -144,11 +208,13 @@ export function NoWallet() {
     <Box
       maw={rem('70%')}
       mx="auto"
-      mt={rem('15%')}
+      mt={0}
       sx={(theme) => ({
+        [theme.fn.smallerThan('md')]: {
+          maxWidth: '90%',
+        },
         [theme.fn.smallerThan('sm')]: {
-          maxWidth: '95%',
-          marginTop: rem('10%'),
+          maxWidth: '100%',
         },
       })}
     >
