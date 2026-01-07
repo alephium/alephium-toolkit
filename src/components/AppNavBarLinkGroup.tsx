@@ -85,6 +85,7 @@ interface LinksGroupProps {
   links?: { label: string; link: string }[]
   active: string
   setActive: (label: string) => void
+  onLinkClick?: () => void
 }
 
 export function LinksGroup({
@@ -95,6 +96,7 @@ export function LinksGroup({
   groupLink,
   active,
   setActive,
+  onLinkClick,
 }: LinksGroupProps) {
   const { classes, theme, cx } = useStyles()
   const navigate = useNavigate()
@@ -111,7 +113,10 @@ export function LinksGroup({
       to={link.link}
       key={link.label}
       ta="left"
-      onClick={() => setActive(link.link)}
+      onClick={() => {
+        setActive(link.link)
+        onLinkClick?.()
+      }}
     >
       {link.label}
     </Text>
@@ -124,6 +129,7 @@ export function LinksGroup({
           setOpened((o) => !o)
           if (!hasLinks) {
             setActive(groupLink ?? '')
+            onLinkClick?.()
           }
           if (groupLink) {
             navigate(groupLink)

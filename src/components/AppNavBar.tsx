@@ -115,7 +115,12 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-export function NavbarNested() {
+interface NavbarNestedProps {
+  hidden?: boolean
+  onLinkClick?: () => void
+}
+
+export function NavbarNested({ hidden, onLinkClick }: NavbarNestedProps) {
   const { classes } = useStyles()
   const location = useLocation()
   const [active, setActive] = useState<string>(location.pathname)
@@ -130,11 +135,12 @@ export function NavbarNested() {
       key={item.label}
       active={active}
       setActive={setActive}
+      onLinkClick={onLinkClick}
     />
   ))
 
   return (
-    <Navbar width={{ sm: 300 }} p="md" className={classes.navbar}>
+    <Navbar width={{ sm: 300 }} p="md" className={classes.navbar} hidden={hidden} hiddenBreakpoint="sm">
       {/* <Navbar.Section className={classes.header}>
         <Group position="apart">
           <Logo width={rem(120)} />

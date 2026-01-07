@@ -1,4 +1,4 @@
-import { createStyles, Title, Container, rem, Box, Text, Stack, Button, Group, Anchor } from '@mantine/core'
+import { createStyles, Title, Container, rem, Box, Text, Stack, Group, Anchor } from '@mantine/core'
 import { IconWallet, IconExternalLink } from '@tabler/icons-react'
 import { AlephiumConnectButton } from '@alephium/web3-react'
 
@@ -10,6 +10,11 @@ const useStyles = createStyles((theme) => ({
       variant: 'filled',
       color: theme.primaryColor,
     }).background,
+
+    [theme.fn.smallerThan('sm')]: {
+      paddingTop: rem(40),
+      paddingBottom: rem(60),
+    },
   },
 
   label: {
@@ -21,7 +26,8 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors[theme.primaryColor][3],
 
     [theme.fn.smallerThan('sm')]: {
-      fontSize: rem(120),
+      fontSize: rem(60),
+      marginBottom: theme.spacing.lg,
     },
   },
 
@@ -33,7 +39,9 @@ const useStyles = createStyles((theme) => ({
     color: theme.white,
 
     [theme.fn.smallerThan('sm')]: {
-      fontSize: rem(32),
+      fontSize: rem(24),
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.md,
     },
   },
 
@@ -52,6 +60,12 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors[theme.primaryColor][1],
     fontSize: theme.fontSizes.md,
     lineHeight: 1.6,
+
+    [theme.fn.smallerThan('sm')]: {
+      fontSize: theme.fontSizes.sm,
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.md,
+    },
   },
 
   walletIcon: {
@@ -61,6 +75,12 @@ const useStyles = createStyles((theme) => ({
     marginBottom: theme.spacing.xl,
     color: theme.white,
     opacity: 0.8,
+
+    [theme.fn.smallerThan('sm')]: {
+      width: rem(80),
+      height: rem(80),
+      marginBottom: theme.spacing.md,
+    },
   },
 
   link: {
@@ -75,6 +95,45 @@ const useStyles = createStyles((theme) => ({
 
   dimmedText: {
     color: theme.colors[theme.primaryColor][1],
+
+    [theme.fn.smallerThan('sm')]: {
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.md,
+    },
+  },
+
+  walletLinksGroup: {
+    [theme.fn.smallerThan('sm')]: {
+      flexDirection: 'column',
+      gap: theme.spacing.sm,
+    },
+  },
+
+  container: {
+    [theme.fn.smallerThan('sm')]: {
+      padding: theme.spacing.xs,
+    },
+  },
+
+  connectButtonWrapper: {
+    position: 'relative',
+    zIndex: 1,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '& button': {
+      minHeight: rem(36),
+      fontWeight: 600,
+    },
+
+    [theme.fn.smallerThan('sm')]: {
+      width: '100%',
+      maxWidth: rem(300),
+    },
   },
 }))
 
@@ -82,9 +141,19 @@ export function NoWallet() {
   const { classes } = useStyles()
 
   return (
-    <Box maw={rem('70%')} mx="auto" mt={rem('15%')}>
+    <Box
+      maw={rem('70%')}
+      mx="auto"
+      mt={rem('15%')}
+      sx={(theme) => ({
+        [theme.fn.smallerThan('sm')]: {
+          maxWidth: '95%',
+          marginTop: rem('10%'),
+        },
+      })}
+    >
       <div className={classes.root}>
-        <Container>
+        <Container className={classes.container}>
           <IconWallet className={classes.walletIcon} stroke={1.5} />
           <div className={classes.label}>No Wallet</div>
           <Title className={classes.title}>Connect your wallet to continue</Title>
@@ -94,13 +163,15 @@ export function NoWallet() {
           </Text>
 
           <Stack spacing="lg" mt="xl" align="center">
-            <AlephiumConnectButton />
+            <Box className={classes.connectButtonWrapper}>
+              <AlephiumConnectButton />
+            </Box>
 
             <Text size="sm" ta="center" className={classes.dimmedText}>
               Don't have a wallet yet?
             </Text>
 
-            <Group position="center" spacing="md">
+            <Group position="center" spacing="md" className={classes.walletLinksGroup}>
               <Anchor
                 href="https://github.com/alephium/extension-wallet/releases"
                 target="_blank"

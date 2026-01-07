@@ -1,5 +1,6 @@
 import { AppShell, Footer, Text, useMantineTheme } from '@mantine/core'
 import { HashRouter as Router, Route, Routes } from 'react-router-dom'
+import { useState } from 'react'
 import NavbarNested from './AppNavBar'
 import AppHeader from './AppHeader'
 import WalletInfo from './Wallet/WalletInfo'
@@ -15,6 +16,7 @@ import NewToken from './Token/NewToken'
 
 function AppShellExample() {
   const theme = useMantineTheme()
+  const [navbarOpened, setNavbarOpened] = useState(false)
 
   return (
     <Router>
@@ -29,7 +31,7 @@ function AppShellExample() {
         }}
         navbarOffsetBreakpoint="sm"
         asideOffsetBreakpoint="sm"
-        navbar={<NavbarNested />}
+        navbar={<NavbarNested hidden={!navbarOpened} onLinkClick={() => setNavbarOpened(false)} />}
         footer={
           <Footer height={60} p="md">
             <Text fw="bold" fz="sm">
@@ -37,7 +39,7 @@ function AppShellExample() {
             </Text>
           </Footer>
         }
-        header={<AppHeader />}
+        header={<AppHeader navbarOpened={navbarOpened} setNavbarOpened={setNavbarOpened} />}
       >
         <Routes>
           <Route path="/" element={<WalletInfo />} />
