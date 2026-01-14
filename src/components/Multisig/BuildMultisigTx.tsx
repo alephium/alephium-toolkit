@@ -4,6 +4,7 @@ import {
   Button,
   Center,
   Chip,
+  Checkbox,
   Grid,
   Group,
   Input,
@@ -242,6 +243,7 @@ function BuildMultisigTx() {
               symbol: form.values.destinations[0].symbol,
               tokenId: form.values.destinations[0].tokenId,
               tokenAmount: maxBalance,
+              lockTime: undefined, // Sweep doesn't support lockTime
             },
           ],
         })
@@ -259,6 +261,7 @@ function BuildMultisigTx() {
               symbol: form.values.destinations[0].symbol,
               tokenId,
               tokenAmount: number256ToNumber(tokenAmount, tokenInfo.decimals),
+              lockTime: form.values.destinations[0].lockTime,
             },
           ],
         })
@@ -463,6 +466,8 @@ function BuildMultisigTx() {
                                     )!.id,
                                     tokenAmount:
                                       form.values.destinations[0].tokenAmount,
+                                    lockTime:
+                                      form.values.destinations[0].lockTime,
                                   },
                                 ],
                               })
@@ -482,6 +487,7 @@ function BuildMultisigTx() {
                                 symbol: form.values.destinations[0].symbol,
                                 tokenId: form.values.destinations[0].tokenId,
                                 tokenAmount: Number(value),
+                                lockTime: form.values.destinations[0].lockTime,
                               },
                             ],
                           })
@@ -493,6 +499,84 @@ function BuildMultisigTx() {
                         }}
                       />
                     </Group>
+                    <Group mt="lg" mx="0.5rem">
+                      <Checkbox
+                        label="Lock until specific time"
+                        checked={form.values.destinations[0].lockTime !== undefined}
+                        onChange={(e) => {
+                          if (e.currentTarget.checked) {
+                            // Set default to 1 hour from now
+                            const defaultLockTime = Date.now() + 60 * 60 * 1000
+                            form.setValues({
+                              sweep: false,
+                              destinations: [
+                                {
+                                  ...form.values.destinations[0],
+                                  lockTime: defaultLockTime,
+                                },
+                              ],
+                            })
+                          } else {
+                            form.setValues({
+                              destinations: [
+                                {
+                                  ...form.values.destinations[0],
+                                  lockTime: undefined,
+                                },
+                              ],
+                            })
+                          }
+                        }}
+                      />
+                    </Group>
+                    {form.values.destinations[0].lockTime !== undefined && (
+                      <Stack spacing="xs" mt="md" mx="0.5rem">
+                        <TextInput
+                          type="datetime-local"
+                          label="Lock until (local time)"
+                          description="Select date and time in your local timezone"
+                          value={
+                            form.values.destinations[0].lockTime
+                              ? new Date(form.values.destinations[0].lockTime)
+                                  .toLocaleString('sv-SE', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                  .replace(' ', 'T')
+                              : ''
+                          }
+                          onChange={(e) => {
+                            const timestamp = new Date(e.target.value).getTime()
+                            if (!isNaN(timestamp)) {
+                              form.setValues({
+                                sweep: false,
+                                destinations: [
+                                  {
+                                    ...form.values.destinations[0],
+                                    lockTime: timestamp,
+                                  },
+                                ],
+                              })
+                            }
+                          }}
+                          error={
+                            form.values.destinations[0].lockTime &&
+                            form.values.destinations[0].lockTime <= Date.now()
+                              ? 'Lock time must be in the future'
+                              : undefined
+                          }
+                          w="16rem"
+                        />
+                        {form.values.destinations[0].lockTime && (
+                          <Text size="xs" c="dimmed">
+                            UTC: {new Date(form.values.destinations[0].lockTime).toISOString().slice(0, 16).replace('T', ' ')} UTC
+                          </Text>
+                        )}
+                      </Stack>
+                    )}
                   </MyBox>
                   {buildTxError && (
                     <Text color="red" mt="lg" mx="lg">
