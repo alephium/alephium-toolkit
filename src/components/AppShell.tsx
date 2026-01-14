@@ -1,9 +1,11 @@
 import { AppShell, Footer, Text, useMantineTheme } from '@mantine/core'
 import { HashRouter as Router, Route, Routes } from 'react-router-dom'
+import { useState } from 'react'
 import NavbarNested from './AppNavBar'
 import AppHeader from './AppHeader'
 import WalletInfo from './Wallet/WalletInfo'
 import { WIP } from './Misc/WIP'
+import SignMessage from './Misc/SignMessage'
 import TokenInfo from './Token/TokenInfo'
 import CreateMultisig from './Multisig/CreateMultisig'
 import ImportMultisig from './Multisig/ImportMultisig'
@@ -14,6 +16,7 @@ import NewToken from './Token/NewToken'
 
 function AppShellExample() {
   const theme = useMantineTheme()
+  const [navbarOpened, setNavbarOpened] = useState(false)
 
   return (
     <Router>
@@ -24,11 +27,14 @@ function AppShellExample() {
               theme.colorScheme === 'dark'
                 ? theme.colors.dark[8]
                 : theme.colors.gray[0],
+            minHeight: '100vh',
+            paddingTop: '60px !important',
           },
         }}
         navbarOffsetBreakpoint="sm"
         asideOffsetBreakpoint="sm"
-        navbar={<NavbarNested />}
+        padding={0}
+        navbar={<NavbarNested hidden={!navbarOpened} onLinkClick={() => setNavbarOpened(false)} />}
         footer={
           <Footer height={60} p="md">
             <Text fw="bold" fz="sm">
@@ -36,10 +42,11 @@ function AppShellExample() {
             </Text>
           </Footer>
         }
-        header={<AppHeader />}
+        header={<AppHeader navbarOpened={navbarOpened} setNavbarOpened={setNavbarOpened} />}
       >
         <Routes>
           <Route path="/" element={<WalletInfo />} />
+          <Route path="/sign-message" element={<SignMessage />} />
           <Route path="/token/all" element={<WIP />} />
           <Route path="/token/info" element={<TokenInfo />} />
           <Route path="/token/new" element={<NewToken />} />

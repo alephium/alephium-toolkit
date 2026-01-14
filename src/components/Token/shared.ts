@@ -14,7 +14,8 @@ export async function deployNewToken(
   }: { name: string; symbol: string; decimals: number; supply: number }
 ): Promise<string> {
   const deployments = loadDeployments(network)
-  const result = await DeployNewToken.execute(signer, {
+  const result = await DeployNewToken.execute({
+    signer,
     initialFields: {
       templateId: deployments.contracts.SimpleToken.contractInstance.contractId,
       name: Buffer.from(name, 'utf-8').toString('hex'),

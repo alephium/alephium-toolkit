@@ -11,17 +11,19 @@ import {
   SignerProvider,
   HexString,
 } from "@alephium/web3";
-import { default as WithdrawScriptJson } from "../Withdraw.ral.json";
+import { getContractByCodeHash } from "./contracts";
 import { default as DeployNewTokenScriptJson } from "../DeployNewToken.ral.json";
+import { default as WithdrawScriptJson } from "../Withdraw.ral.json";
 
-export const Withdraw = new ExecutableScript<{
-  token: HexString;
-  amount: bigint;
-}>(Script.fromJson(WithdrawScriptJson));
 export const DeployNewToken = new ExecutableScript<{
   templateId: HexString;
   name: HexString;
   symbol: HexString;
   decimals: bigint;
   initialSupply: bigint;
-}>(Script.fromJson(DeployNewTokenScriptJson));
+}>(Script.fromJson(DeployNewTokenScriptJson, "", []), getContractByCodeHash);
+
+export const Withdraw = new ExecutableScript<{
+  token: HexString;
+  amount: bigint;
+}>(Script.fromJson(WithdrawScriptJson, "", []), getContractByCodeHash);

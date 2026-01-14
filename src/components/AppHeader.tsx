@@ -86,10 +86,20 @@ const useStyles = createStyles((theme) => ({
       display: 'none',
     },
   },
+
+  logo: {
+    [theme.fn.smallerThan('sm')]: {
+      display: 'none',
+    },
+  },
 }))
 
-export function AppHeader() {
-  const [drawerOpened, { toggle: toggleDrawer }] = useDisclosure(false)
+interface AppHeaderProps {
+  navbarOpened: boolean
+  setNavbarOpened: (opened: boolean) => void
+}
+
+export function AppHeader({ navbarOpened, setNavbarOpened }: AppHeaderProps) {
   const { classes } = useStyles()
 
   const theme = useMantineTheme()
@@ -97,7 +107,15 @@ export function AppHeader() {
 
   return (
     <Header height={60} px="md">
-      <Group position="apart" sx={{ height: '100%' }}>
+      <Group
+        position="apart"
+        sx={(theme) => ({
+          height: '100%',
+          [theme.fn.smallerThan('sm')]: {
+            justifyContent: 'flex-end',
+          },
+        })}
+      >
         {/* <Text
           component={Link}
           to="/"
@@ -113,6 +131,7 @@ export function AppHeader() {
           height={55}
           width={'auto'}
           ml={'sm'}
+          className={classes.logo}
         />
 
         <Group className={classes.hiddenMobile}>
@@ -144,11 +163,13 @@ export function AppHeader() {
           <AlephiumConnectButton />
         </Group>
 
-        <Burger
-          opened={drawerOpened}
-          onClick={toggleDrawer}
-          className={classes.hiddenDesktop}
-        />
+        <Group className={classes.hiddenDesktop} spacing="xs">
+          <AlephiumConnectButton />
+          <Burger
+            opened={navbarOpened}
+            onClick={() => setNavbarOpened(!navbarOpened)}
+          />
+        </Group>
       </Group>
     </Header>
   )

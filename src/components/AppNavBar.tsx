@@ -5,6 +5,7 @@ import {
   IconGauge,
   IconPresentationAnalytics,
   IconFileAnalytics,
+  IconSignature,
 } from '@tabler/icons-react'
 import { LinksGroup } from './AppNavBarLinkGroup'
 import { useEffect, useState } from 'react'
@@ -15,6 +16,11 @@ const mockdata = [
     label: 'Wallet Info',
     icon: IconGauge,
     groupLink: '/',
+  },
+  {
+    label: 'Sign Message',
+    icon: IconSignature,
+    groupLink: '/sign-message',
   },
   {
     label: 'Fungible Tokens',
@@ -109,7 +115,12 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-export function NavbarNested() {
+interface NavbarNestedProps {
+  hidden?: boolean
+  onLinkClick?: () => void
+}
+
+export function NavbarNested({ hidden, onLinkClick }: NavbarNestedProps) {
   const { classes } = useStyles()
   const location = useLocation()
   const [active, setActive] = useState<string>(location.pathname)
@@ -124,11 +135,12 @@ export function NavbarNested() {
       key={item.label}
       active={active}
       setActive={setActive}
+      onLinkClick={onLinkClick}
     />
   ))
 
   return (
-    <Navbar width={{ sm: 300 }} p="md" className={classes.navbar}>
+    <Navbar width={{ sm: 300 }} p="md" className={classes.navbar} hidden={hidden} hiddenBreakpoint="sm">
       {/* <Navbar.Section className={classes.header}>
         <Group position="apart">
           <Logo width={rem(120)} />
