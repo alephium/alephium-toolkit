@@ -13,6 +13,10 @@ import ShowMultiSig from './Multisig/ShowMultisig'
 import SignMultisigTx from './Multisig/SignMultisigTx'
 import BuildMultisigTx from './Multisig/BuildMultisigTx'
 import NewToken from './Token/NewToken'
+import AddressUtils from './Utils/AddressUtils'
+import EncodingUtils from './Utils/EncodingUtils'
+import AmountUtils from './Utils/AmountUtils'
+import BlockUtils from './Utils/BlockUtils'
 
 function AppShellExample() {
   const theme = useMantineTheme()
@@ -64,6 +68,10 @@ function AppShellExample() {
           <Route path="/multisig/show" element={<ShowMultiSig />} />
           <Route path="/multisig/build-tx" element={<BuildMultisigTx />} />
           <Route path="/multisig/sign-tx" element={<SignMultisigTx />} />
+          <Route path="/utils/address" element={<AddressUtils />} />
+          <Route path="/utils/encoding" element={<EncodingUtils />} />
+          <Route path="/utils/amounts" element={<AmountUtils />} />
+          <Route path="/utils/block" element={<BlockUtils />} />
         </Routes>
       </AppShell>
     </Router>
