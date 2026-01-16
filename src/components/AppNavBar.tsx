@@ -6,6 +6,7 @@ import {
   IconPresentationAnalytics,
   IconFileAnalytics,
   IconSignature,
+  IconTools,
 } from '@tabler/icons-react'
 import { LinksGroup } from './AppNavBarLinkGroup'
 import { useEffect, useState } from 'react'
@@ -21,6 +22,17 @@ const mockdata = [
     label: 'Sign Message',
     icon: IconSignature,
     groupLink: '/sign-message',
+  },
+  {
+    label: 'Utilities',
+    icon: IconTools,
+    initiallyOpened: false,
+    links: [
+      { label: 'Address', link: '/utils/address' },
+      { label: 'Encoding', link: '/utils/encoding' },
+      { label: 'Amounts', link: '/utils/amounts' },
+      { label: 'Block', link: '/utils/block' },
+    ],
   },
   {
     label: 'Fungible Tokens',

@@ -39,6 +39,7 @@ export const defaultNewMultisigTx = {
       symbol: '',
       tokenId: '',
       tokenAmount: undefined as number | undefined,
+      lockTime: undefined as number | undefined,
     },
   ],
   sweep: undefined as boolean | undefined,
@@ -230,13 +231,30 @@ export async function buildMultisigTx(
       if (alphBalance === undefined)
         tokenBalances.set(ALPH_TOKEN_ID, DUST_AMOUNT)
       else tokenBalances.set(ALPH_TOKEN_ID, alphBalance + DUST_AMOUNT)
-      return {
+      const destination: {
+        address: string
+        attoAlphAmount: string
+        tokens: { id: string; amount: string }[]
+        lockTime?: number
+      } = {
         address: d.address,
         attoAlphAmount: DUST_AMOUNT.toString(),
         tokens: [{ id: d.tokenId, amount: tokenAmount.toString() }],
       }
+      if (d.lockTime !== undefined) {
+        destination.lockTime = d.lockTime
+      }
+      return destination
     } else {
-      return { address: d.address, attoAlphAmount: tokenAmount.toString() }
+      const destination: {
+        address: string
+        attoAlphAmount: string
+        lockTime?: number
+      } = { address: d.address, attoAlphAmount: tokenAmount.toString() }
+      if (d.lockTime !== undefined) {
+        destination.lockTime = d.lockTime
+      }
+      return destination
     }
   })
   await checkBalances(nodeProvider, config.address, tokenBalances, tokenInfos)
