@@ -32,6 +32,7 @@ const mockdata = [
       { label: 'Encoding', link: '/utils/encoding' },
       { label: 'Amounts', link: '/utils/amounts' },
       { label: 'Block', link: '/utils/block' },
+      { label: 'Consolidate UTXOs', link: '/utils/consolidate-utxos' },
     ],
   },
   {
