@@ -17,6 +17,7 @@ import AddressUtils from './Utils/AddressUtils'
 import EncodingUtils from './Utils/EncodingUtils'
 import AmountUtils from './Utils/AmountUtils'
 import BlockUtils from './Utils/BlockUtils'
+import ConsolidateUTXOs from './Utils/ConsolidateUTXOs'
 
 function AppShellExample() {
   const theme = useMantineTheme()
@@ -72,6 +73,7 @@ function AppShellExample() {
           <Route path="/utils/encoding" element={<EncodingUtils />} />
           <Route path="/utils/amounts" element={<AmountUtils />} />
           <Route path="/utils/block" element={<BlockUtils />} />
+          <Route path="/utils/consolidate-utxos" element={<ConsolidateUTXOs />} />
         </Routes>
       </AppShell>
     </Router>
